@@ -1,0 +1,9 @@
+{
+  "presets": ["react", "es2015", "stage-0"],
+  "plugins": ["transform-class-properties", "transform-es2015-destructuring", "transform-object-rest-spread", "add-module-exports"],
+  "env" : {
+    "test": {
+      "plugins": [ [ "__coverage__", { "only": "src/!(lolex-src.js)" } ] ]
+    }
+  }
+}

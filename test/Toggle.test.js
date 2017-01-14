@@ -1,0 +1,44 @@
+import React from 'react'
+import Toggle from '../src/Toggle'
+import { renderComponent } from './test_helper'
+
+describe('Toggle', () => {
+  const Component = (props) => <div>hi {Object.keys(props).map(prop => <div key={prop} className={prop}>{props[prop]}</div>)}</div>
+  let Route, state
+  beforeEach(() => {
+    Route = Toggle((s, p) => s.week || p.week)
+  })
+  it('renders the component if the state tester returns true', () => {
+    const container = renderComponent(Route, { component: Component, foo: 'bar' }, { week: 1})
+    expect(container.find(Component)).has.length(1)
+    expect(container.find('.foo')).has.length(1)
+    expect(container.find('.foo').text()).eqls('bar')
+  })
+  it('renders the component if the state tester returns true from props', () => {
+    const container = renderComponent(Route, { component: Component, foo: 'bar', week: 1 }, { week: 0})
+    expect(container.find(Component)).has.length(1)
+    expect(container.find('.foo')).has.length(1)
+    expect(container.find('.foo').text()).eqls('bar')
+  })
+  it('renders null if the state tester returns false', () => {
+    const container = renderComponent(Route, { component: Component, foo: 'bar' }, { week: 0 })
+    expect(container.find(Component)).has.length(0)
+    expect(container.text()).eqls('')
+  })
+  it('does not call state if loaded returns false', () => {
+    const spy = sinon.spy(() => true)
+    const loaded = sinon.spy(() => false)
+    const R = Toggle(spy, loaded)
+    const container = renderComponent(R, { component: Component, foo: 'bar', week: 1 }, { week: 0})
+
+    expect(spy.called).is.false
+    expect(loaded.called).is.true
+    expect(container.find(Component)).has.length(0)
+  })
+  it('renders loading element if state is still loading', () => {
+    const R = Toggle(() => true, () => false)
+    const container = renderComponent(R, { component: Component, loading: () => <div>Loading...</div> })
+    expect(container.find(Component)).has.length(0)
+    expect(container.text()).eqls('Loading...')
+  })
+})
