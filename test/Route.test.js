@@ -1,5 +1,5 @@
 import React from 'react'
-import Route from '../src/Route'
+import Route, { fake } from '../src/Route'
 import Routes from '../src/Routes'
 import * as actions from '../src'
 import { renderComponent } from './test_helper'
@@ -83,11 +83,17 @@ describe('react-redux-saga-router Route', () => {
       }),
       actions.createRoute({
         name: 'test',
-        path: '/ensembles/:id/hi/'
+        path: '/ensembles/:id/hi/',
+        paramsFromState: fake,
+        stateFromParams: fake,
+        updateState: {}
       }),
       actions.createRoute({
         name: 'gronk',
-        path: '/ensembles/:id/hi/fi'
+        path: '/ensembles/:id/hi/fi',
+        paramsFromState: fake,
+        stateFromParams: fake,
+        updateState: {}
       })
     ])
   })

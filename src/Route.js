@@ -1,6 +1,10 @@
 import React, { Component, PropTypes } from 'react'
 import * as actions from './actions'
 
+export function fake() {
+  return {}
+}
+
 class Route extends Component {
   static propTypes = {
     name: PropTypes.string.isRequired,
@@ -8,6 +12,11 @@ class Route extends Component {
     paramsFromState: PropTypes.function,
     stateFromParams: PropTypes.function,
     updateState: PropTypes.object
+  }
+  static defaultProps = {
+    paramsFromState: fake,
+    stateFromParams: fake,
+    updateState: {}
   }
   constructor(props) {
     super(props)
