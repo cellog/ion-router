@@ -16,7 +16,7 @@ describe('Route', () => {
         path: '/test/:test(/:thing)',
       })
     })
-    it('constructor', () => {
+    it('RouteManager constructor', () => {
       expect(route.name).eqls('test')
       expect(route.route).eqls(new RouteParser('/test/:test(/:thing)'))
     })
