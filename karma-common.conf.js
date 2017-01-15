@@ -1,5 +1,5 @@
 /* eslint no-var: 0, babel/object-shorthand: 0, vars-on-top: 0 */
-require('babel-register')
+require('babel-register') // eslint-disable-line
 
 var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
 var reporters = ['mocha', 'BrowserStack', 'coverage']
@@ -16,29 +16,29 @@ var sauceParams = {
 }
 
 var coverageReporter = isCI ? {
-    reporters: [
-      {
-        type: 'lcov',
-        dir: 'coverage'
-      },
-      {
-        type: 'text'
-      }
-    ]
-  } : {
-    reporters: [
-      {
-        type: 'lcov',
-        dir: 'coverage'
-      },
-      {
-        type: 'text'
-      },
-      {
-        type: 'html'
-      }
-    ]
-  }
+  reporters: [
+    {
+      type: 'lcov',
+      dir: 'coverage'
+    },
+    {
+      type: 'text'
+    }
+  ]
+} : {
+  reporters: [
+    {
+      type: 'lcov',
+      dir: 'coverage'
+    },
+    {
+      type: 'text'
+    },
+    {
+      type: 'html'
+    }
+  ]
+}
 const frameworks = ['mocha', 'sinon-chai']
 if (isCI) {
   sauceParams.build = process.env.TRAVIS_BUILD_NUMBER
