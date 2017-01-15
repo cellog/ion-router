@@ -13,7 +13,7 @@ describe('Route', () => {
       })
       route = new RouteManager(history, {
         name: 'test',
-        url: '/test/:test(/:thing)',
+        path: '/test/:test(/:thing)',
       })
     })
     it('constructor', () => {
@@ -76,7 +76,7 @@ describe('Route', () => {
       })
       route = new RouteManager(history, {
         name: 'foo',
-        url: '/test/:test(/:thing1)',
+        path: '/test/:test(/:thing1)',
         paramsFromState: state => ({
           test: state.testing,
           thing1: state.thing

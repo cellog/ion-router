@@ -35,7 +35,7 @@ describe('react-redux-saga-router Route', () => {
     const R = () => <Routes>
       <Route
         name="ensembles"
-        url="/ensembles/:id"
+        path="/ensembles/:id"
         paramsFromState={paramsFromState}
         stateFromParams={stateFromParams}
         updateState={updateState}
@@ -45,7 +45,7 @@ describe('react-redux-saga-router Route', () => {
     expect(log).eqls([
       actions.createRoute({
         name: 'ensembles',
-        url: '/ensembles/:id',
+        path: '/ensembles/:id',
         paramsFromState,
         stateFromParams,
         updateState

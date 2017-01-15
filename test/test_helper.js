@@ -4,6 +4,10 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import reducer from '../src/reducer';
 import teaspoon from 'teaspoon'
 
+const fakeWeekReducer = (state = 1, action) => {
+  return state
+}
+
 function renderComponent(ComponentClass, props = {}, state = {}, returnStore = false) {
   const log = []
   const logger = store => next => action => {
@@ -29,7 +33,7 @@ function renderComponent(ComponentClass, props = {}, state = {}, returnStore = f
     }
   }
 
-  const store = createStore(combineReducers({routing: reducer}), state, applyMiddleware(logger));
+  const store = createStore(combineReducers({routing: reducer, week: fakeWeekReducer }), state, applyMiddleware(logger));
   const componentInstance = teaspoon(
     <Tester {...props} />
   ).render()
