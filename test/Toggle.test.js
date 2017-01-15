@@ -1,5 +1,5 @@
 import React from 'react'
-import Toggle from '../src/Toggle'
+import Toggle, { DisplaysChildren } from '../src/Toggle'
 import { renderComponent } from './test_helper'
 
 describe('Toggle', () => {
@@ -52,5 +52,14 @@ describe('Toggle', () => {
     expect(container.find(Component).props('bobby')).eqls(undefined)
     expect(container.find(Component).props('loading')).eqls('there')
     expect(container.find(Component).props('frenzel')).eqls(undefined)
+  })
+  it('no specified component', () => {
+    const R = Toggle(() => true, () => true)
+    const J = () => <R>
+      testing
+    </R>
+    const container = renderComponent(J)
+    expect(container.find(DisplaysChildren)).has.length(1)
+    expect(container.text()).eqls('testing')
   })
 })

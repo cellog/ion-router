@@ -1,8 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
+export const DisplaysChildren = ({ children, dispatch, ...props }) => (<div>
+  {children}
+</div>)
+
 export default (isActive, loaded = () => true, componentLoadingMap = {}) =>
-    ({ component = (props) => <div {...props} />, loading = () => null, ...props }) => {
+    ({ component = DisplaysChildren, loading = () => null, children, ...props }) => {
   const Component = component
   const Loading = loading
   if (componentLoadingMap.component) {
@@ -26,5 +30,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) =>
     }
   })(NullComponent)
   R.displayName = `Toggle(${Component.displayName || Component.name || 'Component'})`
-  return <R {...props} />
+  return <R {...props}>
+    {children}
+  </R>
 }
