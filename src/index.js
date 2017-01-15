@@ -35,7 +35,7 @@ export function makeRoute(history, route) {
 export function *listenForRoutes(history) {
   while (true) {
     const params = yield take(types.CREATE_ROUTE)
-    yield call(initRoute, history, params)
+    yield call(initRoute, history, params.payload)
   }
 }
 

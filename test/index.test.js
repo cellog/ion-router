@@ -9,7 +9,9 @@ import doRoutes, {
   makeRoute,
 
   browserActions,
+  listenForRoutes,
   router,
+  initRoute,
   RouteManager
 } from '../src'
 import * as types from '../src/types'
@@ -160,6 +162,15 @@ describe('react-redux-saga-router', () => {
     expect(next.value).eqls(take(channel))
     next = saga.next({
       location: {
+        pathname: '/campers/2017',
+        search: '',
+        hash: ''
+      }
+    })
+
+    expect(next.value).eqls(take(channel))
+    next = saga.next({
+      location: {
         pathname: '/campers/2016',
         search: '',
         hash: ''
@@ -213,7 +224,7 @@ describe('react-redux-saga-router', () => {
     const b = historyChannel(a)
     const routes = [{
       name: 'campers',
-      url: '/campers/:year(/:id)',
+      path: '/campers/:year(/:id)',
       paramsFromState: state => ({
         id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
         year: state.currentYear + ''
@@ -231,5 +242,30 @@ describe('react-redux-saga-router', () => {
     expect(middleware.run.called).is.true
     expect(middleware.run.args[0]).eqls([router, routes, a, b])
     doRoutes(middleware, routes) // for coverage
+  })
+  it('listenForRoutes', () => {
+    const params = {
+      name: 'campers',
+      path: '/campers/:year(/:id)',
+      paramsFromState: state => ({
+        id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
+        year: state.currentYear + ''
+      }),
+      stateFromParams: params => ({
+        id: params.id ? params.id : false,
+        year: +params.year
+      }),
+      updateState: {
+        id: id => ({ type: 'select', payload: id }),
+        year: year => ({ type: 'year', payload: year })
+      }
+    }
+    const saga = listenForRoutes('hi')
+    let next = saga.next()
+
+    expect(next.value).eqls(take(types.CREATE_ROUTE))
+    next = saga.next(actions.createRoute(params))
+
+    expect(next.value).eqls(call(initRoute, 'hi', params))
   })
 })
