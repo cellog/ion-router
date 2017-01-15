@@ -9,8 +9,8 @@ class Route extends Component {
   static propTypes = {
     name: PropTypes.string.isRequired,
     path: PropTypes.string.isRequired,
-    paramsFromState: PropTypes.function,
-    stateFromParams: PropTypes.function,
+    paramsFromState: PropTypes.func,
+    stateFromParams: PropTypes.func,
     updateState: PropTypes.object
   }
   static defaultProps = {
