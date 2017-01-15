@@ -4,6 +4,9 @@ node_js:
 script:
 - npm run lint
 - npm test
+addons:
+    code_climate:
+        repo_token: b6f2693e7cfd15d420d635a9cdee642df1829ccf66fc6a66a30d6e8f2a0b9003
 env:
   global:
   - secure: vRElUpOMtimrVqIJ8srURARVafQo+CRepzs2f2ZBzbzQtUrw0aZZcM820AyhvubHUUWkBVaY4NqE0JlQ1+G81Gd+argk24GJHdzLGE/WGTwJy94cAQrnIn3WPv+P5TVZo6yf9+vW0BlC2adJ3NaYmgr89C/THURu3p9kJuQKDfYwhVOxgWAfodwFmUuymQI/vrPtGEuQcdG+rQv35WC/V/5DusCadn2Vml05IdmFcgAXcm9eYM+BRv7rVOEDwas5QbTbADyL6srfLJYjhEE1Ti2j21xmtwB69WT0SIyEQtXruEI7JLKkh5+Z0/e+2/E/izHGhGCLhWu5KFcBEGkkzzPZWJKrqDNr8PkJkuljRQDiCgulBL9lkOaWqtvRG/hGIUNr816cpDh73VUcbVvwLTOrxklEbVupW2NivalDnuW/ao4e6d+IqqCIyH6p7m0ytcBT+crZCj1sq/b0z5gHxoIRywOIrUy5O+kvKAW9ZCJHIhlOlAabnzuauJUK8d2eHW7uoQ9mpSBW6dtdsW/V17c+B+V1w1y7Xlm/n4UXB9ZQbxm3E0baKvhZDf9CFxa0NapLV4ZHXsmOZsGoTmo3Nwk4sUw5jmEadeDsJZvRLRhs4Z8zXIAVH0rc+8zjzPeof5CCTbla3yFUOQHDVrd/Bsf4hCeEapgvbentcxSPN8s=
