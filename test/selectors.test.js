@@ -119,5 +119,23 @@ describe('react-redux-saga-router selectors', () => {
         selectedThing: (thing, state) => state.hi.ids.indexOf(thing) !== -1 && !!state.hi.things[thing]
       }
     })).eqls(true)
+    expect(selectors.stateExists({
+      hi: {
+        ids: false,
+        sin: null
+      }
+    }, {
+      hi: {
+        ids: [],
+        sin: null
+      }
+    })).eqls(false)
+  })
+  it('matchedRoutes', () => {
+    expect(selectors.matchedRoutes({
+      routing: {
+        matchedRoutes: ['hi']
+      }
+    })).eqls(['hi'])
   })
 })
