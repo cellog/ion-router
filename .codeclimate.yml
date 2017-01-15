@@ -1,0 +1,30 @@
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+  eslint:
+    enabled: true
+    channel: "eslint-2"
+    config:
+      config: ".eslintrc"
+      extensions:
+      - ".js"
+      - ".jsx"
+    checks:
+      complexity:
+        enabled: true
+  fixme:
+    enabled: true
+ratings:
+  paths:
+  - "**.js"
+  - "**.jsx"
+exclude_paths:
+- "build/"
+- "node_modules/"
+- ".storybook/"
+- "test/"
+- "examples/"
+- "wallaby.js"

@@ -1,0 +1,24 @@
+parser: "babel-eslint"
+
+env:
+  es6: true
+  node: true
+  browser: true
+  mocha: true
+
+globals:
+  expect: true
+  sinon: true
+
+ecmaVersion: 7
+
+ecmaFeatures:
+  modules: true
+  jsx: true
+  classes: true
+
+rules:
+  no-shadow: 0
+  no-unused-expressions: 0
+  react/no-multi-comp: 0
+  no-nested-ternary: 0

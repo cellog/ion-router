@@ -1,0 +1,26 @@
+root: true
+
+parser: "babel-eslint"
+
+env:
+  es6: true
+  node: true
+  browser: true
+  mocha: true
+
+ecmaVersion: 7
+
+ecmaFeatures:
+  modules: true
+  jsx: true
+  classes: true
+
+extends:
+  "airbnb"
+
+rules:
+  quotes: 0
+  func-names: 0
+  comma-dangle: 0
+  semi: [2, "never"]
+  new-cap: 0
