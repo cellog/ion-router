@@ -1,5 +1,6 @@
 import React from 'react'
-import Toggle, { DisplaysChildren } from '../src/Toggle'
+import Toggle from '../src/Toggle'
+import DisplaysChildren from '../src/DisplaysChildren'
 import { renderComponent } from './test_helper'
 
 describe('Toggle', () => {
@@ -61,5 +62,13 @@ describe('Toggle', () => {
     const container = renderComponent(J)
     expect(container.find(DisplaysChildren)).has.length(1)
     expect(container.text()).eqls('testing')
+  })
+  it('renders children', () => {
+    const R = Toggle(() => true, () => true)
+    const J = props => <R>
+      {props.children}
+    </R>
+    const container = renderComponent(J, { children: <ul><li>hi</li><li>there</li></ul> })
+    expect(container.text()).eqls('hithere')
   })
 })

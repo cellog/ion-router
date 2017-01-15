@@ -1,9 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-export const DisplaysChildren = ({ children, dispatch, ...props }) => (<div>
-  {children}
-</div>)
+import DisplaysChildren from './DisplaysChildren'
 
 export default (isActive, loaded = () => true, componentLoadingMap = {}) =>
     ({ component = DisplaysChildren, loading = () => null, children, ...props }) => {
@@ -17,10 +15,12 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) =>
     props.loading = props[componentLoadingMap.loading]
     props[componentLoadingMap.loading] = undefined
   }
-  const NullComponent = ({ '@@__isActive': active, '@@__loaded': loaded, ...props }) => (
+
+  const NullComponent = ({ '@@__loaded': loaded, ...props }) => (
     !loaded ? <Loading {...props} />
-      : ( active ? <Component {...props} /> : null )
+      : ( props['@@__isActive'] ? <Component {...props} /> : null )
   )
+
   const R = connect((state, props) => {
     const __loaded = loaded(state, props)
     return {
