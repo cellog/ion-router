@@ -6,11 +6,11 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) =>
   const Component = component
   const Loading = loading
   if (componentLoadingMap.component) {
-    props.component = componentLoadingMap.component
+    props.component = props[componentLoadingMap.component]
     props[componentLoadingMap.component] = undefined
   }
   if (componentLoadingMap.loading) {
-    props.loading = componentLoadingMap.loading
+    props.loading = props[componentLoadingMap.loading]
     props[componentLoadingMap.loading] = undefined
   }
   const NullComponent = ({ '@@__isActive': active, '@@__loaded': loaded, ...props }) => (

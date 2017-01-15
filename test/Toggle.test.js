@@ -41,4 +41,16 @@ describe('Toggle', () => {
     expect(container.find(Component)).has.length(0)
     expect(container.text()).eqls('Loading...')
   })
+  it('componentLoadingMap', () => {
+    const R = Toggle(() => true, () => true, {
+      component: 'bobby',
+      loading: 'frenzel'
+    })
+    const container = renderComponent(R, { component: Component, bobby: 'hi', frenzel: 'there' })
+    expect(container.find(Component)).has.length(1)
+    expect(container.find(Component).props('component')).eqls('hi')
+    expect(container.find(Component).props('bobby')).eqls(undefined)
+    expect(container.find(Component).props('loading')).eqls('there')
+    expect(container.find(Component).props('frenzel')).eqls(undefined)
+  })
 })
