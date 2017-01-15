@@ -172,10 +172,64 @@ describe('Route', () => {
           done: true
         })
       })
+      it('stateFromLocation, updateState returns an array', () => {
+        route = new RouteManager(history, {
+          name: 'foo',
+          path: '/test/:test(/:thing1)',
+          paramsFromState: state => ({
+            test: state.testing,
+            thing1: state.thing
+          }),
+          stateFromParams: params => ({
+            testing: params.test,
+            thing: params.thing1
+          }),
+          updateState: {
+            testing: test => [{ type: 'testing', payload: test }],
+            thing: thing => ({ type: 'thing', payload: thing })
+          }
+        })
+        const saga = route.stateFromLocation({
+          pathname: '/test/hooya/burble',
+          search: '',
+          hash: ''
+        })
+        let next = saga.next()
+
+        expect(next.value).eqls(select())
+        next = saga.next(mystate)
+
+        expect(next.value).eqls(put(actions.setParamsAndState('foo', {
+          test: 'hooya',
+          thing1: 'burble'
+        }, {
+          testing: 'hooya',
+          thing: 'burble'
+        })))
+        next = saga.next()
+
+        expect(next.value).eqls([put({ type: 'testing', payload: 'hooya' })])
+        next = saga.next()
+
+        expect(next.value).eqls([put({ type: 'thing', payload: 'burble' })])
+        next = saga.next()
+
+        expect(next).eqls({
+          value: undefined,
+          done: true
+        })
+      })
       it('stateFromLocation, no change, string url', () => {
         mystate.testing = 'hi'
         mystate.thing = undefined
         const saga = route.stateFromLocation('/test/hi')
+        let next = saga.next()
+
+        expect(next.value).eqls(select())
+        next = saga.next(mystate)
+      })
+      it('stateFromLocation, route does not match', () => {
+        const saga = route.stateFromLocation('/oops')
         let next = saga.next()
 
         expect(next.value).eqls(select())
@@ -213,6 +267,21 @@ describe('Route', () => {
       it('locationFromState, no change', () => {
         mystate.testing = 'hi'
         mystate.thing = undefined
+        const saga = route.locationFromState()
+        let next = saga.next()
+
+        expect(next.value).eqls(select())
+        next = saga.next(mystate)
+
+        expect(next).eqls({
+          value: undefined,
+          done: true
+        })
+      })
+      it('locationFromState, no match of this route', () => {
+        mystate.testing = 'hi'
+        mystate.thing = undefined
+        mystate.routing.matchedRoutes = []
         const saga = route.locationFromState()
         let next = saga.next()
 
