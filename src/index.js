@@ -7,6 +7,7 @@ import routerReducer from './reducer'
 import RouteManager from './RouteManager'
 import * as actions from './actions'
 import * as selectors from './selectors'
+
 export * from './actions'
 
 const routes = {}
@@ -22,7 +23,7 @@ export function makePath(name, params) {
 export { routerReducer, RouteManager }
 
 export function *browserActions(history) {
-  while (true) {
+  while (true) { // eslint-disable-line
     const action = yield take(types.ACTION)
     yield call([history, history[action.payload.verb]], action.payload.route)
   }
@@ -32,15 +33,8 @@ export function makeRoute(history, route) {
   routes[route.name] = new RouteManager(history, route)
 }
 
-export function *listenForRoutes(history) {
-  while (true) {
-    const params = yield take(types.CREATE_ROUTE)
-    yield call(initRoute, history, params.payload)
-  }
-}
-
 export function *initRoute(history, params) {
-  const route = makeRoute(history, params)
+  makeRoute(history, params)
   yield put(actions.addRoute(params.name, params.path))
   yield call([routes[params.name], routes[params.name].initState])
   yield fork([routes[params.name], routes[params.name].monitorState])
@@ -49,6 +43,13 @@ export function *initRoute(history, params) {
   if (matched) {
     const matchedRoutes = yield select(selectors.matchedRoutes)
     yield put(actions.matchRoutes([...matchedRoutes, params.name]))
+  }
+}
+
+export function *listenForRoutes(history) {
+  while (true) { // eslint-disable-line
+    const params = yield take(types.CREATE_ROUTE)
+    yield call(initRoute, history, params.payload)
   }
 }
 
@@ -61,17 +62,20 @@ export function *router(routeDefinitions, history, channel) {
   }
 
   try {
-    while (true) {
+    while (true) { // eslint-disable-line
       const locationChange = yield take(channel)
       const path = createPath(locationChange.location)
-      if (location == path) continue
-      const keys = Object.keys(routes)
-      location = path
-      const matchedRoutes = keys
-        .filter(name => routes[name].match(path))
-      yield put(actions.matchRoutes(matchedRoutes))
-      yield put(actions.route(locationChange.location))
-      yield keys.map(name => call([routes[name], routes[name].monitorUrl], locationChange.location))
+      if (location !== path) {
+        const keys = Object.keys(routes)
+        location = path
+        const matchedRoutes = keys
+          .filter(name => routes[name].match(path))
+        yield put(actions.matchRoutes(matchedRoutes))
+        yield put(actions.route(locationChange.location))
+        yield keys.map(name => call([routes[name],
+          routes[name].monitorUrl],
+          locationChange.location))
+      }
     }
   } finally {
     yield cancel(browserTask)
@@ -79,6 +83,9 @@ export function *router(routeDefinitions, history, channel) {
   }
 }
 
-export default (sagaMiddleware, routes, history = createBrowserHistory(), channel = historyChannel(history)) => {
-  sagaMiddleware.run(router, routes, history, channel)
+export default (sagaMiddleware,
+                routeDefinitions,
+                history = createBrowserHistory(),
+                channel = historyChannel(history)) => {
+  sagaMiddleware.run(router, routeDefinitions, history, channel)
 }

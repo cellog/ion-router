@@ -15,6 +15,10 @@ const defaultState = {
 
 export default (state = defaultState, action) => {
   if (!action || !action.type) return state
+  let route
+  let name
+  let ids
+  let routes
   switch (action.type) {
     case types.ROUTE:
       if (action.payload.pathname === state.location.pathname
@@ -22,7 +26,7 @@ export default (state = defaultState, action) => {
         && action.payload.hash === state.location.hash) return state
       return {
         ...state,
-        location: {...action.payload},
+        location: { ...action.payload },
       }
     case types.SET_PARAMS:
       return {
@@ -45,7 +49,7 @@ export default (state = defaultState, action) => {
         matchedRoutes: action.payload
       }
     case types.EDIT_ROUTE:
-      const route = action.payload
+      route = action.payload
       return {
         ...state,
         routes: {
@@ -57,9 +61,9 @@ export default (state = defaultState, action) => {
         }
       }
     case types.REMOVE_ROUTE:
-      const name = action.payload
-      const ids = [...state.routes.ids]
-      const routes = {...state.routes.routes}
+      name = action.payload
+      ids = [...state.routes.ids]
+      routes = { ...state.routes.routes }
       ids.splice(ids.indexOf(name), 1)
       delete routes[name]
       return {

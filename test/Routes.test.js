@@ -3,7 +3,7 @@ import Routes from '../src/Routes'
 import { renderComponent } from './test_helper'
 
 describe('react-redux-saga-router Routes', () => {
-  let component, store, log
+  let component, store, log // eslint-disable-line
   function make(props = {}, Comp = Routes) {
     const info = renderComponent(Comp, props, {}, true)
     component = info[0]
@@ -12,9 +12,9 @@ describe('react-redux-saga-router Routes', () => {
   }
 
   it('passes in dispatch prop', () => {
-    const Thing = ({ dispatch }) => {
+    const Thing = ({ dispatch }) => { // eslint-disable-line
       expect(dispatch).is.instanceof(Function)
-      return <div onClick={() => dispatch({ type: 'foo', payload: 'bar' })}>hi</div>
+      return <div onClick={() => dispatch({ type: 'foo', payload: 'bar' })}>hi</div> // eslint-disable-line
     }
     const R = () => <Routes>
       <Thing />

@@ -1,6 +1,5 @@
 import reducer from '../src/reducer'
 import * as actions from '../src/actions'
-import * as types from '../src/types'
 
 describe('react-redux-saga-router reducer', () => {
   it('ROUTE', () => {

@@ -1,14 +1,15 @@
-import { eventChannel, END } from 'redux-saga'
-import historyChannel from '../src/historyChannel'
+import { END } from 'redux-saga'
 import createMemoryHistory from 'history/createMemoryHistory'
 
+import historyChannel from '../src/historyChannel'
+
 describe('react-redux-saga-router historyChannel', () => {
-  let history, fakeHistory, unlisten, called
+  let history, fakeHistory, unlisten, called // eslint-disable-line
   beforeEach(() => {
     history = createMemoryHistory()
     called = sinon.spy()
     fakeHistory = {
-      listen: emit => {
+      listen: () => {
         called()
         unlisten = sinon.spy()
         return unlisten
@@ -27,7 +28,7 @@ describe('react-redux-saga-router historyChannel', () => {
   })
   it('returns history item', (done) => {
     const channel = historyChannel(history)
-    channel.take(emitted => {
+    channel.take((emitted) => {
       expect(emitted).eqls({
         location: {
           pathname: '/hi',
@@ -44,7 +45,7 @@ describe('react-redux-saga-router historyChannel', () => {
   })
   it("emits END if cancelled", (done) => {
     const channel = historyChannel(fakeHistory)
-    channel.take(doc => {
+    channel.take((doc) => {
       expect(doc).eqls(END)
       done()
     })

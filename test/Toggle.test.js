@@ -4,19 +4,23 @@ import DisplaysChildren from '../src/DisplaysChildren'
 import { renderComponent } from './test_helper'
 
 describe('Toggle', () => {
-  const Component = (props) => <div>hi {Object.keys(props).map(prop => <div key={prop} className={prop}>{props[prop]}</div>)}</div>
-  let Route, state
+  const Component = props => ( // eslint-disable-next-line
+    <div>
+      hi {Object.keys(props).map(prop => <div key={prop} className={prop}>{props[prop]}</div>)}
+    </div>
+  )
+  let Route, state // eslint-disable-line
   beforeEach(() => {
     Route = Toggle((s, p) => s.week || p.week)
   })
   it('renders the component if the state tester returns true', () => {
-    const container = renderComponent(Route, { component: Component, foo: 'bar' }, { week: 1})
+    const container = renderComponent(Route, { component: Component, foo: 'bar' }, { week: 1 })
     expect(container.find(Component)).has.length(1)
     expect(container.find('.foo')).has.length(1)
     expect(container.find('.foo').text()).eqls('bar')
   })
   it('renders the component if the state tester returns true from props', () => {
-    const container = renderComponent(Route, { component: Component, foo: 'bar', week: 1 }, { week: 0})
+    const container = renderComponent(Route, { component: Component, foo: 'bar', week: 1 }, { week: 0 })
     expect(container.find(Component)).has.length(1)
     expect(container.find('.foo')).has.length(1)
     expect(container.find('.foo').text()).eqls('bar')
@@ -30,7 +34,7 @@ describe('Toggle', () => {
     const spy = sinon.spy(() => true)
     const loaded = sinon.spy(() => false)
     const R = Toggle(spy, loaded)
-    const container = renderComponent(R, { component: Component, foo: 'bar', week: 1 }, { week: 0})
+    const container = renderComponent(R, { component: Component, foo: 'bar', week: 1 }, { week: 0 })
 
     expect(spy.called).is.false
     expect(loaded.called).is.true
@@ -38,7 +42,8 @@ describe('Toggle', () => {
   })
   it('renders loading element if state is still loading', () => {
     const R = Toggle(() => true, () => false)
-    const container = renderComponent(R, { component: Component, loading: () => <div>Loading...</div> })
+    const container = renderComponent(R,
+      { component: Component, loading: () => <div>Loading...</div> })
     expect(container.find(Component)).has.length(0)
     expect(container.text()).eqls('Loading...')
   })
@@ -65,10 +70,8 @@ describe('Toggle', () => {
   })
   it('renders children', () => {
     const R = Toggle(() => true, () => true)
-    const J = props => <R>
-      {props.children}
-    </R>
+    const J = props => <R> {props.children}</R> // eslint-disable-line
     const container = renderComponent(J, { children: <ul><li>hi</li><li>there</li></ul> })
-    expect(container.text()).eqls('hithere')
+    expect(container.text()).eqls(' hithere')
   })
 })

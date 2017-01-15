@@ -42,7 +42,7 @@ describe('react-redux-saga-router selectors', () => {
   })
   it('stateExists', () => {
     expect(selectors.stateExists({}, { hi: false })).eqls(false)
-    expect(selectors.stateExists({ hi : 'there' }, { hi: '' })).eqls(true)
+    expect(selectors.stateExists({ hi: 'there' }, { hi: '' })).eqls(true)
     expect(selectors.stateExists({
       hi: {
         subthing: 'there'
@@ -99,7 +99,8 @@ describe('react-redux-saga-router selectors', () => {
       hi: {
         ids: [],
         things: {},
-        selectedThing: (thing, state) => state.hi.ids.indexOf(thing) !== -1 && state.hi.things[thing]
+        selectedThing: (thing, state) =>
+          state.hi.ids.indexOf(thing) !== -1 && state.hi.things[thing]
       }
     })).eqls(false)
     expect(selectors.stateExists({
@@ -116,7 +117,8 @@ describe('react-redux-saga-router selectors', () => {
         ids: [],
         sin: null,
         things: {},
-        selectedThing: (thing, state) => state.hi.ids.indexOf(thing) !== -1 && !!state.hi.things[thing]
+        selectedThing: (thing, state) =>
+          state.hi.ids.indexOf(thing) !== -1 && !!state.hi.things[thing]
       }
     })).eqls(true)
     expect(selectors.stateExists({

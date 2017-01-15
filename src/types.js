@@ -5,4 +5,3 @@ export const ACTION = '@@react-redux-saga-router/ACTION'
 export const ROUTE = '@@react-redux-saga-router/ROUTE'
 export const MATCH_ROUTES = '@@react-redux-saga-router/MATCH_ROUTES'
 export const SET_PARAMS = '@@react-redux-saga-router/SET_PARAMS'
-

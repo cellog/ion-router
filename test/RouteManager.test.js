@@ -1,12 +1,13 @@
-import RouteManager, { fake } from '../src/RouteManager'
 import RouteParser from 'route-parser'
 import createHistory from 'history/createMemoryHistory'
-import * as actions from '../src/actions'
 import { put, take, select, call } from 'redux-saga/effects'
+
+import RouteManager, { fake } from '../src/RouteManager'
+import * as actions from '../src/actions'
 
 describe('Route', () => {
   describe('basics', () => {
-    let route, history
+    let route, history // eslint-disable-line
     beforeEach(() => {
       history = createHistory({
         initialEntries: ['/test/hi/there']
@@ -41,7 +42,7 @@ describe('Route', () => {
     })
   })
   describe('advanced', () => {
-    let route, history, mystate
+    let route, history, mystate // eslint-disable-line
     beforeEach(() => {
       mystate = {
         testing: 'be',
@@ -111,11 +112,11 @@ describe('Route', () => {
       })
     })
     it('changed', () => {
-      expect(route.changed({}, {
+      expect(RouteManager.changed({}, {
         test: 'hi',
         thing: 'there'
       })).eqls(['test', 'thing'])
-      expect(route.changed({
+      expect(RouteManager.changed({
         test: 'hi',
         thing: '2017'
       }, {

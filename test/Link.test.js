@@ -22,12 +22,12 @@ describe('react-redux-saga-router Link', () => {
   })
   it('renders children', () => {
     const dispatch = sinon.spy()
-    const Far = () => <Link to="/hi" dispatch={() => null}><div>foo</div></Link>
+    const Far = () => <Link to="/hi" dispatch={() => null}><div>foo</div></Link> // eslint-disable-line
     const component = renderComponent(Far, { dispatch, replace: '/hi' })
     expect(component.text()).eqls('foo')
   })
   it('dispatches actions', () => {
-    const [ component, store, log ] = renderComponent(ConnectLink, { to: '/hi' }, {}, true)
+    const [component, , log] = renderComponent(ConnectLink, { to: '/hi' }, {}, true)
     component.find('a').trigger('click')
     expect(log).eqls([push('/hi')])
   })

@@ -16,7 +16,7 @@ describe('react-redux-saga-router Route', () => {
       false,
   })
   const updateState = {
-    id: id => {
+    id: (id) => {
       const ret = [actions.selectEnsembleType(id)]
       if (id === true) {
         ret.unshift(actions.newTempEnsembleType())
@@ -24,7 +24,7 @@ describe('react-redux-saga-router Route', () => {
       return ret
     }
   }
-  let component, store, log
+  let component, store, log // eslint-disable-line
   function make(props = {}, Comp = Routes) {
     const info = renderComponent(Comp, props, {}, true)
     component = info[0]
@@ -32,7 +32,8 @@ describe('react-redux-saga-router Route', () => {
     log = info[2]
   }
   it('immediately dispatches a route creation action', () => {
-    const R = () => <Routes>
+    // eslint-disable-next-line
+    const R = () => (<Routes>
       <Route
         name="ensembles"
         path="/ensembles/:id"
@@ -40,7 +41,7 @@ describe('react-redux-saga-router Route', () => {
         stateFromParams={stateFromParams}
         updateState={updateState}
       />
-    </Routes>
+    </Routes>)
     make({}, R)
     expect(log).eqls([
       actions.createRoute({

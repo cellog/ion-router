@@ -1,6 +1,7 @@
 import { connect } from 'react-redux'
-import { push, replace } from './index'
 import React, { PropTypes, Component } from 'react'
+
+import { push, replace } from './index'
 
 class Link extends Component {
   static propTypes = {
@@ -14,7 +15,8 @@ class Link extends Component {
       })
     ]),
     replace: PropTypes.string,
-    dispatch: PropTypes.func.isRequired
+    dispatch: PropTypes.func.isRequired,
+    children: PropTypes.any
   }
 
   constructor(props) {
@@ -34,7 +36,7 @@ class Link extends Component {
   render() {
     let landing = this.props.replace || this.props.to
     if (landing.pathname) {
-      landing = landing.pathname + ('' + landing.search) + ('' + landing.hash)
+      landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
     return (
       <a href={landing} onClick={this.click}>

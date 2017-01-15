@@ -1,12 +1,12 @@
 module.exports = function(wallaby) {
   return {
     files: [
-      'test/test_helper.js',
+      'test/test_helper.jsx',
       { pattern: 'test/**/*.test.js', ignore: true },
       { pattern: 'test/karma/*', ignore: true, instrument: false },
       'src/**/*.js*',
     ],
-    filesWithNoCoverageCalculated: ['test/test_helper.js'],
+    filesWithNoCoverageCalculated: ['test/test_helper.jsx'],
     tests: [
       { pattern: 'node_modules/*', ignore: true, instrument: false },
       { pattern: 'test/karma/*', ignore: true, instrument: false },

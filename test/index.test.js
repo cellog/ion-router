@@ -29,7 +29,7 @@ describe('react-redux-saga-router', () => {
         path: '/campers/:year(/:id)',
         paramsFromState: state => ({
           id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
-          year: state.currentYear + ''
+          year: state.currentYear + '' // eslint-disable-line
         }),
         stateFromParams: params => ({
           id: params.id ? params.id : false,
@@ -43,7 +43,8 @@ describe('react-redux-saga-router', () => {
         name: 'ensembles',
         path: '/ensembles(/:id)',
         paramsFromState: state => ({
-          id: state.ensembleTypes.selectedEnsembleType ? state.ensembleTypes.selectedEnsembleType : undefined,
+          id: state.ensembleTypes.selectedEnsembleType ?
+            state.ensembleTypes.selectedEnsembleType : undefined,
         }),
         stateFromParams: params => ({
           id: params.id ? params.id : false,
@@ -86,7 +87,7 @@ describe('react-redux-saga-router', () => {
       path: '/campers/:year(/:id)',
       paramsFromState: state => ({
         id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
-        year: state.currentYear + ''
+        year: state.currentYear + '' // eslint-disable-line
       }),
       stateFromParams: params => ({
         id: params.id ? params.id : false,
@@ -100,7 +101,8 @@ describe('react-redux-saga-router', () => {
       name: 'ensembles',
       path: '/ensembles(/:id)',
       paramsFromState: state => ({
-        id: state.ensembleTypes.selectedEnsembleType ? state.ensembleTypes.selectedEnsembleType : undefined,
+        id: state.ensembleTypes.selectedEnsembleType ?
+          state.ensembleTypes.selectedEnsembleType : undefined,
       }),
       stateFromParams: params => ({
         id: params.id ? params.id : false,
@@ -212,7 +214,7 @@ describe('react-redux-saga-router', () => {
 
     try {
       next = saga.next()
-    } catch (e) {
+    } catch (e) { // eslint-disable-line
 
     }
   })
@@ -227,7 +229,7 @@ describe('react-redux-saga-router', () => {
       path: '/campers/:year(/:id)',
       paramsFromState: state => ({
         id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
-        year: state.currentYear + ''
+        year: state.currentYear + '' // eslint-disable-line
       }),
       stateFromParams: params => ({
         id: params.id ? params.id : false,
@@ -249,7 +251,7 @@ describe('react-redux-saga-router', () => {
       path: '/campers/:year(/:id)',
       paramsFromState: state => ({
         id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
-        year: state.currentYear + ''
+        year: state.currentYear + '' // eslint-disable-line
       }),
       stateFromParams: params => ({
         id: params.id ? params.id : false,

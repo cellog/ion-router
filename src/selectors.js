@@ -15,7 +15,7 @@ export function matchedRoutes(state) {
 }
 
 export function stateExists(state, template, fullState = undefined) {
-  const full = fullState ? fullState : state
+  const full = fullState || state
   const keys = Object.keys(template)
   return keys.reduce((valid, key) => {
     if (!valid) return false

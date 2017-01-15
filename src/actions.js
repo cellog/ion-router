@@ -7,32 +7,32 @@ export function createRoute(params) {
   }
 }
 
-export function push(route) {
+export function push(details) {
   return {
     type: types.ACTION,
     payload: {
       verb: 'push',
-      route
+      route: details
     }
   }
 }
 
-export function replace(route) {
+export function replace(details) {
   return {
     type: types.ACTION,
     payload: {
       verb: 'replace',
-      route
+      route: details
     }
   }
 }
 
-export function go(route) {
+export function go(details) {
   return {
     type: types.ACTION,
     payload: {
       verb: 'go',
-      route
+      route: details
     }
   }
 }
@@ -88,11 +88,11 @@ export function removeRoute(name) {
   }
 }
 
-export function setParamsAndState(route, params, state) {
+export function setParamsAndState(details, params, state) {
   return {
     type: types.SET_PARAMS,
     payload: {
-      route,
+      route: details,
       params,
       state
     }

@@ -2,7 +2,7 @@
 require('babel-register')
 
 var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
-var reporters = ['mocha', /* 'saucelabs', */ 'coverage']
+var reporters = ['mocha', 'Browserstack', 'coverage']
 var singleRun = true
 var webpack = require('./test/test.config.es6.js')
 

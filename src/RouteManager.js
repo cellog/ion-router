@@ -9,7 +9,8 @@ export function fake() {
   return {}
 }
 export default class RouteManager {
-  constructor(history, { name, path, paramsFromState = fake, stateFromParams = fake, updateState = {}}) {
+  constructor(history, {
+      name, path, paramsFromState = fake, stateFromParams = fake, updateState = {} }) {
     this.name = name
     this.path = path
     this.route = new RouteParser(path)
@@ -35,22 +36,23 @@ export default class RouteManager {
     return this.paramsFromState(state)
   }
 
-  changed(oldItems, newItems) {
+  static changed(oldItems, newItems) {
     return Object.keys(newItems)
-      .filter(key => !oldItems.hasOwnProperty(key) || oldItems[key] !== newItems[key])
+      .filter(key => !Object.prototype.hasOwnProperty.call(oldItems, key) ||
+        oldItems[key] !== newItems[key])
   }
 
   getStateUpdates(state, params, route) {
     const oldState = selectors.oldState(state, route)
     const newState = this.getState(params)
-    const changes = this.changed(oldState, newState)
+    const changes = RouteManager.changed(oldState, newState)
     return changes.map(key => this.update[key](newState[key]))
   }
 
   getUrlUpdate(state, route) {
     const oldParams = selectors.oldParams(state, route)
     const newParams = this.getParams(state)
-    const changes = this.changed(oldParams, newParams)
+    const changes = RouteManager.changed(oldParams, newParams)
     if (!changes.length) return false
     return this.url(newParams)
   }
@@ -87,7 +89,7 @@ export default class RouteManager {
   }
 
   *monitorState() {
-    while (true) {
+    while (true) { // eslint-disable-line
       yield take('*')
       yield call([this, this.locationFromState])
     }
