@@ -5,8 +5,11 @@ import { put, take, select, call } from 'redux-saga/effects'
 import * as actions from './actions'
 import * as selectors from './selectors'
 
+export function fake() {
+  return {}
+}
 export default class RouteManager {
-  constructor(history, { name, path, paramsFromState = () => ({}), stateFromParams = () => ({}), updateState = () => ({})}) {
+  constructor(history, { name, path, paramsFromState = fake, stateFromParams = fake, updateState = {}}) {
     this.name = name
     this.path = path
     this.route = new RouteParser(path)

@@ -53,6 +53,7 @@ describe('react-redux-saga-router Route', () => {
     ])
   })
   it('passes url down to children', () => {
+    fake() // for coverage
     const R = () => <Routes>
       <Route
         name="ensembles"

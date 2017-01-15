@@ -1,4 +1,4 @@
-import RouteManager from '../src/RouteManager'
+import RouteManager, { fake } from '../src/RouteManager'
 import RouteParser from 'route-parser'
 import createHistory from 'history/createMemoryHistory'
 import * as actions from '../src/actions'
@@ -19,6 +19,7 @@ describe('Route', () => {
     it('RouteManager constructor', () => {
       expect(route.name).eqls('test')
       expect(route.route).eqls(new RouteParser('/test/:test(/:thing)'))
+      expect(fake()).eqls({})
     })
     it('url', () => {
       expect(route.url({
