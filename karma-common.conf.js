@@ -67,11 +67,15 @@ module.exports = function (config, extraoptions) {
 
     browserStack: {
       username: process.env.BROWSER_STACK_USERNAME,
-      accessKey: process.env.BROWSER_STACK_ACCESS_KEY
+      accessKey: process.env.BROWSER_STACK_ACCESS_KEY,
+      project: "react-redux-saga-router"
     },
 
     webpackMiddleware: {
-      noInfo: true
+      noInfo: true,
+      stats: {
+        chunks: false
+      }
     },
 
     reporters,
