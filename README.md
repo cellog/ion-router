@@ -13,15 +13,25 @@ $ npm i -S react-redux-saga-router
 
 ## Simple example
 
-Expanding upon the [todo list example from the redux documentation](http://redux.js.org/docs/basics/ExampleTodoList.html)
+Let's expand upon the [todo list example from the redux documentation](http://redux.js.org/docs/basics/ExampleTodoList.html)
 
-The app will filter todos based on filter.  We'll respond to these 3 URLs:
+In the sample application, we can create new todos, mark them as finished, and filter
+the list to display all of them, just active todos, and just completed todos.  We can
+add URL routing quite simply by focusing on the filtering state.
+
+We'll respond to these 3 URLs:
 
 ```
 /filter/SHOW_ALL
 /filter/SHOW_ACTIVE
 /filter/SHOW_COMPLETED
 ```
+
+To do this, we'll need to add three items to the app:
+
+ 1. The router reducer, for storing routing state.
+ 2. A route definition, mapping url to state, and state to url
+ 3. The route definition within the app itself
 
 reducers/index.js:
 ```javascript
@@ -46,8 +56,10 @@ import Routes from 'react-redux-saga-router/Routes'
 import Route from 'react-redux-saga-router/Route'
 import * as actions from './actions'
 
-const paramsFromState = state => state.visibilityFilter
-const stateFromParams = params => params.visibilityFilter || 'SHOW_ACTIVE'
+const paramsFromState = state => ({ visibilityFilter: state.visibilityFilter })
+const stateFromParams = params => ({
+  visibilityFilter: params.visibilityFilter || 'SHOW_ACTIVE'
+})
 const updateState = {
   visibilityFilter: filter => actions.setVisibilityFilter(filter)
 }
@@ -69,14 +81,16 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
-import createSagaMiddleware from 'redux-saga'
-import router from 'react-redux-saga-router'
+import createSagaMiddleware from 'redux-saga' // redux-saga - new line
+import router from 'react-redux-saga-router' // our router - new line
 
 import todoApp from './reducers'
 import App from './components/App'
 
+// add the saga middleware
 let store = createStore(todoApp, undefined, applyMiddleware(sagaMiddleware))
 
+// set up our router
 router(sagaMiddleware)
 
 render(
@@ -90,12 +104,12 @@ render(
 then add these lines inside App.js:
 
 ```javascript
-import Routes from './Routes'
+import Routes from './Routes' // new line
 // ...
 
 const App = () => (
   <div>
-    <Routes />
+    <Routes /><!-- new line -->
     <AddTodo />
     <VisibleTodoList />
     <Footer />
@@ -105,9 +119,27 @@ const App = () => (
 
 ### Extending the example: asynchronous state loading
 
-What if we are loading the todo list from a database?  We could display an empty list,
-but it would be more friendly to the user to have a component that informs them
-something is loading, but that we are not yet loaded.  Let's design that component first:
+What if we are loading the todo list from a database?  There will be a short delay while
+the list is loaded, and the UI state will simply be undefined.  Better is to inform the
+user that the UI is in a transition state with a loading component.
+
+To implement this with our router, you need:
+
+ 1. a loading component that will be displayed when the todos are loading
+ 2. a "toggle" that is used to switch on/off display of a component or its loading component
+ 3. an asynchronous program to load the todos from the database.
+ 4. an additional way of marking whether state is loaded or not in the store, and
+    actions and reducer code to capture this state.
+
+redux-saga is an excellent solution for expressing complex asynchronous actions in a
+simple way.  Although react-redux-router-saga uses redux-saga internally and highly
+recommends it, you can write your asynchronous loader in any manner you choose, whether
+it is a thunk or an epic.
+
+For this example, we will assume that you can add a simple "loaded" field to the todos
+reducer, and actions to set it to true or false.
+
+Let's design the loading component first:
 
 Loading.js:
 ```javascript
@@ -120,10 +152,12 @@ export default () => (
 )
 ```
 
-Let's assume we have added a new state item "loaded" that is used by the todo loader,
-and that we are using a saga to load the state.  Here is that saga:
+Asynchronous loading of the todo items from the database can be accomplished with a very
+simple saga.  The saga assumes that the todos can be accessed via a REST service that
+returns JSON, and uses the axios library to make an xhr call to retrieve it from the
+server at the `"/getTodos"` address.
 
-loadTodosSaga.js
+loadTodosSaga.js:
 ```javascript
 import { call, put } from 'redux-saga/effects'
 import axios from 'axios'
@@ -131,18 +165,27 @@ import axios from 'axios'
 import * as actions from './actions'
 
 export default function *loadTodos() {
-  // imagine we have a new action for marking loading as starting
+  // mark loading as starting
   yield put(actions.setLoaded(false))
   const todos = yield call([axios, axios.get], '/getTodos')
-  // imagine we have a new action for setting all the todos
+  // a new action for setting all of the todos at once
   yield put(actions.setTodos(todos))
-  // imagine we have a new action for marking loading as complete
+  // mark loading as finished
   yield put(actions.setLoaded(true))
 }
 ```
 
-Now let's create a connected component that will either display the todos or the loading
-indicator:
+Now let's create a Toggle.  A toggle is a smart component that responds to state in order
+to turn on or off the display of a component.  It takes 2 callbacks that receive the state
+and return truthy or falsey values.  The first is used to determine whether the main
+component should be displayed.  The second optional callback is used to determine
+whether state is still loading, and if so, whether to display the loading component.
+By default, if no loading callback is passed in, a Toggle assumes that the state is
+loaded.
+
+In our example, there is only 1 route, and so we will display it if our state is marked
+as loaded.  If not, we will not display the component.  Instead, we will display the
+loading component.  Here is the source:
 
 TodosToggle.js:
 ```javascript
@@ -151,10 +194,12 @@ import Toggle from 'react-redux-saga-router/Toggle'
 export default Toggle(state => state.loaded, state => !state.loaded)
 ```
 
-now we can use this toggle to display any component we want when loading is complete,
-and a loading placeholder when loading is not yet complete.  Note that even though
-we will be using this for the todo list in our example, the toggle is a generic
-smart component.  It simply displays what it is asked to display.
+The TodosToggle is a component that accepts 2 props: `component` and `loader`.
+`component` should be a React component or connected container to display if the
+Toggle condition is satisfied, and `loader` should be a React component or connected
+container to display if the loading condition is satisfied.
+
+Note that if both callbacks return true, then the loading component will be displayed.
 
 Finally, the usage of TodosToggle is straightforward.
 
@@ -173,7 +218,7 @@ const App = () => (
   <div>
     <Routes />
     <AddTodo />
-    <TodosToggle component={VisibleTodoList} loading={Loading} />
+    <TodosToggle component={VisibleTodoList} loading={Loading} /><!-- simple! -->
     <Footer />
   </div>
 )
@@ -183,10 +228,10 @@ export default App
 
 Now our component will display the todo list only when it has loaded.
 
-### What about routes like react-router <Route>?
+### What about complex routes like react-router <Route>?
 
 For a complex application, there will be components that should only display on certain
-routes.  For example, from the react-router documentation:
+routes.  For example, an example from the react-router documentation:
 
 ```javascript
 render((
@@ -202,62 +247,90 @@ render((
 ), document.getElementById('root'))
 ```
 
-To achieve this kind of routing (the About component only displays on the about path),
-we use a Toggle to toggle based on the matched routes.  A selector is provided that should
-be used to create a component that only matches on a route.
+There are 3 things happening here.
+
+ 1. The App structure is dictated by the declaration of routes.  
+ 2. The `App` component will have as its `children` prop set to `About` or `Users` or
+    `NoMatch`, depending on the url.   
+ 3. In addition, if the route is `/user/123` the `App` component
+    will have its children set to `Users` with its children set to `User`
+
+This complexity is forced by the design of react-router.  How can we express these routes
+using react-redux-saga-router?
+
+We need 2 things:
+
+ 1. Toggles for routes and for selected user, and for no match
+ 2. Plugging in the Toggles where they should be displayed within the React tree.
 
 ```javascript
 import * as selectors from 'react-redux-saga-router/selectors'
 import Toggle from 'react-redux-saga-router/Toggle'
 
-const usersLoaded = state => selectors.stateExists({
-                        users: {
-                          ids: [],
-                          users: {}
-                        }
-                      })
-
 const AboutToggle = Toggle(state => selectors.matchedRoute('about'))
-const UsersToggle = Toggle(state => selectors.matchedRoute('users'))
+const UsersToggle = Toggle(state => selectors.matchedRoute('users') || Toggle(state => selectors.matchedRoute('user')))
 const SelectedUserToggle = Toggle(state => !!state.users.selectedUser,
   state => usersLoaded(state) && state.users.user[state.users.selectedUser])
 const UsersListToggle = Toggle(state => !state.users.selectedUser,
   usersLoaded)
+const NoMatchToggle = Toggle(state => selectors.noMatches(state))
 ```
 
-Then you should use the About component in the location you would within the App
-component (where you had to place `{this.children}` or `{this.props.about}` using
-react-router) using the new toggle.
+Now, to plug them in:
 
+App.js
 ```javascript
 // App class render:
   render() {
     return (
       <div>
         <AboutToggle component={About} />
-        <UsersToggle component={Users} loading={LoadingUsers} />
-        //...
+        <UsersToggle component={Users} />
+        <NoMatchToggle component={NoMatch} />
       </div>
     )
   }
 ```
 
-and in Users.js:
+Routes.js:
+```javascript
+import React from 'react'
+import Routes from 'react-redux-saga-router/Routes'
+import Route from 'react-redux-saga-router/Route'
+import * as actions from './actions'
+
+const paramsFromState = state => ({ userId: state.users.selectedUser || undefined })
+const stateFromParams = params => ({ userId: params.userId || false })
+const updateState = {
+  userId: id => actions.setSelectedUser(id)
+}
+
+export default () => (
+  <Routes>
+   <Route name="about" path="/about" />
+   <Route name="users" path="/users" />
+   <Route name="user" path="/user/:userId"
+     paramsFromState={paramsFromState}
+     stateFromParams={stateFromParams}
+     updateState={updateState}
+   />
+  </Routes>
+)
+```
+
+Users.js:
 ```javascript
   render() {
     return (
       <div>
-        <UsersListToggle component={UserList} loading={LoadingUsers} />
-        <SelectedUserToggle component={User} loading={LoadingUser} />
+        <UsersListToggle component={UserList} />
+        <SelectedUserToggle component={User} />
       </div>
     )
   }
 ```
 
-The possibilities are endless and robust
-
-You may even choose to render more than 1 component using the toggle, so that more
-than one logical area of the application is changed when the state changes.
+Easy!
 
 ### Asynchronous route loading
 
