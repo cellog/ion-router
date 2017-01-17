@@ -210,7 +210,19 @@ be used to create a component that only matches on a route.
 import * as selectors from 'react-redux-saga-router/selectors'
 import Toggle from 'react-redux-saga-router/Toggle'
 
-export default Toggle(state => selectors.matchedRoute('about'))
+const usersLoaded = state => selectors.stateExists({
+                        users: {
+                          ids: [],
+                          users: {}
+                        }
+                      })
+
+const AboutToggle = Toggle(state => selectors.matchedRoute('about'))
+const UsersToggle = Toggle(state => selectors.matchedRoute('users'))
+const SelectedUserToggle = Toggle(state => !!state.users.selectedUser,
+  state => usersLoaded(state) && state.users.user[state.users.selectedUser])
+const UsersListToggle = Toggle(state => !state.users.selectedUser,
+  usersLoaded)
 ```
 
 Then you should use the About component in the location you would within the App
@@ -223,14 +235,43 @@ react-router) using the new toggle.
     return (
       <div>
         <AboutToggle component={About} />
+        <UsersToggle component={Users} loading={LoadingUsers} />
         //...
       </div>
     )
   }
 ```
 
+and in Users.js:
+```javascript
+  render() {
+    return (
+      <div>
+        <UsersListToggle component={UserList} loading={LoadingUsers} />
+        <SelectedUserToggle component={User} loading={LoadingUser} />
+      </div>
+    )
+  }
+```
+
+The possibilities are endless and robust
+
 You may even choose to render more than 1 component using the toggle, so that more
 than one logical area of the application is changed when the state changes.
+
+### Asynchronous route loading
+
+Routes can be loaded at any time.  If you load a new component asynchronously (using
+require.ensure, for instance), and dynamically add a new `<Routes><Route>` inside that
+component, the router will seamlessly start using the route.  Code splitting has never
+been simpler.
+
+### Explicitly changing URL
+
+A number of actions are provided to change the browser state directly, most useful
+for menus and other direct links.  The action names match the standard actions.
+In addition, the makePath function is available for creating a url from params,
+allowing separation of the URL structure from the data that is used to populate it.
 
 ## Principles
 
@@ -277,9 +318,16 @@ There is no need for hooks.  You can make sagas to intercept state changes and r
 to them, or you can handle the logic of a hook inside a reducer or by the components
 themselves.
 
-### IndexRoute and ErrorRoute are not necessary
+### IndexRoute, Redirect and ErrorRoute are not necessary
 
 Use Toggle and smart (connected) components to do all of this logic.  For example, an
 error route is basically a toggle that only displays when other routes are not selected.
 You can use the `noMatches` selector for this purpose.  An indexRoute can be implemented
-with the `matchedRoute('/')` selector (and by defining a route for '/')
+with the `matchedRoute('/')` selector (and by defining a route for '/').  A redirect
+can be implemented simply by a saga listening for a route match and pushing a new URL.
+
+### Easy testing
+
+Everything is properly isolated, and testable.  You can easily unit test your route
+stateFromParams and paramsFromState and updateState properties.  Components are
+simply components.
