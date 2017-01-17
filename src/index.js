@@ -72,8 +72,7 @@ export function *router(routeDefinitions, history, channel) {
           .filter(name => routes[name].match(path))
         yield put(actions.matchRoutes(matchedRoutes))
         yield put(actions.route(locationChange.location))
-        yield keys.map(name => call([routes[name],
-          routes[name].monitorUrl],
+        yield keys.map(name => call([routes[name], routes[name].monitorUrl],
           locationChange.location))
       }
     }

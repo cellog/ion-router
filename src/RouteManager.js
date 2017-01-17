@@ -10,7 +10,8 @@ export function fake() {
 }
 export default class RouteManager {
   constructor(history, {
-      name, path, paramsFromState = fake, stateFromParams = fake, updateState = {} }) {
+    name, path, paramsFromState = fake, stateFromParams = fake, updateState = {}
+  }) {
     this.name = name
     this.path = path
     this.route = new RouteParser(path)

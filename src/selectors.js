@@ -2,6 +2,10 @@ export function matchedRoute(state, name) {
   return state.routing.matchedRoutes.some(route => route === name)
 }
 
+export function noMatches(state) {
+  return state.routing.matchedRoutes.length === 0
+}
+
 export function oldState(state, route) {
   return state.routing.routes.routes[route].state
 }
