@@ -140,4 +140,16 @@ describe('react-redux-saga-router selectors', () => {
       }
     })).eqls(['hi'])
   })
+  it('noMatches', () => {
+    expect(selectors.noMatches({
+      routing: {
+        matchedRoutes: []
+      }
+    })).eqls(true)
+    expect(selectors.noMatches({
+      routing: {
+        matchedRoutes: ['hi']
+      }
+    })).eqls(false)
+  })
 })
