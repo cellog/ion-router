@@ -8,14 +8,13 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
     const Component = component
     const Loading = loading
     const useProps = { ...props }
-    if (componentLoadingMap.component) {
-      useProps.component = props[componentLoadingMap.component]
-      useProps[componentLoadingMap.component] = undefined
-    }
-    if (componentLoadingMap.loading) {
-      useProps.loading = props[componentLoadingMap.loading]
-      useProps[componentLoadingMap.loading] = undefined
-    }
+    const map = ['component', 'loading']
+    map.forEach((item) => {
+      if (componentLoadingMap[item]) {
+        useProps[item] = props[componentLoadingMap[item]]
+        useProps[componentLoadingMap[item]] = undefined
+      }
+    })
 
     const NullComponent = ({ '@@__loaded': loaded, ...nullProps }) => ( // eslint-disable-line
       !loaded ? <Loading {...nullProps} />  // eslint-disable-line
