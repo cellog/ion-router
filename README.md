@@ -247,7 +247,7 @@ export default App
 
 Now our component will display the todo list only when it has loaded.
 
-### What about complex routes like react-router <Route>?
+### What about complex routes like react-router &lt;Route&gt;?
 
 For a complex application, there will be components that should only display on certain
 routes.  For example, an example from the react-router documentation:
