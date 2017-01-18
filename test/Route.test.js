@@ -1,7 +1,7 @@
 import React from 'react'
 import Route, { fake } from '../src/Route'
 import Routes from '../src/Routes'
-import * as actions from '../src'
+import * as actions from '../src/actions'
 import { renderComponent } from './test_helper'
 
 describe('react-redux-saga-router Route', () => {
