@@ -16,7 +16,7 @@ describe('react-redux-saga-router actions', () => {
       payload: {
         verb: 'push',
         route: '/hi',
-        state: { some: 'state'}
+        state: { some: 'state' }
       }
     })
   })
@@ -34,7 +34,7 @@ describe('react-redux-saga-router actions', () => {
       payload: {
         verb: 'replace',
         route: '/hi',
-        state: { some: 'state'}
+        state: { some: 'state' }
       }
     })
   })

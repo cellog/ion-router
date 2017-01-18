@@ -76,7 +76,7 @@ describe('react-redux-saga-router', () => {
     it('matchesPath', () => {
       expect(matchesPath('campers', '/campers/2014/hi')).eqls({ year: '2014', id: 'hi' })
       expect(matchesPath('campers', '/campefrs/2014')).eqls(false)
-      expect(matchesPath('campers', { pathname: '/campers/2014/hi', search: '', hash: ''})).eqls({ year: '2014', id: 'hi' })
+      expect(matchesPath('campers', { pathname: '/campers/2014/hi', search: '', hash: '' })).eqls({ year: '2014', id: 'hi' })
     })
   })
   it('browserActions', () => {

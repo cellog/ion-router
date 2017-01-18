@@ -58,12 +58,12 @@ export function *listenForRoutes(history) {
 }
 
 export function *revert(locationChange, lastUrl) {
-  switch(locationChange.action) {
+  switch (locationChange.action) {
     case 'POP' :
-      yield put(push(lastUrl))
+      yield put(actions.push(lastUrl))
       break
     default:
-      yield put(replace(lastUrl))
+      yield put(actions.replace(lastUrl))
   }
 }
 
@@ -96,7 +96,7 @@ export function *router(routeDefinitions, history, channel) {
             break
           }
         }
-        if (!valid) continue
+        if (!valid) continue // eslint-disable-line no-continue
         for (let i = 0; i < entering.length; i++) {
           if (!(yield call(routes[entering[i]].enter, location, path))) {
             yield call(revert, locationChange, location)
@@ -104,7 +104,7 @@ export function *router(routeDefinitions, history, channel) {
             break
           }
         }
-        if (!valid) continue
+        if (!valid) continue // eslint-disable-line no-continue
 
         location = path
         lastMatches = matchedRoutes
