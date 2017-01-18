@@ -18,7 +18,6 @@ import doRoutes, {
 import * as types from '../src/types'
 import * as actions from '../src/actions'
 import * as selectors from '../src/selectors'
-import { enterPlaceholder, exitPlaceholder } from '../src/RouteManager'
 
 describe('react-redux-saga-router', () => {
   describe('makePath/matchesPath', () => {
@@ -100,7 +99,7 @@ describe('react-redux-saga-router', () => {
   })
   it('router', () => {
     const history = createHistory({
-      initialEntries: ['/campers/2017']
+      initialEntries: ['/ensembles']
     })
     const mockTask = createMockTask()
     const channel = historyChannel(history)
@@ -157,12 +156,6 @@ describe('react-redux-saga-router', () => {
     ]))
     next = saga.next()
 
-    expect(next.value).eqls(select(selectors.matchedRoutes))
-    next = saga.next([])
-
-    expect(next.value).eqls(put(actions.matchRoutes(['campers'])))
-    next = saga.next()
-
     expect(next.value).eqls(put(actions.addRoute('ensembles', '/ensembles(/:id)')))
     next = saga.next()
 
@@ -183,6 +176,12 @@ describe('react-redux-saga-router', () => {
       ensembles: new RouteManager(history, routes[1])
     })
 
+    expect(next.value).eqls(select(selectors.matchedRoutes))
+    next = saga.next([])
+
+    expect(next.value).eqls(put(actions.matchRoutes(['ensembles'])))
+    next = saga.next()
+
     expect(next.value).eqls(take(channel))
     next = saga.next({
       location: {
@@ -191,6 +190,40 @@ describe('react-redux-saga-router', () => {
         hash: ''
       }
     })
+
+    expect(next.value).eqls(put(actions.route({
+      pathname: '/campers/2017',
+      search: '',
+      hash: ''
+    })))
+    next = saga.next()
+
+    expect(next.value).eqls(put(actions.matchRoutes(['campers'])))
+    next = saga.next()
+
+    expect(next.value).eqls(put(actions.exitRoutes(['ensembles'])))
+    next = saga.next()
+
+    expect(next.value).eqls(put(actions.enterRoutes(['campers'])))
+    next = saga.next()
+
+    expect(next.value).eqls([
+      call([
+        generatedRoutes.campers, generatedRoutes.campers.monitorUrl
+      ], {
+        pathname: '/campers/2017',
+        search: '',
+        hash: ''
+      }),
+      call([
+        generatedRoutes.ensembles, generatedRoutes.ensembles.monitorUrl
+      ], {
+        pathname: '/campers/2017',
+        search: '',
+        hash: ''
+      })
+    ])
+    next = saga.next()
 
     expect(next.value).eqls(take(channel))
     next = saga.next({
@@ -201,9 +234,6 @@ describe('react-redux-saga-router', () => {
       }
     })
 
-    expect(next.value).eqls(call(enterPlaceholder, '/campers/2017', '/campers/2016'))
-    next = saga.next(true)
-
     expect(next.value).eqls(put(actions.route({
       pathname: '/campers/2016',
       search: '',
@@ -212,7 +242,6 @@ describe('react-redux-saga-router', () => {
     next = saga.next()
 
     expect(next.value).eqls(put(actions.matchRoutes(['campers'])))
-
     next = saga.next()
 
     expect(next.value).eqls([
@@ -231,8 +260,8 @@ describe('react-redux-saga-router', () => {
         hash: ''
       })
     ])
-
     next = saga.next()
+
     expect(next.value).eqls(take(channel))
 
     next = saga.throw(new Error('all done'))

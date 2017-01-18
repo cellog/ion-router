@@ -9,26 +9,15 @@ export function fake() {
   return {}
 }
 
-export function enterPlaceholder() {
-  return true
-}
-
-export function exitPlaceholder() {
-  return true
-}
-
 export default class RouteManager {
   constructor(history, {
     name, path, paramsFromState = fake, stateFromParams = fake, updateState = {},
-    enter = enterPlaceholder, exit = exitPlaceholder
   }) {
     this.name = name
     this.path = path
     this.route = new RouteParser(path)
     this.paramsFromState = paramsFromState
     this.stateFromParams = stateFromParams
-    this.enter = enter
-    this.exit = exit
     this.update = updateState
     this.history = history
   }

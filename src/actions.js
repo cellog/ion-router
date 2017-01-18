@@ -100,3 +100,17 @@ export function setParamsAndState(details, params, state) {
     }
   }
 }
+
+export function exitRoutes(routes) {
+  return {
+    type: types.EXIT_ROUTES,
+    payload: routes
+  }
+}
+
+export function enterRoutes(routes) {
+  return {
+    type: types.ENTER_ROUTES,
+    payload: routes
+  }
+}

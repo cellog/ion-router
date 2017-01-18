@@ -13,20 +13,21 @@ $ npm i -S react-redux-saga-router
 Table of Contents
 =================
 
-* [Simple example](#simple-example)
-  * [Extending the example: asynchronous state loading](#extending-the-example-asynchronous-state-loading)
-  * [What about complex routes like react\-router ?](#what-about-complex-routes-like-react-router-)
-  * [enter/exit hooks](#enterexit-hooks)
-  * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
-  * [Explicitly changing URL](#explicitly-changing-url)
-  * [Reverse routing: creating URLs from parameters](#reverse-routing-creating-urls-from-parameters)
-* [Principles](#principles)
-  * [URL state is just another asynchronous input to redux state](#url-state-is-just-another-asynchronous-input-to-redux-state)
-  * [When the URL changes, it should cause a state change in the redux store](#when-the-url-changes-it-should-cause-a-state-change-in-the-redux-store)
-  * [When the state changes in the redux store, it should be reflected in the URL](#when-the-state-changes-in-the-redux-store-it-should-be-reflected-in-the-url)
-  * [Route definition is separate from the components](#route-definition-is-separate-from-the-components)
-  * [IndexRoute, Redirect and ErrorRoute are not necessary](#indexroute-redirect-and-errorroute-are-not-necessary)
-  * [Easy testing](#easy-testing)
+  * [Simple example](#simple-example)
+      * [Extending the example: asynchronous state loading](#extending-the-example-asynchronous-state-loading)
+      * [What about complex routes like react\-router &lt;Route&gt;?](#what-about-complex-routes-like-react-router-route)
+      * [enter/exit hooks](#enterexit-hooks)
+      * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
+      * [Explicitly changing URL](#explicitly-changing-url)
+      * [Reverse routing: creating URLs from parameters](#reverse-routing-creating-urls-from-parameters)
+  * [Principles](#principles)
+      * [URL state is just another asynchronous input to redux state](#url-state-is-just-another-asynchronous-input-to-redux-state)
+      * [When the URL changes, it should cause a state change in the redux store](#when-the-url-changes-it-should-cause-a-state-change-in-the-redux-store)
+      * [When the state changes in the redux store, it should be reflected in the URL](#when-the-state-changes-in-the-redux-store-it-should-be-reflected-in-the-url)
+      * [Route definition is separate from the components](#route-definition-is-separate-from-the-components)
+      * [IndexRoute, Redirect and ErrorRoute are not necessary](#indexroute-redirect-and-errorroute-are-not-necessary)
+      * [Easy testing](#easy-testing)
+
 
 ## Simple example
 
@@ -355,30 +356,30 @@ Easy!
 
 ### `enter`/`exit` hooks
 
-Hooks are defined by passing in a function or a saga to a route definition.
+To implement enter or exit hooks you can listen for the `ENTER_ROUTES` or
+`EXIT_ROUTES` action to perform actions such as loading asynchronous state.
+Here is a sample implementation:
 
 ```javascript
-function *enter(lastUrl, url) {
-  // do anything that you want here, but return
-  // false to cancel navigation and return to lastUrl
-  // this should ONLY be used to determine whether to cancel navigation
-  // into a new route
+import * as types from 'react-redux-saga-router/types'
+
+function *enter() {
+  while (true) {
+    const action = yield take(types.ENTER_ROUTE)
+    if (action.payload.indexOf('myroute') === -1) continue
+    // enter code goes here
+    do {
+      const second = yield take(types.EXIT_ROUTE)
+    } while (second.payload.indexOf('myroute') === 1)
+    // exit code goes here
+  }
 }
-function *exit(lastUrl, url) {
-  // do anything that you want here, but return
-  // false to cancel navigation and return to lastUrl
-  // this should ONLY be used to determine whether to cancel navigation
-  // out of an old route
-}
-const routes = () => (
-  <Routes>
-    <Route name="fancy" path="/fancy/:shmancy"
-      enter={enter}
-      exit={exit}
-    />
-  </Routes>
-)
 ```
+
+Anything can be done in this code, including forcing a route to change, like a traditional
+enter/exit hook.  Because it is so trivial to implement this with the above code, the
+event loop that listens for URL changes and state changes does not listen for enter/exit
+hooks directly.
 
 ### Code splitting and asynchronous loading of Routes
 

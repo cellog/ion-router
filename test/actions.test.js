@@ -118,4 +118,16 @@ describe('react-redux-saga-router actions', () => {
       }
     })
   })
+  it('enterRoutes', () => {
+    expect(actions.enterRoutes(['hi'])).eqls({
+      type: types.ENTER_ROUTES,
+      payload: ['hi']
+    })
+  })
+  it('exitRoutes', () => {
+    expect(actions.exitRoutes(['hi'])).eqls({
+      type: types.EXIT_ROUTES,
+      payload: ['hi']
+    })
+  })
 })

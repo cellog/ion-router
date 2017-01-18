@@ -57,16 +57,6 @@ export function *listenForRoutes(history) {
   }
 }
 
-export function *revert(locationChange, lastUrl) {
-  switch (locationChange.action) {
-    case 'POP' :
-      yield put(actions.push(lastUrl))
-      break
-    default:
-      yield put(actions.replace(lastUrl))
-  }
-}
-
 export function *router(routeDefinitions, history, channel) {
   yield put(actions.route(history.location))
   const browserTask = yield fork(browserActions, history)
@@ -74,42 +64,32 @@ export function *router(routeDefinitions, history, channel) {
   for (let i = 0; i < routeDefinitions.length; i++) {
     yield* initRoute(history, routeDefinitions[i])
   }
+  let keys = Object.keys(routes)
+  let lastMatches = keys
+    .filter(name => routes[name].match(location))
+  const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
 
   try {
     while (true) { // eslint-disable-line
-      const keys = Object.keys(routes)
-      let lastMatches = []
+      keys = Object.keys(routes)
       const locationChange = yield take(channel)
       const path = createPath(locationChange.location)
       if (location !== path) {
         const matchedRoutes = keys
           .filter(name => routes[name].match(path))
-        const exiting = lastMatches
-          .filter(name => matchedRoutes.indexOf(name) === -1)
-        const entering = matchedRoutes
-          .filter(name => lastMatches.indexOf(name) === -1)
-        let valid = true
-        for (let i = 0; i < exiting.length; i++) {
-          if (!(yield call(routes[exiting[i]].exit, location, path))) {
-            yield call(revert, locationChange, location)
-            valid = false
-            break
-          }
-        }
-        if (!valid) continue // eslint-disable-line no-continue
-        for (let i = 0; i < entering.length; i++) {
-          if (!(yield call(routes[entering[i]].enter, location, path))) {
-            yield call(revert, locationChange, location)
-            valid = false
-            break
-          }
-        }
-        if (!valid) continue // eslint-disable-line no-continue
+        const exiting = diff(lastMatches, matchedRoutes)
+        const entering = diff(matchedRoutes, lastMatches)
 
         location = path
         lastMatches = matchedRoutes
         yield put(actions.route(locationChange.location))
         yield put(actions.matchRoutes(matchedRoutes))
+        if (exiting.length) {
+          yield put(actions.exitRoutes(exiting))
+        }
+        if (entering.length) {
+          yield put(actions.enterRoutes(entering))
+        }
         yield keys.map(name => call([routes[name], routes[name].monitorUrl],
           locationChange.location))
       }
