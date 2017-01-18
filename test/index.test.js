@@ -6,6 +6,7 @@ import historyChannel from '../src/historyChannel'
 import doRoutes, {
   getRoutes,
   makePath,
+  matchesPath,
   makeRoute,
 
   browserActions,
@@ -17,9 +18,10 @@ import doRoutes, {
 import * as types from '../src/types'
 import * as actions from '../src/actions'
 import * as selectors from '../src/selectors'
+import { enterPlaceholder, exitPlaceholder } from '../src/RouteManager'
 
 describe('react-redux-saga-router', () => {
-  describe('makePath', () => {
+  describe('makePath/matchesPath', () => {
     beforeEach(() => {
       const history = createHistory({
         initialEntries: ['/']
@@ -52,15 +54,29 @@ describe('react-redux-saga-router', () => {
         updateState: {
           id: id => ({ type: 'ensemble', payload: id }),
         }
+      }, {
+        name: 'foo',
+        path: '/my/:fancy/path(/:wow/*supercomplicated(/:thing))',
       }]
       makeRoute(history, routes[0])
       makeRoute(history, routes[1])
+      makeRoute(history, routes[2])
     })
-    it('processes properly', () => {
+    it('makePath', () => {
       expect(makePath('campers', { year: '2014', id: 'hi' })).eqls('/campers/2014/hi')
       expect(makePath('campers', { })).eqls(false)
       expect(makePath('ensembles', { id: 'hi' })).eqls('/ensembles/hi')
       expect(makePath('ensembles', { })).eqls('/ensembles')
+      expect(makePath('foo', { fancy: 'shmancy' })).eqls('/my/shmancy/path')
+      expect(makePath('foo', { fancy: 'shmancy', wow: 'amazing', supercomplicated: 'boop/deboop' }))
+        .eqls('/my/shmancy/path/amazing/boop/deboop')
+      expect(makePath('foo', { fancy: 'shmancy', wow: 'amazing', supercomplicated: 'boop/deboop', thing: 'huzzah' }))
+        .eqls('/my/shmancy/path/amazing/boop/deboop/huzzah')
+    })
+    it('matchesPath', () => {
+      expect(matchesPath('campers', '/campers/2014/hi')).eqls({ year: '2014', id: 'hi' })
+      expect(matchesPath('campers', '/campefrs/2014')).eqls(false)
+      expect(matchesPath('campers', { pathname: '/campers/2014/hi', search: '', hash: ''})).eqls({ year: '2014', id: 'hi' })
     })
   })
   it('browserActions', () => {
@@ -71,7 +87,13 @@ describe('react-redux-saga-router', () => {
     expect(next.value).eqls(take(types.ACTION))
     next = saga.next(actions.push('/hi'))
 
-    expect(next.value).eqls(call([fake, fake.push], '/hi'))
+    expect(next.value).eqls(call([fake, fake.push], '/hi', undefined))
+    next = saga.next()
+
+    expect(next.value).eqls(take(types.ACTION))
+    next = saga.next(actions.push('/hi', { some: 'state' }))
+
+    expect(next.value).eqls(call([fake, fake.push], '/hi', { some: 'state' }))
     next = saga.next()
 
     expect(next.value).eqls(take(types.ACTION))
@@ -179,14 +201,18 @@ describe('react-redux-saga-router', () => {
       }
     })
 
-    expect(next.value).eqls(put(actions.matchRoutes(['campers'])))
+    expect(next.value).eqls(call(enterPlaceholder, '/campers/2017', '/campers/2016'))
+    next = saga.next(true)
 
-    next = saga.next()
     expect(next.value).eqls(put(actions.route({
       pathname: '/campers/2016',
       search: '',
       hash: ''
     })))
+    next = saga.next()
+
+    expect(next.value).eqls(put(actions.matchRoutes(['campers'])))
+
     next = saga.next()
 
     expect(next.value).eqls([

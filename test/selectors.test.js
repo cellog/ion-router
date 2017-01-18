@@ -140,6 +140,21 @@ describe('react-redux-saga-router selectors', () => {
       }
     })).eqls(['hi'])
   })
+  it('location', () => {
+    expect(selectors.location({
+      routing: {
+        location: {
+          pathname: 'hi',
+          search: '',
+          hash: ''
+        }
+      }
+    })).eqls({
+      pathname: 'hi',
+      search: '',
+      hash: ''
+    })
+  })
   it('noMatches', () => {
     expect(selectors.noMatches({
       routing: {

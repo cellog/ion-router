@@ -20,12 +20,16 @@ export function makePath(name, params) {
   return routes[name].url(params)
 }
 
+export function matchesPath(route, locationOrPath) {
+  return routes[route].match(locationOrPath.pathname ? createPath(locationOrPath) : locationOrPath)
+}
+
 export { routerReducer, RouteManager }
 
 export function *browserActions(history) {
   while (true) { // eslint-disable-line
     const action = yield take(types.ACTION)
-    yield call([history, history[action.payload.verb]], action.payload.route)
+    yield call([history, history[action.payload.verb]], action.payload.route, action.payload.state)
   }
 }
 
@@ -53,6 +57,16 @@ export function *listenForRoutes(history) {
   }
 }
 
+export function *revert(locationChange, lastUrl) {
+  switch(locationChange.action) {
+    case 'POP' :
+      yield put(push(lastUrl))
+      break
+    default:
+      yield put(replace(lastUrl))
+  }
+}
+
 export function *router(routeDefinitions, history, channel) {
   yield put(actions.route(history.location))
   const browserTask = yield fork(browserActions, history)
@@ -63,15 +77,39 @@ export function *router(routeDefinitions, history, channel) {
 
   try {
     while (true) { // eslint-disable-line
+      const keys = Object.keys(routes)
+      let lastMatches = []
       const locationChange = yield take(channel)
       const path = createPath(locationChange.location)
       if (location !== path) {
-        const keys = Object.keys(routes)
-        location = path
         const matchedRoutes = keys
           .filter(name => routes[name].match(path))
-        yield put(actions.matchRoutes(matchedRoutes))
+        const exiting = lastMatches
+          .filter(name => matchedRoutes.indexOf(name) === -1)
+        const entering = matchedRoutes
+          .filter(name => lastMatches.indexOf(name) === -1)
+        let valid = true
+        for (let i = 0; i < exiting.length; i++) {
+          if (!(yield call(routes[exiting[i]].exit, location, path))) {
+            yield call(revert, locationChange, location)
+            valid = false
+            break
+          }
+        }
+        if (!valid) continue
+        for (let i = 0; i < entering.length; i++) {
+          if (!(yield call(routes[entering[i]].enter, location, path))) {
+            yield call(revert, locationChange, location)
+            valid = false
+            break
+          }
+        }
+        if (!valid) continue
+
+        location = path
+        lastMatches = matchedRoutes
         yield put(actions.route(locationChange.location))
+        yield put(actions.matchRoutes(matchedRoutes))
         yield keys.map(name => call([routes[name], routes[name].monitorUrl],
           locationChange.location))
       }

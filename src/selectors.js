@@ -18,6 +18,10 @@ export function matchedRoutes(state) {
   return state.routing.matchedRoutes
 }
 
+export function location(state) {
+  return state.routing.location
+}
+
 export function stateExists(state, template, fullState = undefined) {
   const full = fullState || state
   const keys = Object.keys(template)

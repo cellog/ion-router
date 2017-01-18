@@ -4,11 +4,11 @@ import { connect } from 'react-redux'
 import DisplaysChildren from './DisplaysChildren'
 
 export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
-  function Toggle({ component = DisplaysChildren, loading = () => null, children, ...props }) {
+  function Toggle({ component = DisplaysChildren, 'else': ElseComponent = () => null, loading = () => null, children, ...props }) {
     const Component = component
     const Loading = loading
     const useProps = { ...props }
-    const map = ['component', 'loading']
+    const map = ['component', 'loading', 'else']
     map.forEach((item) => {
       if (componentLoadingMap[item]) {
         useProps[item] = props[componentLoadingMap[item]]
@@ -18,7 +18,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
 
     const NullComponent = ({ '@@__loaded': loaded, ...nullProps }) => ( // eslint-disable-line
       !loaded ? <Loading {...nullProps} />  // eslint-disable-line
-        : (nullProps['@@__isActive'] ? <Component {...nullProps} /> : null)
+        : (nullProps['@@__isActive'] ? <Component {...nullProps} /> : <ElseComponent {...nullProps} />)
     )
 
     NullComponent.propTypes = {

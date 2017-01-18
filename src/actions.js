@@ -7,22 +7,24 @@ export function createRoute(params) {
   }
 }
 
-export function push(details) {
+export function push(details, state = undefined) {
   return {
     type: types.ACTION,
     payload: {
       verb: 'push',
-      route: details
+      route: details,
+      state
     }
   }
 }
 
-export function replace(details) {
+export function replace(details, state = undefined) {
   return {
     type: types.ACTION,
     payload: {
       verb: 'replace',
-      route: details
+      route: details,
+      state
     }
   }
 }

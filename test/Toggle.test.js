@@ -30,6 +30,12 @@ describe('Toggle', () => {
     expect(container.find(Component)).has.length(0)
     expect(container.text()).eqls('')
   })
+  it('renders else if the state tester returns false', () => {
+    const Else = () => <div>else</div>
+    const container = renderComponent(Route, { component: Component, else: Else }, { week: 0 })
+    expect(container.find(Component)).has.length(0)
+    expect(container.text()).eqls('else')
+  })
   it('does not call state if loaded returns false', () => {
     const spy = sinon.spy(() => true)
     const loaded = sinon.spy(() => false)
@@ -50,14 +56,17 @@ describe('Toggle', () => {
   it('componentLoadingMap', () => {
     const R = Toggle(() => true, () => true, {
       component: 'bobby',
-      loading: 'frenzel'
+      loading: 'frenzel',
+      else: 'blah'
     })
-    const container = renderComponent(R, { component: Component, bobby: 'hi', frenzel: 'there' })
+    const container = renderComponent(R, { component: Component, bobby: 'hi', frenzel: 'there', blah: 'oops' })
     expect(container.find(Component)).has.length(1)
     expect(container.find(Component).props('component')).eqls('hi')
     expect(container.find(Component).props('bobby')).eqls(undefined)
     expect(container.find(Component).props('loading')).eqls('there')
     expect(container.find(Component).props('frenzel')).eqls(undefined)
+    expect(container.find(Component).props('else')).eqls('oops')
+    expect(container.find(Component).props('blah')).eqls(undefined)
   })
   it('no specified component', () => {
     const R = Toggle(() => true, () => true)
