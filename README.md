@@ -14,19 +14,21 @@ Table of Contents
 =================
 
   * [Simple example](#simple-example)
-      * [Extending the example: asynchronous state loading](#extending-the-example-asynchronous-state-loading)
-      * [What about complex routes like react\-router &lt;Route&gt;?](#what-about-complex-routes-like-react-router-route)
-      * [enter/exit hooks](#enterexit-hooks)
-      * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
-      * [Explicitly changing URL](#explicitly-changing-url)
-      * [Reverse routing: creating URLs from parameters](#reverse-routing-creating-urls-from-parameters)
+    * [Extending the example: asynchronous state loading](#extending-the-example-asynchronous-state-loading)
+    * [What about complex routes like react\-router &lt;Route&gt;?](#what-about-complex-routes-like-react-router-route)
+    * [enter/exit hooks](#enterexit-hooks)
+    * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
+    * [Explicitly changing URL](#explicitly-changing-url)
+    * [Reverse routing: creating URLs from parameters](#reverse-routing-creating-urls-from-parameters)
   * [Principles](#principles)
-      * [URL state is just another asynchronous input to redux state](#url-state-is-just-another-asynchronous-input-to-redux-state)
-      * [When the URL changes, it should cause a state change in the redux store](#when-the-url-changes-it-should-cause-a-state-change-in-the-redux-store)
-      * [When the state changes in the redux store, it should be reflected in the URL](#when-the-state-changes-in-the-redux-store-it-should-be-reflected-in-the-url)
-      * [Route definition is separate from the components](#route-definition-is-separate-from-the-components)
-      * [IndexRoute, Redirect and ErrorRoute are not necessary](#indexroute-redirect-and-errorroute-are-not-necessary)
-      * [Easy testing](#easy-testing)
+    * [URL state is just another asynchronous input to redux state](#url-state-is-just-another-asynchronous-input-to-redux-state)
+    * [When the URL changes, it should cause a state change in the redux store](#when-the-url-changes-it-should-cause-a-state-change-in-the-redux-store)
+    * [When the state changes in the redux store, it should be reflected in the URL](#when-the-state-changes-in-the-redux-store-it-should-be-reflected-in-the-url)
+    * [Route definition is separate from the components](#route-definition-is-separate-from-the-components)
+    * [IndexRoute, Redirect and ErrorRoute are not necessary](#indexroute-redirect-and-errorroute-are-not-necessary)
+    * [Easy testing](#easy-testing)
+    * [License](#license)
+    * [Thanks](#thanks)
 
 
 ## Simple example
@@ -303,7 +305,7 @@ App.js
     return (
       <div>
         <AboutToggle component={About} />
-        <UsersToggle component={Users} />
+        <UsersToggle component={UsersRoute} />
         <NoMatchToggle component={NoMatch} />
       </div>
     )
@@ -339,14 +341,14 @@ export default () => (
 Note that the `else` prop of a Toggle higher order component can be used to display an
 alternative component if the state test is not satisfied, but the component state is loaded.
 So in our example, we want to display the user list if a user is not selected, so we set our
-`else` to `UserList` and our `component` to `User`
+`else` to `Users` and our `component` to `User`
 
-Users.js:
+UsersRoute.js:
 ```javascript
   render() {
     return (
       <div>
-        <SelectedUserToggle component={User} else={UserList}/>
+        <SelectedUserToggle component={User} else={Users}/>
       </div>
     )
   }
@@ -398,6 +400,9 @@ internally.  The actions mirror the push/replace/go/goBack/goForward methods as
 documented for the history package.
 
 ### Reverse routing: creating URLs from parameters
+
+react-redux-saga-router uses the [route-parser](https://github.com/rcs/route-parser)
+package internally, which allows us to take advantage of some great features.
 
 The `makePath` function is available for creating a url from params, allowing
 separation of the URL structure from the data that is used to populate it.
@@ -473,6 +478,21 @@ Because URL state is just another input to the redux state, we only need to defi
 how to transform URLs into redux state.  Components then choose whether to render based
 on that state.  This is a crucial difference from every other router out there.
 
+### Components are explicitly used where they go, and can be moved anywhere
+
+With traditional routers, you must render the component where the route is declared.
+This creates rigidity.  In addition, with programs based on react-router, the link
+between where a component exists and the route lives in the router.  The only indication
+that something "routey" is happening is the presence of `{this.props.children}` which
+can make debugging and technical debt higher.  This router restores the natural tree and
+layout of a React app: you use the component where it will actually be rendered in the
+tree.  Less technical debt, less confusion.
+
+The drawback is that direct connection between URL and component is less obvious.  The
+tradeoff seems worth it, as the URL is just another input to the program.  Currently,
+the relationship between database definition and component is just as opaque, and that
+works just fine, this is no different.
+
 ### IndexRoute, Redirect and ErrorRoute are not necessary
 
 Use Toggle and smart (connected) components to do all of this logic.  For example, an
@@ -508,3 +528,14 @@ function *redirect() {
 Everything is properly isolated, and testable.  You can easily unit test your route
 stateFromParams and paramsFromState and updateState properties.  Components are
 simply components, no magic.
+
+## License
+
+MIT License
+
+## Thanks
+
+[![http://www.browserstack.com](https://www.browserstack.com/images/layout/browserstack-logo-600x315.png)](http://www.browserstack.com)
+
+Huge thanks to [BrowserStack](http://www.browserstack.com) for providing
+cross-browser testing on real devices, both automatic testing and manual testing.

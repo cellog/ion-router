@@ -4,12 +4,10 @@ import { connect } from 'react-redux'
 import DisplaysChildren from './DisplaysChildren'
 
 export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
-  function Toggle({ component = DisplaysChildren, else: ElseComponent = () => null,
-      loading = () => null, children, ...props }) {
-    const Component = component
-    const Loading = loading
+  function Toggle({ component: Component = DisplaysChildren, else: ElseComponent = () => null,
+      loadingComponent: Loading = () => null, children, ...props }) {
     const useProps = { ...props }
-    const map = ['component', 'loading', 'else']
+    const map = ['component', 'loadingComponent', 'else']
     map.forEach((item) => {
       if (componentLoadingMap[item]) {
         useProps[item] = props[componentLoadingMap[item]]
@@ -44,7 +42,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
 
   Toggle.propTypes = {
     component: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-    loading: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    loadingComponent: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     else: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     children: PropTypes.any
   }
