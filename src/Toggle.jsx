@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 import DisplaysChildren from './DisplaysChildren'
 
 export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
-  function Toggle({ component = DisplaysChildren, 'else': ElseComponent = () => null, loading = () => null, children, ...props }) {
+  function Toggle({ component = DisplaysChildren, else: ElseComponent = () => null,
+      loading = () => null, children, ...props }) {
     const Component = component
     const Loading = loading
     const useProps = { ...props }
@@ -16,8 +17,8 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
       }
     })
 
-    const NullComponent = ({ '@@__loaded': loaded, ...nullProps }) => ( // eslint-disable-line
-      !loaded ? <Loading {...nullProps} />  // eslint-disable-line
+    const NullComponent = ({ '@@__loaded': loadedProp, ...nullProps }) => ( // eslint-disable-line
+      !loadedProp ? <Loading {...nullProps} />  // eslint-disable-line
         : (nullProps['@@__isActive'] ? <Component {...nullProps} /> : <ElseComponent {...nullProps} />)
     )
 
@@ -27,11 +28,11 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
     }
 
     const R = connect((state, rProps) => {
-      const __loaded = loaded(state, rProps) // eslint-disable-line
+      const loadedTest = !!loaded(state, rProps)
       return {
         ...rProps,
-        '@@__isActive': __loaded && isActive(state, rProps),
-        '@@__loaded': __loaded
+        '@@__isActive': loadedTest && !!isActive(state, rProps),
+        '@@__loaded': loadedTest
       }
     })(NullComponent)
 
@@ -42,8 +43,9 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
   }
 
   Toggle.propTypes = {
-    component: PropTypes.element,
-    loading: PropTypes.element,
+    component: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    loading: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    else: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     children: PropTypes.any
   }
   return Toggle
