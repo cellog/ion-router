@@ -15,6 +15,8 @@ import doRoutes, {
   initRoute,
   RouteManager
 } from '../src'
+import { connectLink } from '../src/Link'
+import { connectRoutes } from '../src/Routes'
 import * as types from '../src/types'
 import * as actions from '../src/actions'
 import * as selectors from '../src/selectors'
@@ -132,8 +134,15 @@ describe('react-redux-saga-router', () => {
         id: id => ({ type: 'ensemble', payload: id }),
       }
     }]
-    const saga = router(routes, history, channel)
+    const connect = () => null
+    const saga = router(connect, routes, history, channel)
     let next = saga.next()
+
+    expect(next.value).eqls(call(connectLink, connect))
+    next = saga.next()
+
+    expect(next.value).eqls(call(connectRoutes, connect))
+    next = saga.next()
 
     expect(next.value).eqls(put(actions.route(history.location)))
     next = saga.next()
@@ -295,10 +304,11 @@ describe('react-redux-saga-router', () => {
         year: year => ({ type: 'year', payload: year })
       }
     }]
-    doRoutes(middleware, routes, a, b)
+    const connect = () => null
+    doRoutes(middleware, connect, routes, a, b)
     expect(middleware.run.called).is.true
-    expect(middleware.run.args[0]).eqls([router, routes, a, b])
-    doRoutes(middleware, routes) // for coverage
+    expect(middleware.run.args[0]).eqls([router, connect, routes, a, b])
+    doRoutes(middleware, connect, routes) // for coverage
   })
   it('listenForRoutes', () => {
     const params = {

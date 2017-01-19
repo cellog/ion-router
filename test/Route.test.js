@@ -1,8 +1,8 @@
 import React from 'react'
 import Route, { fake } from '../src/Route'
-import Routes from '../src/Routes'
+import Routes, { connectRoutes } from '../src/Routes'
 import * as actions from '../src/actions'
-import { renderComponent } from './test_helper'
+import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Route', () => {
   const paramsFromState = state => ({
@@ -25,6 +25,7 @@ describe('react-redux-saga-router Route', () => {
     }
   }
   let component, store, log // eslint-disable-line
+  connectRoutes(connect)
   function make(props = {}, Comp = Routes) {
     const info = renderComponent(Comp, props, {}, true)
     component = info[0]

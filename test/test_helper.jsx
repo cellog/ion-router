@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import teaspoon from 'teaspoon'
-import { Provider } from 'react-redux'
+import { Provider, connect } from 'react-redux'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import reducer from '../src/reducer'
 
@@ -44,4 +44,4 @@ function renderComponent(ComponentClass, props = {}, state = {}, returnStore = f
   return ret
 }
 
-export { renderComponent } // eslint-disable-line
+export { renderComponent, connect } // eslint-disable-line

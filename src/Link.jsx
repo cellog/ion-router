@@ -1,7 +1,7 @@
-import { connect } from 'react-redux'
 import React, { PropTypes, Component } from 'react'
+import invariant from 'invariant'
 
-import { push, replace } from './index'
+import * as actions from './actions'
 
 class Link extends Component {
   static propTypes = {
@@ -16,6 +16,8 @@ class Link extends Component {
     ]),
     replace: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
+    onClick: PropTypes.func,
+    href: PropTypes.string,
     children: PropTypes.any
   }
 
@@ -27,19 +29,26 @@ class Link extends Component {
   click(e) {
     e.preventDefault()
     if (this.props.replace) {
-      this.props.dispatch(replace(this.props.replace))
+      this.props.dispatch(actions.replace(this.props.replace))
     } else {
-      this.props.dispatch(push(this.props.to))
+      this.props.dispatch(actions.push(this.props.to))
+    }
+    if (this.props.onClick) {
+      this.props.onClick(e)
     }
   }
 
   render() {
-    let landing = this.props.replace || this.props.to
+    const {
+      href, replace, to, onClick, ...props // eslint-disable-line no-unused-vars
+    } = this.props
+    invariant(!href, 'href should not be passed to Link, use "to" (passed "%s")', href)
+    let landing = replace || to
     if (landing.pathname) {
       landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
     return (
-      <a href={landing} onClick={this.click}>
+      <a href={landing} onClick={this.click} {...props}>
         {this.props.children}
       </a>
     )
@@ -48,4 +57,17 @@ class Link extends Component {
 
 export { Link }
 
-export default connect(() => ({}), dispatch => ({ dispatch }))(Link)
+export const Placeholder = () => {
+  throw new Error('call connectLink with the connect function from react-redux to ' +
+    'initialize Link (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+}
+
+let ConnectedLink = null
+
+export function connectLink(connect) {
+  ConnectedLink = connect(() => ({}))(Link)
+}
+
+const ConnectLink = props => (ConnectedLink ? <ConnectedLink {...props} /> : <Placeholder />)
+
+export default ConnectLink

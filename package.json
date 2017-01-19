@@ -1,6 +1,6 @@
 {
   "name": "react-redux-saga-router",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
   "directories": {
@@ -32,9 +32,9 @@
   "homepage": "https://github.com/cellog/react-redux-saga-router#readme",
   "dependencies": {
     "history": "^4.5.1",
+    "invariant": "^2.2.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-redux": "^5.0.2",
     "redux": "^3.6.0",
     "redux-saga": "^0.14.2",
     "route-parser": "0.0.5"
@@ -83,6 +83,7 @@
     "lolex": "^1.5.2",
     "mocha": "^3.2.0",
     "raw-loader": "^0.5.1",
+    "react-redux": "^5.0.2",
     "rimraf": "^2.5.4",
     "selenium-webdriver": "^3.0.1",
     "should": "^11.1.2",

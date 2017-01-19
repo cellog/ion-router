@@ -49,21 +49,21 @@ describe('Toggle', () => {
   it('renders loading element if state is still loading', () => {
     const R = Toggle(() => true, () => false)
     const container = renderComponent(R,
-      { component: Component, loading: () => <div>Loading...</div> })
+      { component: Component, loadingComponent: () => <div>Loading...</div> })
     expect(container.find(Component)).has.length(0)
     expect(container.text()).eqls('Loading...')
   })
   it('componentLoadingMap', () => {
     const R = Toggle(() => true, () => true, {
       component: 'bobby',
-      loading: 'frenzel',
+      loadingComponent: 'frenzel',
       else: 'blah'
     })
     const container = renderComponent(R, { component: Component, bobby: 'hi', frenzel: 'there', blah: 'oops' })
     expect(container.find(Component)).has.length(1)
     expect(container.find(Component).props('component')).eqls('hi')
     expect(container.find(Component).props('bobby')).eqls(undefined)
-    expect(container.find(Component).props('loading')).eqls('there')
+    expect(container.find(Component).props('loadingComponent')).eqls('there')
     expect(container.find(Component).props('frenzel')).eqls(undefined)
     expect(container.find(Component).props('else')).eqls('oops')
     expect(container.find(Component).props('blah')).eqls(undefined)

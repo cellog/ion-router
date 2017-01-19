@@ -47,11 +47,12 @@ We'll respond to these 3 URLs:
 /filter/SHOW_COMPLETED
 ```
 
-To do this, we'll need to add three items to the app:
+To do this, we'll need to add four items to the app:
 
  1. The router reducer, for storing routing state.
  2. A route definition, mapping url to state, and state to url
  3. The route definition within the app itself
+ 4. include redux-saga and react-redux, and pass in the sagaMiddleware and connect
 
 reducers/index.js:
 ```javascript
@@ -99,7 +100,7 @@ index.js:
 ```javascript
 import React from 'react'
 import { render } from 'react-dom'
-import { Provider } from 'react-redux'
+import { Provider, connect } from 'react-redux' // new - import connect
 import { createStore, applyMiddleware } from 'redux'
 import createSagaMiddleware from 'redux-saga' // redux-saga - new line
 import router from 'react-redux-saga-router' // our router - new line
@@ -111,7 +112,7 @@ import App from './components/App'
 let store = createStore(todoApp, undefined, applyMiddleware(sagaMiddleware))
 
 // set up our router
-router(sagaMiddleware)
+router(sagaMiddleware, connect)
 
 render(
   <Provider store={store}>
@@ -136,6 +137,14 @@ const App = () => (
   </div>
 )
 ```
+
+### Internal linking with `<Link>`
+
+Note that if we want to set up a menu of urls, react-redux-saga-router provides a
+`<Link>` component that should be used for all internal links.  It uses the `to`
+prop in place of href.  An onClick handler may be passed to handle the click in
+a custom fashion.  All other props will be passed through to the internal `<a>`
+tag.
 
 ### Extending the example: asynchronous state loading
 
@@ -250,7 +259,7 @@ export default App
 
 Now our component will display the todo list only when it has loaded.
 
-### What about complex routes like react-router &lt;Route&gt;?
+### What about complex routes like react-router `<Route>`?
 
 For a complex application, there will be components that should only display on certain
 routes.  For example, an example from the react-router documentation:

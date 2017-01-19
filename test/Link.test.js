@@ -1,7 +1,7 @@
 import React from 'react'
-import ConnectLink, { Link } from '../src/Link'
+import ConnectLink, { Link, connectLink } from '../src/Link'
 import { push, replace } from '../src'
-import { renderComponent } from './test_helper'
+import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Link', () => {
   it('dispatches replace', () => {
@@ -26,9 +26,37 @@ describe('react-redux-saga-router Link', () => {
     const component = renderComponent(Far, { dispatch, replace: '/hi' })
     expect(component.text()).eqls('foo')
   })
-  it('dispatches actions', () => {
-    const [component, , log] = renderComponent(ConnectLink, { to: '/hi' }, {}, true)
+  it('renders placeholder', () => {
+    expect(() => {
+      renderComponent(ConnectLink, { to: '/hi' }, {}, true)
+    }).throws('call connectLink with the connect function from react-redux to ' +
+      'initialize Link (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+  })
+  it('connectLink', () => {
+    const spy1 = sinon.spy()
+    const spy = sinon.spy()
+    const connect = (one) => {
+      spy1(one)
+      return spy
+    }
+    connectLink(connect)
+    expect(spy1.called).is.true
+    expect(spy.called).is.true
+
+    expect(spy1.args[0][0]()).eqls({})
+    expect(spy.args[0]).eqls([Link])
+  })
+  it('dispatches actions when initialized', () => {
+    const spy = sinon.spy()
+    connectLink(connect)
+    const [component, , log] = renderComponent(ConnectLink, { to: '/hi', onClick: spy }, {}, true)
     component.find('a').trigger('click')
     expect(log).eqls([push('/hi')])
+    expect(spy.called).is.true
+  })
+  it('errors (in dev) on href passed in', () => {
+    connectLink(connect)
+    expect(() => renderComponent(ConnectLink, { href: '/hi' }, {}, true))
+      .throws('href should not be passed to Link, use "to" (passed "/hi")')
   })
 })
