@@ -17,6 +17,8 @@ engines:
         enabled: true
       react/require-extension:
         enabled: false
+      import/no-unresolved:
+        enabled: false
     exclude_fingerprints:
     - 71e4a5cf3764ccc996875dd8c72112db
     - c6734c0621047f7dd7f475259f61d063
