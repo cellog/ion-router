@@ -17,6 +17,7 @@ import doRoutes, {
 } from '../src'
 import { connectLink } from '../src/Link'
 import { connectRoutes } from '../src/Routes'
+import { connectToggle } from '../src/Toggle'
 import * as types from '../src/types'
 import * as actions from '../src/actions'
 import * as selectors from '../src/selectors'
@@ -142,6 +143,9 @@ describe('react-redux-saga-router', () => {
     next = saga.next()
 
     expect(next.value).eqls(call(connectRoutes, connect))
+    next = saga.next()
+
+    expect(next.value).eqls(call(connectToggle, connect))
     next = saga.next()
 
     expect(next.value).eqls(put(actions.route(history.location)))

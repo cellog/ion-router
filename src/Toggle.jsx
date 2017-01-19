@@ -1,7 +1,15 @@
 import React, { PropTypes } from 'react'
-import { connect } from 'react-redux'
 
 import DisplaysChildren from './DisplaysChildren'
+
+let connect = () => {
+  throw new Error('call connectToggle with the connect function from react-redux to ' +
+    'initialize Toggle (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+}
+
+export function connectToggle(c) {
+  connect = c
+}
 
 export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
   function Toggle({ component: Component = DisplaysChildren, else: ElseComponent = () => null,

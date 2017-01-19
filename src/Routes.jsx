@@ -11,7 +11,6 @@ RawRoutes.propTypes = {
   children: PropTypes.any
 }
 
-
 export const Placeholder = () => {
   throw new Error('call connectRoutes with the connect function from react-redux to ' +
     'initialize Routes (see https://github.com/cellog/react-redux-saga-router/issues/1)')

@@ -9,6 +9,7 @@ import * as actions from './actions'
 import * as selectors from './selectors'
 import { connectLink } from './Link'
 import { connectRoutes } from './Routes'
+import { connectToggle } from './Toggle'
 
 export * from './actions'
 
@@ -62,6 +63,7 @@ export function *listenForRoutes(history) {
 export function *router(connect, routeDefinitions, history, channel) {
   yield call(connectLink, connect)
   yield call(connectRoutes, connect)
+  yield call(connectToggle, connect)
   yield put(actions.route(history.location))
   const browserTask = yield fork(browserActions, history)
   let location = createPath(history.location)
