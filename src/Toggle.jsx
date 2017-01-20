@@ -11,9 +11,46 @@ export function connectToggle(c) {
   connect = c
 }
 
+const NullComponent = (Loading, Component, ElseComponent) => {
+  const Ret = ({ '@@__loaded': loadedProp, ...nullProps }) => (
+    !loadedProp ? <Loading {...nullProps} />  // eslint-disable-line
+    : (nullProps['@@__isActive'] ? <Component {...nullProps} /> : <ElseComponent {...nullProps} />)
+  )
+
+  Ret.propTypes = {
+    '@@__loaded': PropTypes.bool,
+    '@@__isActive': PropTypes.bool
+  }
+
+  return Ret
+}
+
 export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
-  function Toggle({ component: Component = DisplaysChildren, else: ElseComponent = () => null,
-      loadingComponent: Loading = () => null, children, ...props }) {
+  const Scaffold = connect((state, rProps) => {
+    const loadedTest = !!loaded(state, rProps)
+    return {
+      ...rProps,
+      '@@__isActive': loadedTest && !!isActive(state, rProps),
+      '@@__loaded': loadedTest
+    }
+  })
+
+  const defaults = {
+    component: DisplaysChildren,
+    else: () => null,
+    loadingComponent: () => null
+  }
+  defaults.else.displayName = 'null'
+  defaults.loadingComponent.displayName = 'null'
+
+  const lastProps = {
+    component: null,
+    else: null,
+    loadingComponent: null
+  }
+
+  function Toggle({ component: Component = defaults.component, else: ElseComponent = defaults.else,
+      loadingComponent: Loading = defaults.loadingComponent, children, ...props }) {
     const useProps = { ...props }
     const map = ['component', 'loadingComponent', 'else']
     map.forEach((item) => {
@@ -23,29 +60,24 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
       }
     })
 
-    const NullComponent = ({ '@@__loaded': loadedProp, ...nullProps }) => ( // eslint-disable-line
-      !loadedProp ? <Loading {...nullProps} />  // eslint-disable-line
-        : (nullProps['@@__isActive'] ? <Component {...nullProps} /> : <ElseComponent {...nullProps} />)
-    )
-
-    NullComponent.propTypes = {
-      '@@__loaded': PropTypes.bool,
-      '@@__isActive': PropTypes.bool
+    if (Component !== lastProps.component || ElseComponent !== lastProps.else
+      || Loading !== lastProps.loadingComponent) {
+      console.log('here')
+      lastProps.component = Component
+      lastProps.else = ElseComponent
+      lastProps.loadingComponent = Loading
+      const Switcher = NullComponent(Loading, Component, ElseComponent)
+      Toggle.HOC = Scaffold(Switcher)
+      const elseName = ElseComponent.displayName || ElseComponent.name || 'Component'
+      const componentName = Component.displayName || Component.name || 'Component'
+      const loadingName = Loading.displayName || Loading.name || 'Component'
+      Toggle.HOC.displayName = `Toggle(component:${componentName},else:${elseName},loading:${loadingName})`
     }
 
-    const R = connect((state, rProps) => {
-      const loadedTest = !!loaded(state, rProps)
-      return {
-        ...rProps,
-        '@@__isActive': loadedTest && !!isActive(state, rProps),
-        '@@__loaded': loadedTest
-      }
-    })(NullComponent)
-
-    R.displayName = `Toggle(${Component.displayName || Component.name || 'Component'})`
-    return (<R {...useProps}>
+    const HOC = Toggle.HOC
+    return (<HOC {...useProps}>
       {children}
-    </R>)
+    </HOC>)
   }
 
   Toggle.propTypes = {

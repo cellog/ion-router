@@ -10,11 +10,8 @@ describe('Toggle', () => {
     </div>
   )
   let Route, state // eslint-disable-line
-  beforeEach(() => {
-    Route = Toggle((s, p) => s.week || p.week)
-  })
   it('should freak out if we don\'t initialize', () => {
-    expect(() => renderComponent(Route, { component: Component, foo: 'bar' }, { week: 1 }))
+    expect(() => Toggle(() => true))
       .throws('call connectToggle with the connect function from react-redux to ' +
       'initialize Toggle (see https://github.com/cellog/react-redux-saga-router/issues/1)')
   })
@@ -92,6 +89,42 @@ describe('Toggle', () => {
       const J = props => <R> {props.children}</R> // eslint-disable-line
       const container = renderComponent(J, { children: <ul><li>hi</li><li>there</li></ul> })
       expect(container.text()).eqls(' hithere')
+    })
+    it('default displayName', () => {
+      const R = Toggle(() => true, () => true)
+      expect(R({}).type.displayName).eqls('Toggle(component:DisplaysChildren,else:null,loading:null)')
+    })
+    it('uses a displayName', () => {
+      const Comp = () => <div>hi</div>
+      const Load = () => <div>foo</div>
+      const Else = () => <div>else</div>
+      const R = Toggle(() => true, () => true)
+      const thing = R({ component: Comp, loadingComponent: Load, else: Else })
+      expect(thing.type.displayName).eqls('Toggle(component:Comp,else:Else,loading:Load)')
+    })
+    it('re-generates the HOC', () => {
+      const Load = () => <div>foo</div>
+      const R = Toggle(() => true, () => false)
+      const container = renderComponent(R)
+      const First = R.HOC
+      expect(container.text()).eqls('')
+      container.props({ loadingComponent: Load })
+      expect(R.HOC).is.not.equal(First)
+      expect(container.text()).eqls('foo')
+    })
+    it('does not regenerate the HOC if unnecessary', () => {
+      const R = Toggle(() => true, () => true)
+      expect(R.HOC).is.undefined
+      const container = renderComponent(R)
+      expect(R.HOC.displayName).eqls('Toggle(component:DisplaysChildren,else:null,loading:null)')
+      const First = R.HOC
+      expect(container.text()).eqls('')
+      container.props({ children: 'hi' })
+      expect(R.HOC).equals(First)
+      expect(container.text()).eqls('hi')
+      container.props({ children: 'foo' })
+      expect(R.HOC).equals(First)
+      expect(container.text()).eqls('foo')
     })
   })
 })
