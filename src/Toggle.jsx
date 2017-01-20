@@ -62,7 +62,6 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
 
     if (Component !== lastProps.component || ElseComponent !== lastProps.else
       || Loading !== lastProps.loadingComponent) {
-      console.log('here')
       lastProps.component = Component
       lastProps.else = ElseComponent
       lastProps.loadingComponent = Loading
