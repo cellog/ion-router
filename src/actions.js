@@ -7,27 +7,19 @@ export function createRoute(params) {
   }
 }
 
-export function push(details, state = undefined) {
-  return {
+function makeUrlAction(name) {
+  return (details, state = undefined) => ({
     type: types.ACTION,
     payload: {
-      verb: 'push',
+      verb: name,
       route: details,
       state
     }
-  }
+  })
 }
 
-export function replace(details, state = undefined) {
-  return {
-    type: types.ACTION,
-    payload: {
-      verb: 'replace',
-      route: details,
-      state
-    }
-  }
-}
+export const push = makeUrlAction('push')
+export const replace = makeUrlAction('replace')
 
 export function go(details) {
   return {
