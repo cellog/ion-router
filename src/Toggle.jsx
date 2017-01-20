@@ -26,14 +26,14 @@ const NullComponent = (Loading, Component, ElseComponent) => {
 }
 
 export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
-  const Scaffold = connect((state, rProps) => {
+  const scaffold = (state, rProps) => {
     const loadedTest = !!loaded(state, rProps)
     return {
       ...rProps,
       '@@__isActive': loadedTest && !!isActive(state, rProps),
       '@@__loaded': loadedTest
     }
-  })
+  }
 
   const defaults = {
     component: DisplaysChildren,
@@ -66,7 +66,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}) => {
       lastProps.else = ElseComponent
       lastProps.loadingComponent = Loading
       const Switcher = NullComponent(Loading, Component, ElseComponent)
-      Toggle.HOC = Scaffold(Switcher)
+      Toggle.HOC = connect(scaffold)(Switcher)
       const elseName = ElseComponent.displayName || ElseComponent.name || 'Component'
       const componentName = Component.displayName || Component.name || 'Component'
       const loadingName = Loading.displayName || Loading.name || 'Component'

@@ -11,7 +11,8 @@ describe('Toggle', () => {
   )
   let Route, state // eslint-disable-line
   it('should freak out if we don\'t initialize', () => {
-    expect(() => Toggle(() => true))
+    const R = Toggle(() => true)
+    expect(() => renderComponent(R, { component: Component, foo: 'bar' }, { week: 1 }))
       .throws('call connectToggle with the connect function from react-redux to ' +
       'initialize Toggle (see https://github.com/cellog/react-redux-saga-router/issues/1)')
   })
