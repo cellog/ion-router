@@ -312,7 +312,7 @@ describe('Route', () => {
         let next = saga.next()
 
         expect(next.value).eqls(take('*'))
-        next = saga.next({ type: 'foo'})
+        next = saga.next({ type: 'foo' })
 
         expect(next.value).eqls(call([route, route.locationFromState]))
         next = saga.next()
