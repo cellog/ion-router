@@ -2,6 +2,7 @@ import RouteParser from 'route-parser'
 import { createPath } from 'history'
 import { put, take, select, call } from 'redux-saga/effects'
 
+import * as types from './types'
 import * as actions from './actions'
 import * as selectors from './selectors'
 
@@ -92,7 +93,10 @@ export default class RouteManager {
 
   *monitorState() {
     while (true) { // eslint-disable-line
-      yield take('*')
+      const action = yield take('*')
+      if (action.type === types.PENDING_UPDATES) {
+        yield take(types.COMMITTED_UPDATES)
+      }
       yield call([this, this.locationFromState])
     }
   }

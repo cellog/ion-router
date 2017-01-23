@@ -88,6 +88,7 @@ export function *router(connect, routeDefinitions, history, channel) {
 
         location = path
         lastMatches = matchedRoutes
+        yield put(actions.pending())
         yield put(actions.route(locationChange.location))
         yield put(actions.matchRoutes(matchedRoutes))
         if (exiting.length) {
@@ -98,6 +99,7 @@ export function *router(connect, routeDefinitions, history, channel) {
         }
         yield keys.map(name => call([routes[name], routes[name].monitorUrl],
           locationChange.location))
+        yield put(actions.commit())
       }
     }
   } finally {

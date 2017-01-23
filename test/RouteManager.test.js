@@ -4,6 +4,7 @@ import { put, take, select, call } from 'redux-saga/effects'
 
 import RouteManager, { fake } from '../src/RouteManager'
 import * as actions from '../src/actions'
+import * as types from '../src/types'
 
 describe('Route', () => {
   describe('basics', () => {
@@ -311,7 +312,22 @@ describe('Route', () => {
         let next = saga.next()
 
         expect(next.value).eqls(take('*'))
+        next = saga.next({ type: 'foo'})
+
+        expect(next.value).eqls(call([route, route.locationFromState]))
         next = saga.next()
+
+        expect(next.value).eqls(take('*'))
+      })
+      it('monitorState during url update', () => {
+        const saga = route.monitorState()
+        let next = saga.next()
+
+        expect(next.value).eqls(take('*'))
+        next = saga.next(actions.pending())
+
+        expect(next.value).eqls(take(types.COMMITTED_UPDATES))
+        next = saga.next(actions.commit())
 
         expect(next.value).eqls(call([route, route.locationFromState]))
         next = saga.next()

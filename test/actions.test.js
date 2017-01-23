@@ -130,4 +130,16 @@ describe('react-redux-saga-router actions', () => {
       payload: ['hi']
     })
   })
+  it('pending', () => {
+    expect(actions.pending()).eqls({
+      type: types.PENDING_UPDATES,
+      payload: null
+    })
+  })
+  it('committed', () => {
+    expect(actions.commit()).eqls({
+      type: types.COMMITTED_UPDATES,
+      payload: null
+    })
+  })
 })

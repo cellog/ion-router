@@ -204,6 +204,9 @@ describe('react-redux-saga-router', () => {
       }
     })
 
+    expect(next.value).eqls(put(actions.pending()))
+    next = saga.next()
+
     expect(next.value).eqls(put(actions.route({
       pathname: '/campers/2017',
       search: '',
@@ -238,6 +241,9 @@ describe('react-redux-saga-router', () => {
     ])
     next = saga.next()
 
+    expect(next.value).eqls(put(actions.commit()))
+    next = saga.next()
+
     expect(next.value).eqls(take(channel))
     next = saga.next({
       location: {
@@ -246,6 +252,9 @@ describe('react-redux-saga-router', () => {
         hash: ''
       }
     })
+
+    expect(next.value).eqls(put(actions.pending()))
+    next = saga.next()
 
     expect(next.value).eqls(put(actions.route({
       pathname: '/campers/2016',
@@ -273,6 +282,9 @@ describe('react-redux-saga-router', () => {
         hash: ''
       })
     ])
+    next = saga.next()
+
+    expect(next.value).eqls(put(actions.commit()))
     next = saga.next()
 
     expect(next.value).eqls(take(channel))

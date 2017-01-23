@@ -106,3 +106,17 @@ export function enterRoutes(routes) {
     payload: routes
   }
 }
+
+export function pending() {
+  return {
+    type: types.PENDING_UPDATES,
+    payload: null
+  }
+}
+
+export function commit() {
+  return {
+    type: types.COMMITTED_UPDATES,
+    payload: null
+  }
+}
