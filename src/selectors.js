@@ -38,6 +38,9 @@ export function stateExists(state, template, fullState = undefined) {
         if (Array.isArray(template[key])) {
           return Array.isArray(state[key])
         }
+        if (state[key] === undefined && template[key] !== undefined) {
+          return false
+        }
         return stateExists(state[key], template[key], full)
       default :
         return typeof template[key] === typeof state[key]

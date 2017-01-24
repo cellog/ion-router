@@ -132,6 +132,20 @@ describe('react-redux-saga-router selectors', () => {
         sin: null
       }
     })).eqls(false)
+    expect(selectors.stateExists({}, {
+      rep: {
+        composers: {
+          ids: [],
+          composers: {},
+          selectedComposer: false
+        },
+        pieces: {
+          ids: [],
+          pieces: {},
+          selectedPiece: false
+        }
+      }
+    })).eqls(false)
   })
   it('matchedRoutes', () => {
     expect(selectors.matchedRoutes({
