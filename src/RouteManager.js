@@ -31,8 +31,8 @@ export default class RouteManager {
     return this.route.match(url)
   }
 
-  getState(params) {
-    return this.stateFromParams(params)
+  getState(params, state) {
+    return this.stateFromParams(params, state)
   }
 
   getParams(state) {
@@ -47,7 +47,7 @@ export default class RouteManager {
 
   getStateUpdates(state, params, route) {
     const oldState = selectors.oldState(state, route)
-    const newState = this.getState(params)
+    const newState = this.getState(params, state)
     const changes = RouteManager.changed(oldState, newState)
     return changes.map(key => this.update[key](newState[key]))
   }
