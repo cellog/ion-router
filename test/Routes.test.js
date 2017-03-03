@@ -1,5 +1,6 @@
 import React from 'react'
 import ConnectedRoutes, { connectRoutes, RawRoutes } from '../src/Routes'
+import Route from '../src/Route'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Routes', () => {
@@ -43,5 +44,17 @@ describe('react-redux-saga-router Routes', () => {
     expect(log).eqls([
       { type: 'foo', payload: 'bar' }
     ])
+  })
+  it('multiple Route children', () => {
+    const Thing = (
+      <ConnectedRoutes>
+        <div className="hi">hi</div>
+        <div className="there">there</div>
+      </ConnectedRoutes>
+    )
+    make(Thing)
+    expect(component.props('props').children).has.length(2)
+    expect(component.props('props').children[0].props.className).eqls('hi')
+    expect(component.props('props').children[1].props.className).eqls('there')
   })
 })

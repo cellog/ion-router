@@ -1,8 +1,8 @@
-import React, { PropTypes } from 'react'
+import React, { PropTypes, Children } from 'react'
 
 export function RawRoutes({ dispatch, children }) {
   return (<div style={{ display: 'none' }}>
-    {children && React.cloneElement(children, { dispatch })}
+    {children && Children.map(children, child => React.cloneElement(child, { dispatch }))}
   </div>)
 }
 
