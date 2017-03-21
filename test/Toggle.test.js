@@ -1,5 +1,5 @@
 import React from 'react'
-import Toggle, { connectToggle } from '../src/Toggle'
+import Toggle, { connectToggle, NullComponent } from '../src/Toggle'
 import DisplaysChildren from '../src/DisplaysChildren'
 import { renderComponent, connect } from './test_helper'
 
@@ -126,6 +126,63 @@ describe('Toggle', () => {
       container.props({ children: 'foo' })
       expect(R.HOC).equals(First)
       expect(container.text()).eqls('foo')
+    })
+  })
+  describe('NullComponent', () => {
+    const tests = (type) => {
+      const tester = (debug = false) =>
+        NullComponent(() => <div>loading</div>, () => <div>component</div>,
+          () => <div>else</div>, debug, console)
+      it(`${type} displays loading if not loaded`, () => {
+        const comp = renderComponent(tester(false))
+        expect(comp.text()).eqls('loading')
+      })
+      it(`${type} displays main component if loaded and active`, () => {
+        const comp = renderComponent(tester(false), { '@@__loaded': true, '@@__isActive': true })
+        expect(comp.text()).eqls('component')
+      })
+      it(`${type} displays else component if loaded and not active`, () => {
+        const comp = renderComponent(tester(false), { '@@__loaded': true, '@@__isActive': false })
+        expect(comp.text()).eqls('else')
+      })
+    }
+    describe('production', () => {
+      before(() => {
+        process.env.NODE_ENV = 'production'
+      })
+      after(() => {
+        process.env.NODE_END = undefined
+      })
+      tests('production')
+    })
+    describe('development', () => {
+      before(() => {
+        process.env.NODE_ENV = 'development'
+      })
+      after(() => {
+        process.env.NODE_END = undefined
+      })
+      tests('development')
+      it('logs debug info to screen', () => {
+        const spy = {
+          log: sinon.spy()
+        }
+        const load = () => <div>loading</div>
+        const component = () => <div>component</div>
+        const elsec = () => <div>else</div>
+        const t = NullComponent(load, component,
+          elsec, true, spy)
+        const comp = renderComponent(t, {
+          '@@__loaded': false,
+          '@@__isActive': true
+        })
+        expect(comp.text()).eqls('loading')
+        expect(spy.log.called).is.true
+        expect(spy.log.args).eqls([
+          ['Toggle: loaded: false, active: true'],
+          ['Loading component', load, 'Component', component, 'Else', elsec]
+        ])
+      })
     })
   })
 })
