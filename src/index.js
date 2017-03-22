@@ -20,10 +20,12 @@ export function getRoutes() {
 }
 
 export function makePath(name, params) {
+  if (!routes[name]) return false
   return routes[name].url(params)
 }
 
 export function matchesPath(route, locationOrPath) {
+  if (!routes[route]) return false
   return routes[route].match(locationOrPath.pathname ? createPath(locationOrPath) : locationOrPath)
 }
 

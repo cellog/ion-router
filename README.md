@@ -146,6 +146,32 @@ prop in place of href.  An onClick handler may be passed to handle the click in
 a custom fashion.  All other props will be passed through to the internal `<a>`
 tag.
 
+If you wish to replace the current url instead of pushing, use the `replace` prop
+instead of the `to` prop.
+
+Unlike any other router, the `<Link>` component can also create abstract routes
+from a list of route parameters. With this route declaration:
+
+```javascript
+const routes = () => (
+  <Routes>
+    <Route name="biff" path="/this/:fancy(/:thing)" />
+  </Routes>
+)
+```
+
+we can create a link like so:
+
+```javascript
+const App = () => (
+  <div>
+    <Link route="biff" fancy="hi" thing={some.dynamicValue} />
+  </div>
+)
+```
+
+and if the dynamic value refers to `123` the route will link to `/this/hi/123`
+
 ### Extending the example: asynchronous state loading
 
 What if we are loading the todo list from a database?  There will be a short delay while

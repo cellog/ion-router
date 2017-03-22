@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react'
 import invariant from 'invariant'
 
+import { makePath } from './'
 import * as actions from './actions'
 
 class Link extends Component {
@@ -12,13 +13,24 @@ class Link extends Component {
         search: PropTypes.string,
         hash: PropTypes.string,
         state: PropTypes.any
-      })
+      }),
+      PropTypes.bool,
     ]),
-    replace: PropTypes.string,
+    replace: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        pathname: PropTypes.string,
+        search: PropTypes.string,
+        hash: PropTypes.string,
+        state: PropTypes.any
+      }),
+      PropTypes.bool,
+    ]),
     dispatch: PropTypes.func.isRequired,
     onClick: PropTypes.func,
     href: PropTypes.string,
-    children: PropTypes.any
+    children: PropTypes.any,
+    route: PropTypes.string,
   }
 
   constructor(props) {
@@ -28,7 +40,13 @@ class Link extends Component {
 
   click(e) {
     e.preventDefault()
-    if (this.props.replace) {
+    if (this.props.route) {
+      if (this.props.replace) {
+        this.props.dispatch(actions.replace(makePath(this.props.route, this.props)))
+      } else {
+        this.props.dispatch(actions.push(makePath(this.props.route, this.props)))
+      }
+    } else if (this.props.replace) {
       this.props.dispatch(actions.replace(this.props.replace))
     } else {
       this.props.dispatch(actions.push(this.props.to))
@@ -40,11 +58,13 @@ class Link extends Component {
 
   render() {
     const {
-      dispatch, href, replace, to, onClick, ...props // eslint-disable-line no-unused-vars
+      dispatch, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
     } = this.props
-    invariant(!href, 'href should not be passed to Link, use "to" (passed "%s")', href)
+    invariant(!href, 'href should not be passed to Link, use "to," "replace" or "route" (passed "%s")', href)
     let landing = replace || to
-    if (landing.pathname) {
+    if (route) {
+      landing = makePath(route, props)
+    } else if (landing.pathname) {
       landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
     return (

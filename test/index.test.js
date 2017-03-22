@@ -65,6 +65,7 @@ describe('react-redux-saga-router', () => {
       makeRoute(history, routes[2])
     })
     it('makePath', () => {
+      expect(makePath('oops')).eqls(false)
       expect(makePath('campers', { year: '2014', id: 'hi' })).eqls('/campers/2014/hi')
       expect(makePath('campers', { })).eqls(false)
       expect(makePath('ensembles', { id: 'hi' })).eqls('/ensembles/hi')
@@ -76,6 +77,7 @@ describe('react-redux-saga-router', () => {
         .eqls('/my/shmancy/path/amazing/boop/deboop/huzzah')
     })
     it('matchesPath', () => {
+      expect(matchesPath('oops')).eqls(false)
       expect(matchesPath('campers', '/campers/2014/hi')).eqls({ year: '2014', id: 'hi' })
       expect(matchesPath('campers', '/campefrs/2014')).eqls(false)
       expect(matchesPath('campers', { pathname: '/campers/2014/hi', search: '', hash: '' })).eqls({ year: '2014', id: 'hi' })

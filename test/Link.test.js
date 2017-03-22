@@ -1,6 +1,8 @@
 import React from 'react'
+import makeHistory from 'history/createMemoryHistory'
+
 import ConnectLink, { Link, connectLink } from '../src/Link'
-import { push, replace } from '../src'
+import { push, replace, makePath, makeRoute } from '../src'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Link', () => {
@@ -57,6 +59,39 @@ describe('react-redux-saga-router Link', () => {
   it('errors (in dev) on href passed in', () => {
     connectLink(connect)
     expect(() => renderComponent(ConnectLink, { href: '/hi' }, {}, true))
-      .throws('href should not be passed to Link, use "to" (passed "/hi")')
+      .throws('href should not be passed to Link, use "to," "replace" or "route" (passed "/hi")')
+  })
+  describe('generates the correct path when route option is used', () => {
+    before(() => {
+      makeRoute(makeHistory(), {
+        name: 'hi',
+        path: '/hi/:there'
+      })
+    })
+    it('push', () => {
+      const dispatch = sinon.spy()
+      const component = renderComponent(Link, {
+        route: 'hi',
+        there: 'baby',
+        dispatch
+      })
+      expect(component.find('a').props('href')).eqls('/hi/baby')
+      component.find('a').trigger('click')
+      expect(dispatch.called).is.true
+      expect(dispatch.args[0]).eqls([push('/hi/baby')])
+    })
+    it('replace', () => {
+      const dispatch = sinon.spy()
+      const component = renderComponent(Link, {
+        route: 'hi',
+        there: 'baby',
+        replace: true,
+        dispatch
+      })
+      expect(component.find('a').props('href')).eqls('/hi/baby')
+      component.find('a').trigger('click')
+      expect(dispatch.called).is.true
+      expect(dispatch.args[0]).eqls([replace('/hi/baby')])
+    })
   })
 })
