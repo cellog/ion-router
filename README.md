@@ -16,6 +16,7 @@ Table of Contents
   * [Simple example](#simple-example)
     * [Extending the example: asynchronous state loading](#extending-the-example-asynchronous-state-loading)
     * [What about complex routes like react\-router &lt;Route&gt;?](#what-about-complex-routes-like-react-router-route)
+    * [Dynamic Routes](#dynamic-routes)
     * [enter/exit hooks](#enterexit-hooks)
     * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
     * [Explicitly changing URL](#explicitly-changing-url)
@@ -390,6 +391,28 @@ UsersRoute.js:
 ```
 
 Easy!
+
+### Dynamic Routes
+
+Sometimes, it is necessary to implement dynamic routes that are calculated from a parent
+route. This can be done quite easily.
+
+```javascript
+// parent route
+const Parent = () => (
+  <Routes>
+   <Route name="parent" path="/parent/path" />
+  </Routes>
+)
+// dynamically loaded later
+const Child = ({ parentroute }) => (
+  <Routes>
+    <Route name="child" parent={parentroute} path=":hi" />
+  </Routes>
+)
+```
+
+In this case, the child will make its path match `/parent/path/:hi`
 
 ### `enter`/`exit` hooks
 

@@ -2,6 +2,7 @@ import RouteParser from 'route-parser'
 import createHistory from 'history/createMemoryHistory'
 import { put, take, select, call } from 'redux-saga/effects'
 
+import { makeRoute } from '../src'
 import RouteManager, { fake } from '../src/RouteManager'
 import * as actions from '../src/actions'
 import * as types from '../src/types'
@@ -22,6 +23,18 @@ describe('Route', () => {
       expect(route.name).eqls('test')
       expect(route.route).eqls(new RouteParser('/test/:test(/:thing)'))
       expect(fake()).eqls({})
+    })
+    it('dynamic routing', () => {
+      makeRoute(history, {
+        name: 'test',
+        path: '/test/:test(/:thing)',
+      })
+      const childRoute = new RouteManager(history, {
+        name: 'child',
+        parent: 'test',
+        path: 'another/:thingy'
+      })
+      expect(childRoute.path).eqls('/test/:test(/:thing)/another/:thingy')
     })
     it('url', () => {
       expect(route.url({

@@ -2,6 +2,7 @@ import RouteParser from 'route-parser'
 import { createPath } from 'history'
 import { put, take, select, call } from 'redux-saga/effects'
 
+import { getRoutes } from './'
 import * as types from './types'
 import * as actions from './actions'
 import * as selectors from './selectors'
@@ -12,10 +13,21 @@ export function fake() {
 
 export default class RouteManager {
   constructor(history, {
-    name, path, paramsFromState = fake, stateFromParams = fake, updateState = {},
+    parent, name, path, paramsFromState = fake, stateFromParams = fake, updateState = {},
   }) {
+    let temppath
+    if (parent) {
+      temppath = getRoutes()[parent]
+      if (temppath) {
+        temppath = temppath.path
+        if (temppath[temppath.length - 1] !== '/') temppath += '/'
+        temppath += path
+      } else {
+        temppath = ''
+      }
+    }
     this.name = name
-    this.path = path
+    this.path = parent ? temppath : path
     this.route = new RouteParser(path)
     this.paramsFromState = paramsFromState
     this.stateFromParams = stateFromParams
