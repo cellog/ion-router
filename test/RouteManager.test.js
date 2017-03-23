@@ -24,18 +24,6 @@ describe('Route', () => {
       expect(route.route).eqls(new RouteParser('/test/:test(/:thing)'))
       expect(fake()).eqls({})
     })
-    it('dynamic routing', () => {
-      makeRoute(history, {
-        name: 'test',
-        path: '/test/:test(/:thing)',
-      })
-      const childRoute = new RouteManager(history, {
-        name: 'child',
-        parent: 'test',
-        path: 'another/:thingy'
-      })
-      expect(childRoute.path).eqls('/test/:test(/:thing)/another/:thingy')
-    })
     it('url', () => {
       expect(route.url({
         test: 'foo',

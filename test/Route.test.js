@@ -26,8 +26,8 @@ describe('react-redux-saga-router Route', () => {
   }
   let component, store, log // eslint-disable-line
   connectRoutes(connect)
-  function make(props = {}, Comp = Routes) {
-    const info = renderComponent(Comp, props, {}, true)
+  function make(props = {}, Comp = Routes, state = {}) {
+    const info = renderComponent(Comp, props, state, true)
     component = info[0]
     store = info[1]
     log = info[2]
@@ -54,6 +54,26 @@ describe('react-redux-saga-router Route', () => {
       })
     ])
   })
+  it('uses parent', () => {
+    const R = () => <Routes>
+      <Route name="test" parent="foo" path="mine/" />
+    </Routes>
+    make({}, R, {
+      routing: {
+        routes: {
+          foo: {
+            name: 'foo',
+            path: '/testing/'
+          }
+        }
+      }
+    })
+    expect(log).eqls([actions.createRoute({ name: 'test',
+      path: '/testing/mine/',
+      paramsFromState: fake,
+      stateFromParams: fake,
+      updateState: {} })])
+    })
   it('passes url down to children', () => {
     fake() // for coverage
     const R = () => <Routes>

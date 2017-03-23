@@ -13,21 +13,10 @@ export function fake() {
 
 export default class RouteManager {
   constructor(history, {
-    parent, name, path, paramsFromState = fake, stateFromParams = fake, updateState = {},
+    name, path, paramsFromState = fake, stateFromParams = fake, updateState = {},
   }) {
-    let temppath
-    if (parent) {
-      temppath = getRoutes()[parent]
-      if (temppath) {
-        temppath = temppath.path
-        if (temppath[temppath.length - 1] !== '/') temppath += '/'
-        temppath += path
-      } else {
-        temppath = ''
-      }
-    }
     this.name = name
-    this.path = parent ? temppath : path
+    this.path = path
     this.route = new RouteParser(path)
     this.paramsFromState = paramsFromState
     this.stateFromParams = stateFromParams

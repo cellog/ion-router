@@ -1,8 +1,8 @@
 import React, { PropTypes, Children } from 'react'
 
-export function RawRoutes({ dispatch, children }) {
+export function RawRoutes({ dispatch, '@@__routes': routes, children }) {
   return (<div style={{ display: 'none' }}>
-    {children && Children.map(children, child => React.cloneElement(child, { dispatch }))}
+    {children && Children.map(children, child => React.cloneElement(child, { '@@__routes': routes, dispatch }))}
   </div>)
 }
 
@@ -19,7 +19,7 @@ export const Placeholder = () => {
 let ConnectedRoutes = null
 
 export function connectRoutes(connect) {
-  ConnectedRoutes = connect()(RawRoutes)
+  ConnectedRoutes = connect(state => ({ '@@__routes': state.routing.routes }))(RawRoutes)
 }
 
 const ConnectRoutes = props => (ConnectedRoutes ? <ConnectedRoutes {...props} /> : <Placeholder />)

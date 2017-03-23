@@ -2,7 +2,7 @@ import React from 'react'
 import makeHistory from 'history/createMemoryHistory'
 
 import ConnectLink, { Link, connectLink } from '../src/Link'
-import { push, replace, makePath, makeRoute } from '../src'
+import { push, replace, makeRoute } from '../src'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Link', () => {
@@ -45,7 +45,11 @@ describe('react-redux-saga-router Link', () => {
     expect(spy1.called).is.true
     expect(spy.called).is.true
 
-    expect(spy1.args[0][0]()).eqls({})
+    expect(spy1.args[0][0]({
+      routing: {
+        routes: {}
+      }
+    })).eqls({ '@@__routes': {}})
     expect(spy.args[0]).eqls([Link])
   })
   it('dispatches actions when initialized', () => {
@@ -73,7 +77,13 @@ describe('react-redux-saga-router Link', () => {
       const component = renderComponent(Link, {
         route: 'hi',
         there: 'baby',
-        dispatch
+        dispatch,
+        '@@__routes': {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          }
+        }
       })
       expect(component.find('a').props('href')).eqls('/hi/baby')
       component.find('a').trigger('click')
@@ -86,7 +96,13 @@ describe('react-redux-saga-router Link', () => {
         route: 'hi',
         there: 'baby',
         replace: true,
-        dispatch
+        dispatch,
+        '@@__routes': {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          }
+        }
       })
       expect(component.find('a').props('href')).eqls('/hi/baby')
       component.find('a').trigger('click')

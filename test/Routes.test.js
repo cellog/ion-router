@@ -1,17 +1,18 @@
 import React from 'react'
-import ConnectedRoutes, { connectRoutes, RawRoutes } from '../src/Routes'
+import ConnectedRoutes, { connectRoutes, RawRoutes, Placeholder } from '../src/Routes'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Routes', () => {
   let component, store, log // eslint-disable-line
-  function make(props = {}, Comp = ConnectedRoutes) {
+  function make(props = {}, Comp = ConnectedRoutes, state = {}) {
     connectRoutes(connect)
-    const info = renderComponent(Comp, props, {}, true)
+    const info = renderComponent(Comp, props, state, true)
     component = info[0]
     store = info[1]
     log = info[2]
   }
   it('errors (in dev) on href passed in', () => {
+    connectRoutes(() => () => Placeholder)
     expect(() => renderComponent(ConnectedRoutes, { href: '/hi' }, {}, true))
       .throws('call connectRoutes with the connect function from react-redux to ' +
         'initialize Routes (see https://github.com/cellog/react-redux-saga-router/issues/1)')
@@ -43,6 +44,28 @@ describe('react-redux-saga-router Routes', () => {
     expect(log).eqls([
       { type: 'foo', payload: 'bar' }
     ])
+  })
+  it('passes in routes from state', () => {
+    const Thing = props => <div></div>
+    const R = () => <ConnectedRoutes>
+      <Thing />
+    </ConnectedRoutes>
+    make({}, R, {
+      routing: {
+        routes: {
+          hi: {
+            name: 'hi',
+            path: '/there'
+          }
+        }
+      }
+    })
+    expect(component.find(Thing).props('@@__routes')).eqls({
+      hi: {
+        name: 'hi',
+        path: '/there'
+      }
+    })
   })
   it('multiple Route children', () => {
     const Thing = (

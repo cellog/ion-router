@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react'
+import RouteParser from 'route-parser'
 import invariant from 'invariant'
 
-import { makePath } from './'
 import * as actions from './actions'
 
 class Link extends Component {
@@ -31,20 +31,30 @@ class Link extends Component {
     href: PropTypes.string,
     children: PropTypes.any,
     route: PropTypes.string,
+    '@@__routes': PropTypes.array,
   }
 
   constructor(props) {
     super(props)
     this.click = this.click.bind(this)
+    if (props.route && props['@@__routes'] && props['@@__routes'][props.route]) {
+      this.route = new RouteParser(props['@@__routes'][props.route].path)
+    }
+  }
+
+  componentWillReceiveProps(props) {
+    if (props.route && props['@@__routes'] && props['@@__routes'][props.route]) {
+      this.route = new RouteParser(props['@@__routes'][props.route].path)
+    }
   }
 
   click(e) {
     e.preventDefault()
     if (this.props.route) {
       if (this.props.replace) {
-        this.props.dispatch(actions.replace(makePath(this.props.route, this.props)))
+        this.props.dispatch(actions.replace(this.route.reverse(this.props)))
       } else {
-        this.props.dispatch(actions.push(makePath(this.props.route, this.props)))
+        this.props.dispatch(actions.push(this.route.reverse(this.props)))
       }
     } else if (this.props.replace) {
       this.props.dispatch(actions.replace(this.props.replace))
@@ -62,8 +72,8 @@ class Link extends Component {
     } = this.props
     invariant(!href, 'href should not be passed to Link, use "to," "replace" or "route" (passed "%s")', href)
     let landing = replace || to
-    if (route) {
-      landing = makePath(route, props)
+    if (this.route) {
+      landing = this.route.reverse(props)
     } else if (landing.pathname) {
       landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
@@ -85,7 +95,9 @@ export const Placeholder = () => {
 let ConnectedLink = null
 
 export function connectLink(connect) {
-  ConnectedLink = connect(() => ({}))(Link)
+  ConnectedLink = connect(state => ({
+    '@@__routes': state.routing.routes
+  }))(Link)
 }
 
 const ConnectLink = props => (ConnectedLink ? <ConnectedLink {...props} /> : <Placeholder />)
