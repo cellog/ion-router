@@ -14,13 +14,16 @@ Table of Contents
 =================
 
   * [Simple example](#simple-example)
+    * [Internal Linking with &lt;Link&gt;](#internal-linking-with-link)
     * [Extending the example: asynchronous state loading](#extending-the-example-asynchronous-state-loading)
+    * [Available selectors for Toggle](#available-selectors-for-toggle)
     * [What about complex routes like react\-router &lt;Route&gt;?](#what-about-complex-routes-like-react-router-route)
     * [Dynamic Routes](#dynamic-routes)
     * [enter/exit hooks](#enterexit-hooks)
     * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
     * [Explicitly changing URL](#explicitly-changing-url)
     * [Reverse routing: creating URLs from parameters](#reverse-routing-creating-urls-from-parameters)
+  * [Why a new router?](#why-a-new-router)
   * [Principles](#principles)
     * [URL state is just another asynchronous input to redux state](#url-state-is-just-another-asynchronous-input-to-redux-state)
     * [When the URL changes, it should cause a state change in the redux store](#when-the-url-changes-it-should-cause-a-state-change-in-the-redux-store)
@@ -30,7 +33,6 @@ Table of Contents
     * [Easy testing](#easy-testing)
     * [License](#license)
     * [Thanks](#thanks)
-
 
 ## Simple example
 
@@ -286,6 +288,87 @@ export default App
 
 Now our component will display the todo list only when it has loaded.
 
+### Available selectors for Toggles
+
+The following selectors are available for use with Toggles. import as follows:
+
+```javascript
+import * as selectors from 'react-redux-saga-router/selectors'
+```
+
+#### matchedRoute(state, name)
+
+```javascript
+import * as selectors from 'react-redux-saga-router/selectors'
+import Toggle from 'react-redux-saga-router/Toggle'
+
+export Toggle(state => selectors.matchedRoute(state, 'routename'))
+```
+
+This selector returns true if the route specified by `'routename'` is active
+
+#### noMatches
+```javascript
+import * as selectors from 'react-redux-saga-router/selectors'
+import Toggle from 'react-redux-saga-router/Toggle'
+
+export Toggle(state => selectors.noMatches(state))
+```
+
+This selector returns true if no routes match, and can be used for an error component
+or default component
+
+#### stateExists
+
+```javascript
+import * as selectors from 'react-redux-saga-router/selectors'
+import Toggle from 'react-redux-saga-router/Toggle'
+
+export Toggle(state => state.whatever, state => selectors.stateExists(state, /* state descriptor */))
+```
+
+This toggle is designed to be used to detect whether state has loaded.  Pass in
+a skeleton of the state shape and it will traverse the state to determine whether it exists.
+
+Here is a sample from an actual project:
+
+```javascript
+import Toggle from 'react-redux-saga-router/Toggle'
+import * as selectors from 'react-redux-saga-router/selectors'
+
+export const check = state => selectors.stateExists(state, {
+  campers: {
+    ids: []
+  },
+  groups: {
+    ids: [],
+    groups: {},
+    selectedGroup: (group, state) => {
+      if (!group) return true
+      if (state.groups.ids.indexOf(group) === -1) return false
+      const g = state.groups.groups[group]
+      if (!g) return false
+      if (g.type && !state.ensembleTypes.ensembleTypes[g.type]) return false
+      if (g.members.length) {
+        if (g.members.some(m => m ? !state.campers.campers[m] : false)) return false
+      }
+      return true
+    }
+  },
+  ensembleTypes: {
+    ids: [],
+  },
+})
+
+export default Toggle(state => state.groups.selectedGroup, check)
+```
+
+The selector verifies that the campers and ensembleTypes state areas have an ids
+member that is an array, and that the groups state area has ids and groups set up.
+For selectedGroup, a callback is called, passed the value of the state item plus the
+entire state tree. The callback verifies that the selected group's state is internally
+consistent and when everything is set up, returns true.
+
 ### What about complex routes like react-router `<Route>`?
 
 For a complex application, there will be components that should only display on certain
@@ -495,6 +578,119 @@ console.log(makePath('foo', {
 }))
 // '/my/pants/path/yes/this/works/just/fine/wheeee
 ```
+
+## Why a new router?
+
+[react-router](https://github.com/ReactTraining/react-router) is a mature router for
+React that has a huge following and community support. Why create a new router?
+In my work with react-router, I found that it was not possible to achieve
+some basic goals using react-router. I couldn't figure out a way to store state from
+url parameters and easily change the url from the state when using redux. It is the
+classic two-way binding issue: if there are 2 sources of state, they will fight and
+cause unexpected bugs.
+
+In addition, I moved to redux for state because the tree of components in React rarely
+corresponds to the way data is used.  In many cases, I find myself rendering different
+portions of the component tree using the same data. So I will have 2 React components
+in totally different parts of the component tree using the same piece of data.
+With react-router, I found myself duplicating a lot of content with a single component,
+or using complex routing rules to enable displaying this information.
+
+With react-redux-saga-router, multiple components can respond to a route change anywhere
+in the React component tree, allowing for more modular design.  It is important to note
+here that react-router version 4 addresses this design flaw by using a similar design
+principle to react-redux-saga-router.  Great minds think alike.  However, by coupling
+tightly the route definition and the component display, you are still limited to using
+a single component per route, and so the ability to display different components for
+the same route would require using some clever hacks such as coupling both components into
+a single component that chooses which one to render based on the route params passed in
+from react-router.  The below solution is more performant both because the components
+are not rendered at all if the route is not satisfied.
+
+```javascript
+import React from 'react'
+import Routes from 'react-redux-saga-router/Routes'
+import Route from 'react-redux-saga-router/Route'
+import Toggle from 'react-redux-saga-router/Toggle'
+import { connect } from 'react-redux'
+
+import * as actions from './actions'
+
+const albumRouteMapping = {
+  stateFromParams: params => ({ id: params.album, track: +params.track }),
+  paramsFromState: state => ({
+    album: state.albums.selectedAlbum.id,
+    track: state.albums.selectedTrack ? state.albums.selectedTrack : undefined
+  }),
+  updateState: {
+    id: id => actions.selectAlbum(id),
+    track: track => actions.playTrack(track)
+  }
+}
+
+const TrackToggle = Toggle(state => state.albums.selectedTrack,
+                           state => state.albums.selectedTrack
+                            && state.albums.allTracks[state.albums.selectedTrack].loading)
+const AlbumToggle = Toggle(state => state.albums.selectedAlbum)
+
+const AlbumList = ({ albums, selectAlbum }) => (
+  <ul>
+    {albums.map(album => <li key={album.id} onClick={selectAlbum(album.id)}>{album.name}</li>)}
+  </ul>
+)
+
+const AlbumDetail = ({ album, playTrack }) => (
+  <ul>
+    <li>Album details</li>
+    <li>...(stuff from the {album.name}</li>
+    {album.tracks.map(track => <li key={track.id} onClick={playTrack(track.id)}>{track.name}</li>)}
+  </ul>
+)
+
+const AlbumSummary = ({ album }) => {
+  <h1>
+    {album.name}
+  </h1>
+}
+
+const TrackPlayer = ({ track }) => {
+  <div>
+    <h1>{track.title}</h1>
+    <AudioPlayer audio={track.audio} /> <!-- pretend this exists -->
+  </div>
+}
+
+const AlbumSummaryContainer = connect(state => ({ album: state.albums.selectedAlbum }))(AlbumSummary)
+const AlbumListContainer = connect(state => ({ albums: state.albums.allAlbums }),
+                                   dispatch => ({ selectAlbum: id => dispatch(actions.selectAlbum(id)) }))(AlbumList)
+const AlbumDetailContainer = connect(state => ({ album: state.albums.selectedAlbum }),
+                                     dispatch => ({ playTrack: id => dispatch(actions.selectTrack(id)) }))(AlbumDetail)
+const TrackPlayerContainer = connect(state => ({ track: state.albums.tracks[state.albums.selectedTrack] }))(TrackPlayer)
+
+const MyComponent = () => (
+  <div>
+    <Routes>
+      <Route name="main" path="/" />
+      <Route name="albumlist" path="/albums(/album/:album(/track/:track))"
+             {...albumRouteMapping}
+      />
+    </Routes>
+    <TwoPanelLayout>
+      <Panel>
+        <AlbumToggle component={AlbumSummaryContainer} />
+        <TrackToggle component={TrackPlayerContainer} />
+      </Panel>
+      <Panel>
+        <AlbumToggle component={AlbumDetailContainer} else={AlbumListContainer} />
+      </Panel>
+    </TwoPanelLayout>
+  </div>
+)
+```
+
+In addition, declaring new routes in asynchronously loaded code is trivial with this
+design.  One need only put in `<Routes>` declarations in the child code and the new routes
+will be added.
 
 ## Principles
 
