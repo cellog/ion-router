@@ -49,7 +49,7 @@ describe('react-redux-saga-router Link', () => {
       routing: {
         routes: {}
       }
-    })).eqls({ '@@__routes': {}})
+    })).eqls({ '@@__routes': {} })
     expect(spy.args[0]).eqls([Link])
   })
   it('dispatches actions when initialized', () => {

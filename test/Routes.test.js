@@ -46,7 +46,7 @@ describe('react-redux-saga-router Routes', () => {
     ])
   })
   it('passes in routes from state', () => {
-    const Thing = props => <div></div>
+    const Thing = () => <div />
     const R = () => <ConnectedRoutes>
       <Thing />
     </ConnectedRoutes>

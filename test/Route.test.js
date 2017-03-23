@@ -73,7 +73,7 @@ describe('react-redux-saga-router Route', () => {
       paramsFromState: fake,
       stateFromParams: fake,
       updateState: {} })])
-    })
+  })
   it('passes url down to children', () => {
     fake() // for coverage
     const R = () => <Routes>

@@ -2,7 +2,6 @@ import RouteParser from 'route-parser'
 import createHistory from 'history/createMemoryHistory'
 import { put, take, select, call } from 'redux-saga/effects'
 
-import { makeRoute } from '../src'
 import RouteManager, { fake } from '../src/RouteManager'
 import * as actions from '../src/actions'
 import * as types from '../src/types'

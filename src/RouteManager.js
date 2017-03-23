@@ -2,7 +2,6 @@ import RouteParser from 'route-parser'
 import { createPath } from 'history'
 import { put, take, select, call } from 'redux-saga/effects'
 
-import { getRoutes } from './'
 import * as types from './types'
 import * as actions from './actions'
 import * as selectors from './selectors'
