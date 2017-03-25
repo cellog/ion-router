@@ -288,6 +288,43 @@ export default App
 
 Now our component will display the todo list only when it has loaded.
 
+### Common use case: displaying a component when a route is selected
+
+In most applications, there are menus that select components based on the user
+selecting a sub-application.  To display components whose sole display criteria is
+the selection of a route, use a `RouteToggle`
+
+```javascript
+import RouteToggle from 'react-redux-saga-router'
+
+const TodosRoute = RouteToggle('todos')
+```
+
+In this way, you can display several components scattered around a layout template
+that are route-specific without having to make a new layout template just for that route,
+or doing any strange contortions.
+
+A `RouteToggle` accepts all the arguments of Toggle afterwards:
+
+```javascript
+import RouteToggle from 'react-redux-saga-router'
+
+const TodosRoute = RouteToggle('todos', state => state.whatever === 'hi')
+```
+
+The example above will only toggle if the todos route is active and the `whatever`
+portion of state is equal to 'hi'
+
+A `RouteToggle` can be thought of
+as a simpler version of this source code:
+
+```javascript
+import Toggle from 'react-redux-saga-router/Toggle'
+import { matchedRoutes } from 'react-redux-saga-router/selectors'
+
+const TodosRoute = Toggle(state => matchedRoutes(state, 'todos'))
+```
+
 ### Available selectors for Toggles
 
 The following selectors are available for use with Toggles. import as follows:
@@ -303,6 +340,27 @@ import * as selectors from 'react-redux-saga-router/selectors'
 import Toggle from 'react-redux-saga-router/Toggle'
 
 export Toggle(state => selectors.matchedRoute(state, 'routename'))
+```
+
+`matchedRoute` accepts a single route name, or an array of route names to match.
+By default, it matches on any route.  To enable strict matching (all routes must match)
+pass in true to the third parameter of matchedRoute
+
+```javascript
+import * as selectors from 'react-redux-saga-router/selectors'
+import Toggle from 'react-redux-saga-router/Toggle'
+
+export Toggle(state => selectors.matchedRoute(state, ['route', 'subroute'], true))
+```
+
+This is useful for strict matching of a sub-route path.
+
+Note that a convenience Toggle, `RouteToggle` exists to match a route:
+
+```javascript
+import RouteToggle from 'react-redux-saga-router/RouteToggle'
+
+export RouteToggle('routename', state => otherconditions())
 ```
 
 This selector returns true if the route specified by `'routename'` is active
@@ -407,9 +465,10 @@ We need 2 things:
 ```javascript
 import * as selectors from 'react-redux-saga-router/selectors'
 import Toggle from 'react-redux-saga-router/Toggle'
+import RouteToggle from 'react-redux-saga-router/RouteToggle'
 
-const AboutToggle = Toggle(state => selectors.matchedRoute('about'))
-const UsersToggle = Toggle(state => selectors.matchedRoute('users') || Toggle(state => selectors.matchedRoute('user')))
+const AboutToggle = RouteToggle('about')
+const UsersToggle = RouteToggle(['users', 'user'])
 const SelectedUserToggle = Toggle(state => !!state.users.selectedUser,
   state => usersLoaded(state) && state.users.user[state.users.selectedUser])
 const NoMatchToggle = Toggle(state => selectors.noMatches(state))

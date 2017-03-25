@@ -1,5 +1,10 @@
-export function matchedRoute(state, name) {
-  return state.routing.matchedRoutes.some(route => route === name)
+export function matchedRoute(state, name, strict = false) {
+  if (Array.isArray(name)) {
+    const matches = state.routing.matchedRoutes.filter(route => name.includes(route))
+    if (strict) return matches.length === name.length
+    return !!matches.length
+  }
+  return state.routing.matchedRoutes.includes(name)
 }
 
 export function noMatches(state) {

@@ -11,6 +11,12 @@ describe('react-redux-saga-router selectors', () => {
     }
     expect(selectors.matchedRoute(state, 'foo')).eqls(true)
     expect(selectors.matchedRoute(state, 'bar')).eqls(false)
+    expect(selectors.matchedRoute(state, ['foo'])).eqls(true)
+    expect(selectors.matchedRoute(state, ['foo', 'bar'])).eqls(true)
+    expect(selectors.matchedRoute(state, ['foo', 'bar'], true)).eqls(false)
+    expect(selectors.matchedRoute(state, ['bar'])).eqls(false)
+    expect(selectors.matchedRoute(state, ['foo', 'gronk'])).eqls(true)
+    expect(selectors.matchedRoute(state, ['foo', 'gronk'], true)).eqls(true)
   })
   const mystate = {
     routing: {
