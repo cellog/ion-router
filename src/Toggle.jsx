@@ -64,8 +64,8 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
     loadingComponent: null
   }
 
-  function Toggle({ component: Component = defaults.component, else: ElseComponent = defaults.else,
-      loadingComponent: Loading = defaults.loadingComponent, children, ...props }) {
+  function Toggle({ component: Component = defaults.component, else: ElseComponent = defaults.else, // eslint-disable-line
+      loadingComponent: Loading = defaults.loadingComponent, children, ...props }) {  // eslint-disable-line
     const useProps = { ...props }
     const map = ['component', 'loadingComponent', 'else']
     map.forEach((item) => {
@@ -110,7 +110,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
     [names.component]: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     [names.loadingComponent]: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     loading: (props, propName, componentName) => {
-      if (!Object.hasOwnProperty.call(props, 'loadingComponent')) {
+      if (Object.hasOwnProperty.call(props, 'loading') && !Object.hasOwnProperty.call(props, 'loadingComponent')) {
         if (!componentLoadingMap.loadingComponent) {
           console.warn(`${propName} in ${componentName} should be loadingComponent for react-redux-saga-router`)
         }
