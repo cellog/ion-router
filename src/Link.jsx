@@ -31,7 +31,7 @@ class Link extends Component {
     href: PropTypes.string,
     children: PropTypes.any,
     route: PropTypes.string,
-    '@@__routes': PropTypes.array,
+    '@@__routes': PropTypes.object,
   }
 
   constructor(props) {
