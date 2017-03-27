@@ -68,7 +68,7 @@ class Link extends Component {
 
   render() {
     const {
-      dispatch, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
+      '@@__routes': unused, dispatch, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
     } = this.props
     invariant(!href, 'href should not be passed to Link, use "to," "replace" or "route" (passed "%s")', href)
     let landing = replace || to
