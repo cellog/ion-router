@@ -502,6 +502,9 @@ const stateFromParams = params => ({ userId: params.userId || false })
 const updateState = {
   userId: id => actions.setSelectedUser(id)
 }
+const exitParams = {
+  userId: undefined
+}
 
 export default () => (
   <Routes>
@@ -510,6 +513,7 @@ export default () => (
    <Route name="user" path="/user/:userId"
      paramsFromState={paramsFromState}
      stateFromParams={stateFromParams}
+     exitParams={exitParams}
      updateState={updateState}
    />
   </Routes>
@@ -582,6 +586,63 @@ Anything can be done in this code, including forcing a route to change, like a t
 enter/exit hook.  Because it is so trivial to implement this with the above code, the
 event loop that listens for URL changes and state changes does not listen for enter/exit
 hooks directly.
+
+#### updating state on route exit
+
+All routes that accept parameters and map them to state will need to unset that state
+upon exiting the route.  react-redux-saga-router can do this automatically for any
+route with only optional parameters, such as:
+
+`/path(/:optional(/:second_optional))`
+
+However, for routes that have a required parameter such as:
+
+`/path/:required`
+
+you need to tell the router how to handle this case.  If the required parameter should
+be simply set to undefined upon exiting, then you need to explicitly pass this
+into the `exitParams` prop for `<Route>`
+
+```javascript
+exitParams = {
+  required: undefined
+}
+const Routes = () => (
+  <Routes>
+    <Route
+      name="test"
+      path="/path/:required"
+      stateToParams={...}
+      paramsToState={...}
+      updateState={...}
+      exitParams={exitParams}
+    />
+  </Routes>
+)
+```
+
+If you wish to dynamically set up the parameters based on existing parameters, pass
+in a function that accepts the previous url's params as an argument and returns the
+exit params:
+
+```javascript
+exitParams = params => ({
+  required: params.required,
+  optional: undefined
+})
+const Routes = () => (
+  <Routes>
+    <Route
+      name="test"
+      path="/path/:required(/:optional)"
+      stateToParams={...}
+      paramsToState={...}
+      updateState={...}
+      exitParams={exitParams}
+    />
+  </Routes>
+)
+```
 
 ### Code splitting and asynchronous loading of Routes
 

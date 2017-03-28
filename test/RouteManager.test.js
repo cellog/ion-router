@@ -16,7 +16,7 @@ describe('Route', () => {
       route = new RouteManager(history, {
         name: 'test',
         path: '/test/:test(/:thing)',
-        paramTemplate: {
+        exitParams: {
           test: undefined,
           thing: undefined
         }
@@ -26,7 +26,7 @@ describe('Route', () => {
       expect(route.name).eqls('test')
       expect(route.route).eqls(new RouteParser('/test/:test(/:thing)'))
       expect(fake()).eqls({})
-      expect(route.paramTemplate).eqls({
+      expect(route.exitParams).eqls({
         test: undefined,
         thing: undefined
       })
@@ -34,12 +34,12 @@ describe('Route', () => {
         name: 'test',
         path: '/test'
       })
-      expect(workableRoute1.paramTemplate).eqls({})
+      expect(workableRoute1.exitParams).eqls({})
       const workableRoute2 = new RouteManager(history, {
         name: 'test',
         path: '/test(/:id)'
       })
-      expect(workableRoute2.paramTemplate).eqls({ id: undefined })
+      expect(workableRoute2.exitParams).eqls({ id: undefined })
     })
     it('url', () => {
       expect(route.url({
@@ -98,7 +98,7 @@ describe('Route', () => {
       route = new RouteManager(history, {
         name: 'foo',
         path: '/test/:test(/:thing1)',
-        paramTemplate: params => ({
+        exitParams: params => ({
           test: params.test,
           thing1: undefined
         }),
@@ -195,11 +195,11 @@ describe('Route', () => {
           }
         })
 
-        expect(next.value).eqls(call(route.paramTemplate, {
+        expect(next.value).eqls(call(route.exitParams, {
           test: 'ho',
           thing1: 'boy'
         }))
-        next = saga.next(route.paramTemplate({
+        next = saga.next(route.exitParams({
           test: 'ho',
           thing1: 'boy'
         }))
