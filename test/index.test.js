@@ -227,6 +227,13 @@ describe('react-redux-saga-router', () => {
 
     expect(next.value).eqls([
       call([
+        generatedRoutes.ensembles, generatedRoutes.ensembles.exitRoute
+      ], '/ensembles')
+    ])
+    next = saga.next()
+
+    expect(next.value).eqls([
+      call([
         generatedRoutes.campers, generatedRoutes.campers.monitorUrl
       ], {
         pathname: '/campers/2017',

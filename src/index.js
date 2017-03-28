@@ -77,6 +77,8 @@ export function *router(connect, routeDefinitions, history, channel) {
     .filter(name => routes[name].match(location))
   const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
 
+  const exitRoute = name => call([routes[name], routes[name].exitRoute], location)
+
   try {
     while (true) { // eslint-disable-line
       keys = Object.keys(routes)
@@ -88,7 +90,6 @@ export function *router(connect, routeDefinitions, history, channel) {
         const exiting = diff(lastMatches, matchedRoutes)
         const entering = diff(matchedRoutes, lastMatches)
 
-        location = path
         lastMatches = matchedRoutes
         yield put(actions.pending())
         yield put(actions.route(locationChange.location))
@@ -99,6 +100,10 @@ export function *router(connect, routeDefinitions, history, channel) {
         if (entering.length) {
           yield put(actions.enterRoutes(entering))
         }
+        if (exiting.length) {
+          yield exiting.map(exitRoute)
+        }
+        location = path
         yield keys.map(name => call([routes[name], routes[name].monitorUrl],
           locationChange.location))
         yield put(actions.commit())

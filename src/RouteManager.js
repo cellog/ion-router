@@ -12,11 +12,19 @@ export function fake() {
 
 export default class RouteManager {
   constructor(history, {
-    name, path, paramsFromState = fake, stateFromParams = fake, updateState = {},
+    name, path, paramTemplate, paramsFromState = fake, stateFromParams = fake, updateState = {},
   }) {
     this.name = name
     this.path = path
     this.route = new RouteParser(path)
+    if (paramTemplate) {
+      this.paramTemplate = paramTemplate
+    } else {
+      const reversed = this.route.reverse()
+      if (reversed) {
+        this.paramTemplate = this.route.match(reversed)
+      }
+    }
     this.paramsFromState = paramsFromState
     this.stateFromParams = stateFromParams
     this.update = updateState
@@ -64,6 +72,10 @@ export default class RouteManager {
     const state = yield select()
     const params = this.match(location.pathname ? createPath(location) : location)
     if (!params) return // this url does not match this route
+    yield* this.updateState(params, state)
+  }
+
+  *updateState(params, state) {
     const newState = this.getState(params)
     const changes = this.getStateUpdates(state, params, this.name)
     if (changes.length) {
@@ -73,6 +85,15 @@ export default class RouteManager {
         yield changes[i].map(event => put(event))
       }
     }
+  }
+
+  *exitRoute() {
+    const state = yield select()
+    console.log(selectors.oldParams(state, 'foo'))
+    const params = selectors.oldParams(state, this.name)
+    const template = this.paramTemplate instanceof Function ?
+      yield call(this.paramTemplate, params) : this.paramTemplate
+    yield* this.updateState(template, state)
   }
 
   *locationFromState() {

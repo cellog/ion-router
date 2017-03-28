@@ -16,12 +16,30 @@ describe('Route', () => {
       route = new RouteManager(history, {
         name: 'test',
         path: '/test/:test(/:thing)',
+        paramTemplate: {
+          test: undefined,
+          thing: undefined
+        }
       })
     })
     it('RouteManager constructor', () => {
       expect(route.name).eqls('test')
       expect(route.route).eqls(new RouteParser('/test/:test(/:thing)'))
       expect(fake()).eqls({})
+      expect(route.paramTemplate).eqls({
+        test: undefined,
+        thing: undefined
+      })
+      const workableRoute1 = new RouteManager(history, {
+        name: 'test',
+        path: '/test'
+      })
+      expect(workableRoute1.paramTemplate).eqls({})
+      const workableRoute2 = new RouteManager(history, {
+        name: 'test',
+        path: '/test(/:id)'
+      })
+      expect(workableRoute2.paramTemplate).eqls({ id: undefined })
     })
     it('url', () => {
       expect(route.url({
@@ -80,6 +98,10 @@ describe('Route', () => {
       route = new RouteManager(history, {
         name: 'foo',
         path: '/test/:test(/:thing1)',
+        paramTemplate: params => ({
+          test: params.test,
+          thing1: undefined
+        }),
         paramsFromState: state => ({
           test: state.testing,
           thing1: state.thing
@@ -143,6 +165,56 @@ describe('Route', () => {
       expect(route.getUrlUpdate(mystate, 'foo')).eqls(false)
     })
     describe('sagas', () => {
+      it('exitRoute', () => {
+        const saga = route.exitRoute()
+        let next = saga.next()
+
+        expect(next.value).eqls(select())
+        next = saga.next({
+          ...mystate,
+          testing: 'ho',
+          thing: 'boy',
+          routing: {
+            ...mystate.routing,
+            routes: {
+              ...mystate.routing.routes,
+              routes: {
+                ...mystate.routing.routes.routes,
+                foo: {
+                  params: {
+                    test: 'ho',
+                    thing1: 'boy'
+                  },
+                  state: {
+                    testing: 'ho',
+                    thing: 'boy'
+                  }
+                }
+              }
+            }
+          }
+        })
+
+        expect(next.value).eqls(call(route.paramTemplate, {
+          test: 'ho',
+          thing1: 'boy'
+        }))
+        next = saga.next(route.paramTemplate({
+          test: 'ho',
+          thing1: 'boy'
+        }))
+
+        expect(next.value).eqls(put(actions.setParamsAndState(route.name, {
+          test: 'ho',
+          thing1: undefined
+        }, {
+          testing: 'ho',
+          thing: undefined
+        })))
+        next = saga.next()
+
+        expect(next.value).eqls([put({ type: 'thing', payload: undefined })])
+      })
       it('stateFromLocation', () => {
         const saga = route.stateFromLocation({
           pathname: '/test/hooya/burble',
