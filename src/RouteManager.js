@@ -89,7 +89,6 @@ export default class RouteManager {
 
   *exitRoute() {
     const state = yield select()
-    console.log(selectors.oldParams(state, 'foo'))
     const params = selectors.oldParams(state, this.name)
     const template = this.exitParams instanceof Function ?
       yield call(this.exitParams, params) : this.exitParams

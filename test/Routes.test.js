@@ -1,5 +1,5 @@
 import React from 'react'
-import ConnectedRoutes, { connectRoutes, RawRoutes, Placeholder } from '../src/Routes'
+import ConnectedRoutes, { connectRoutes, RawRoutes } from '../src/Routes'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Routes', () => {
