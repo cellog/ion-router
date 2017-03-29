@@ -67,9 +67,14 @@ describe('react-redux-saga-router Link', () => {
   })
   describe('generates the correct path when route option is used', () => {
     before(() => {
-      makeRoute(makeHistory(), {
+      const h = makeHistory()
+      makeRoute(h, {
         name: 'hi',
         path: '/hi/:there'
+      })
+      makeRoute(h, {
+        name: 'there',
+        path: '/there/:there'
       })
     })
     it('push', () => {
@@ -108,6 +113,42 @@ describe('react-redux-saga-router Link', () => {
       component.find('a').trigger('click')
       expect(dispatch.called).is.true
       expect(dispatch.args[0]).eqls([replace('/hi/baby')])
+    })
+    it('replaces route when props change', () => {
+      const component = renderComponent(Link, {
+        route: 'hi',
+        there: 'baby',
+        replace: true,
+        dispatch: () => null,
+        '@@__routes': {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          },
+          there: {
+            name: 'there',
+            path: '/there/:there'
+          }
+        }
+      })
+      expect(component.find('a').props('href')).eqls('/hi/baby')
+      component.props({
+        route: 'there',
+        there: 'baby',
+        replace: true,
+        dispatch: () => null,
+        '@@__routes': {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          },
+          there: {
+            name: 'there',
+            path: '/there/:there'
+          }
+        }
+      })
+      expect(component.find('a').props('href')).eqls('/there/baby')
     })
   })
 })

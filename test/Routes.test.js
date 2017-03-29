@@ -12,7 +12,6 @@ describe('react-redux-saga-router Routes', () => {
     log = info[2]
   }
   it('errors (in dev) on href passed in', () => {
-    connectRoutes(() => () => Placeholder)
     expect(() => renderComponent(ConnectedRoutes, { href: '/hi' }, {}, true))
       .throws('call connectRoutes with the connect function from react-redux to ' +
         'initialize Routes (see https://github.com/cellog/react-redux-saga-router/issues/1)')

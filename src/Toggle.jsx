@@ -109,10 +109,11 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
   Toggle.propTypes = {
     [names.component]: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     [names.loadingComponent]: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-    loading: (props, propName, componentName) => {
+    loading: (props, propName) => {
       if (Object.hasOwnProperty.call(props, 'loading') && !Object.hasOwnProperty.call(props, 'loadingComponent')) {
+        const name = props.component.displayName || props.component.name || 'Component'
         if (!componentLoadingMap.loadingComponent) {
-          console.warn(`${propName} in ${componentName} should be loadingComponent for react-redux-saga-router`)
+          console.warn(`${propName} in Toggle:${name} should be loadingComponent for react-redux-saga-router`)
         }
       }
       return null
