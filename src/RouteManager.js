@@ -1,6 +1,6 @@
 import RouteParser from 'route-parser'
 import { createPath } from 'history'
-import { put, take, select, call } from 'redux-saga/effects'
+import { put, take, select, call, fork, cancel } from 'redux-saga/effects'
 
 import * as types from './types'
 import * as actions from './actions'
@@ -109,6 +109,7 @@ export default class RouteManager {
 
   *initState() {
     yield call([this, this.stateFromLocation], this.history.location)
+    this.monitorTask = yield fork([this, this.monitorState])
   }
 
   *monitorState() {
@@ -123,5 +124,9 @@ export default class RouteManager {
 
   *monitorUrl(location) {
     yield call([this, this.stateFromLocation], location)
+  }
+
+  *unload() {
+    yield cancel(this.monitorTask)
   }
 }

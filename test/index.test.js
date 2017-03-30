@@ -8,12 +8,12 @@ import doRoutes, {
   makePath,
   matchesPath,
   makeRoute,
+  clearRoutes,
 
   browserActions,
   listenForRoutes,
   router,
   initRoute,
-  RouteManager
 } from '../src'
 import { connectLink } from '../src/Link'
 import { connectRoutes } from '../src/Routes'
@@ -23,6 +23,7 @@ import * as actions from '../src/actions'
 import * as selectors from '../src/selectors'
 
 describe('react-redux-saga-router', () => {
+  afterEach(() => clearRoutes())
   describe('makePath/matchesPath', () => {
     beforeEach(() => {
       const history = createHistory({
@@ -102,44 +103,47 @@ describe('react-redux-saga-router', () => {
 
     expect(next.value).eqls(take(types.ACTION))
   })
+  const routes = [{
+    name: 'campers',
+    path: '/campers/:year(/:id)',
+    paramsFromState: state => ({
+      id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
+      year: state.currentYear + '' // eslint-disable-line
+    }),
+    stateFromParams: params => ({
+      id: params.id ? params.id : false,
+      year: +params.year
+    }),
+    updateState: {
+      id: id => ({ type: 'select', payload: id }),
+      year: year => ({ type: 'year', payload: year })
+    }
+  }, {
+    name: 'ensembles',
+    path: '/ensembles(/:id)',
+    paramsFromState: state => ({
+      id: state.ensembleTypes.selectedEnsembleType ?
+        state.ensembleTypes.selectedEnsembleType : undefined,
+    }),
+    stateFromParams: params => ({
+      id: params.id ? params.id : false,
+    }),
+    updateState: {
+      id: id => ({ type: 'ensemble', payload: id }),
+    }
+  }]
   it('router', () => {
     const history = createHistory({
       initialEntries: ['/ensembles']
     })
     const mockTask = createMockTask()
     const channel = historyChannel(history)
-    const routes = [{
-      name: 'campers',
-      path: '/campers/:year(/:id)',
-      paramsFromState: state => ({
-        id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
-        year: state.currentYear + '' // eslint-disable-line
-      }),
-      stateFromParams: params => ({
-        id: params.id ? params.id : false,
-        year: +params.year
-      }),
-      updateState: {
-        id: id => ({ type: 'select', payload: id }),
-        year: year => ({ type: 'year', payload: year })
-      }
-    }, {
-      name: 'ensembles',
-      path: '/ensembles(/:id)',
-      paramsFromState: state => ({
-        id: state.ensembleTypes.selectedEnsembleType ?
-          state.ensembleTypes.selectedEnsembleType : undefined,
-      }),
-      stateFromParams: params => ({
-        id: params.id ? params.id : false,
-      }),
-      updateState: {
-        id: id => ({ type: 'ensemble', payload: id }),
-      }
-    }]
     const connect = () => null
     const saga = router(connect, routes, history, channel)
     let next = saga.next()
+
+    expect(next.value).eqls(fork(listenForRoutes, history))
+    next = saga.next()
 
     expect(next.value).eqls(call(connectLink, connect))
     next = saga.next()
@@ -156,45 +160,13 @@ describe('react-redux-saga-router', () => {
     expect(next.value).eqls(fork(browserActions, history))
     next = saga.next(mockTask)
 
-    expect(next.value).eqls(put(actions.addRoute('campers', '/campers/:year(/:id)')))
+    makeRoute(history, routes[0])
+    makeRoute(history, routes[1])
+
+    expect(next.value).eqls(call(initRoute, history, routes[0]))
     next = saga.next()
 
-    let generatedRoutes = getRoutes()
-
-    expect(next.value).eqls(call([
-      generatedRoutes.campers, generatedRoutes.campers.initState
-    ]))
-    next = saga.next()
-
-    expect(next.value).eqls(fork([
-      generatedRoutes.campers, generatedRoutes.campers.monitorState
-    ]))
-    next = saga.next()
-
-    expect(next.value).eqls(put(actions.addRoute('ensembles', '/ensembles(/:id)')))
-    next = saga.next()
-
-    generatedRoutes = getRoutes()
-
-    expect(next.value).eqls(call([
-      generatedRoutes.ensembles, generatedRoutes.ensembles.initState
-    ]))
-    next = saga.next()
-
-    expect(next.value).eqls(fork([
-      generatedRoutes.ensembles, generatedRoutes.ensembles.monitorState
-    ]))
-    next = saga.next()
-
-    expect(generatedRoutes).eqls({
-      campers: new RouteManager(history, routes[0]),
-      ensembles: new RouteManager(history, routes[1])
-    })
-
-    expect(next.value).eqls(select(selectors.matchedRoutes))
-    next = saga.next([])
-
-    expect(next.value).eqls(put(actions.matchRoutes(['ensembles'])))
+    expect(next.value).eqls(call(initRoute, history, routes[1]))
     next = saga.next()
 
     expect(next.value).eqls(take(channel))
@@ -225,6 +197,7 @@ describe('react-redux-saga-router', () => {
     expect(next.value).eqls(put(actions.enterRoutes(['campers'])))
     next = saga.next()
 
+    const generatedRoutes = getRoutes()
     expect(next.value).eqls([
       call([
         generatedRoutes.ensembles, generatedRoutes.ensembles.exitRoute
@@ -358,6 +331,56 @@ describe('react-redux-saga-router', () => {
     expect(next.value).eqls(take(types.CREATE_ROUTE))
     next = saga.next(actions.createRoute(params))
 
-    expect(next.value).eqls(call(initRoute, 'hi', params))
+    expect(next.value).eqls(fork(initRoute, 'hi', params))
+  })
+  it('initRoute', () => {
+    const history = createHistory({
+      initialEntries: ['/ensembles']
+    })
+    const saga = initRoute(history, routes[0])
+    let next = saga.next()
+
+    expect(next.value).eqls(put(actions.addRoute('campers', '/campers/:year(/:id)')))
+    next = saga.next()
+
+    const generatedRoutes = getRoutes()
+    expect(next.value).eqls(call([generatedRoutes.campers, generatedRoutes.campers.initState]))
+    next = saga.next()
+
+    expect(next).eqls({ value: undefined, done: true })
+  })
+  it('initRoute, route exists', () => {
+    const history = createHistory({
+      initialEntries: ['/ensembles']
+    })
+    makeRoute(history, routes[0])
+    const groutes = getRoutes()
+
+    const saga = initRoute(history, routes[0])
+    const next = saga.next()
+
+    expect(next.value).eqls(call([groutes.campers, groutes.campers.unload]))
+  })
+  it('initRoute, route matches url', () => {
+    const history = createHistory({
+      initialEntries: ['/campers/2017']
+    })
+    const saga = initRoute(history, routes[0])
+    let next = saga.next()
+
+    expect(next.value).eqls(put(actions.addRoute('campers', '/campers/:year(/:id)')))
+    next = saga.next()
+
+    const generatedRoutes = getRoutes()
+    expect(next.value).eqls(call([generatedRoutes.campers, generatedRoutes.campers.initState]))
+    next = saga.next()
+
+    expect(next.value).eqls(select(selectors.matchedRoutes))
+    next = saga.next([])
+
+    expect(next.value).eqls(put(actions.matchRoutes(['campers'])))
+    next = saga.next()
+
+    expect(next).eqls({ value: undefined, done: true })
   })
 })

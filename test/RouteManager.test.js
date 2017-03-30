@@ -1,6 +1,7 @@
 import RouteParser from 'route-parser'
 import createHistory from 'history/createMemoryHistory'
-import { put, take, select, call } from 'redux-saga/effects'
+import { put, take, select, call, fork, cancel } from 'redux-saga/effects'
+import { createMockTask } from 'redux-saga/lib/utils'
 
 import RouteManager, { fake } from '../src/RouteManager'
 import * as actions from '../src/actions'
@@ -374,6 +375,10 @@ describe('Route', () => {
         expect(next.value).eqls(call([route, route.stateFromLocation], route.history.location))
         next = saga.next()
 
+        expect(next.value).eqls(fork([route, route.monitorState]))
+        next = saga.next('hi')
+
+        expect(route.monitorTask).eqls('hi')
         expect(next).eqls({
           value: undefined,
           done: true
@@ -417,6 +422,16 @@ describe('Route', () => {
           value: undefined,
           done: true
         })
+      })
+      it('unload', () => {
+        const saga = route.unload()
+        route.monitorTask = createMockTask()
+        let next = saga.next()
+
+        expect(next.value).eqls(cancel(route.monitorTask))
+        next = saga.next()
+
+        expect(next).eqls({ done: true, value: undefined })
       })
     })
   })

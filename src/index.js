@@ -13,10 +13,15 @@ import { connectToggle } from './Toggle'
 
 export * from './actions'
 
-const routes = {}
+let routes = {}
 
 export function getRoutes() {
   return { ...routes }
+}
+
+export function clearRoutes() {
+  // for unit testing ONLY
+  routes = {}
 }
 
 export function makePath(name, params) {
@@ -43,10 +48,12 @@ export function makeRoute(history, route) {
 }
 
 export function *initRoute(history, params) {
+  if (routes[params.name]) {
+    yield call([routes[params.name], routes[params.name].unload])
+  }
   makeRoute(history, params)
   yield put(actions.addRoute(params.name, params.path))
   yield call([routes[params.name], routes[params.name].initState])
-  yield fork([routes[params.name], routes[params.name].monitorState])
   const location = createPath(history.location)
   const matched = routes[params.name].match(location)
   if (matched) {
@@ -58,11 +65,12 @@ export function *initRoute(history, params) {
 export function *listenForRoutes(history) {
   while (true) { // eslint-disable-line
     const params = yield take(types.CREATE_ROUTE)
-    yield call(initRoute, history, params.payload)
+    yield fork(initRoute, history, params.payload)
   }
 }
 
 export function *router(connect, routeDefinitions, history, channel) {
+  yield fork(listenForRoutes, history)
   yield call(connectLink, connect)
   yield call(connectRoutes, connect)
   yield call(connectToggle, connect)
@@ -70,7 +78,7 @@ export function *router(connect, routeDefinitions, history, channel) {
   const browserTask = yield fork(browserActions, history)
   let location = createPath(history.location)
   for (let i = 0; i < routeDefinitions.length; i++) {
-    yield* initRoute(history, routeDefinitions[i])
+    yield call(initRoute, history, routeDefinitions[i])
   }
   let keys = Object.keys(routes)
   let lastMatches = keys
@@ -86,7 +94,7 @@ export function *router(connect, routeDefinitions, history, channel) {
       const path = createPath(locationChange.location)
       if (location !== path) {
         const matchedRoutes = keys
-          .filter(name => routes[name].match(path))
+          .filter(name => routes[name].match(path)) // eslint-disable-line
         const exiting = diff(lastMatches, matchedRoutes)
         const entering = diff(matchedRoutes, lastMatches)
 
@@ -104,7 +112,7 @@ export function *router(connect, routeDefinitions, history, channel) {
           yield exiting.map(exitRoute)
         }
         location = path
-        yield keys.map(name => call([routes[name], routes[name].monitorUrl],
+        yield keys.map(name => call([routes[name], routes[name].monitorUrl], // eslint-disable-line
           locationChange.location))
         yield put(actions.commit())
       }
