@@ -8,7 +8,8 @@ export function RawRoutes({ dispatch, '@@__routes': routes, children }) {
 
 RawRoutes.propTypes = {
   dispatch: PropTypes.func,
-  children: PropTypes.any
+  children: PropTypes.any,
+  '@@__routes': PropTypes.object,
 }
 
 export const Placeholder = () => {
