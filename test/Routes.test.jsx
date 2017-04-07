@@ -41,7 +41,7 @@ describe('react-redux-saga-router Routes', () => {
       }
 
       render() {
-        return <div></div>
+        return <div />
       }
     }
     const R = () => <ConnectedRoutes>

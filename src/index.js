@@ -16,7 +16,9 @@ export const options = {
   resolve: false,
 }
 
-export const setServer = (val = true) => options.server = val
+export const setServer = (val = true) => {
+  options.server = val
+}
 
 export const pending = opts => opts.pending
 
