@@ -2,10 +2,12 @@ import React, { PropTypes } from 'react'
 
 import DisplaysChildren from './DisplaysChildren'
 
-let connect = () => {
+export const error = () => {
   throw new Error('call connectToggle with the connect function from react-redux to ' +
     'initialize Toggle (see https://github.com/cellog/react-redux-saga-router/issues/1)')
 }
+
+let connect = error
 
 export function connectToggle(c) {
   connect = c

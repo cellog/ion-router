@@ -6,6 +6,7 @@ const defaultState = {
     search: '',
     hash: ''
   },
+  pending: false,
   matchedRoutes: [],
   routes: {
     ids: [],
@@ -48,6 +49,30 @@ export default (state = defaultState, action) => {
         ...state,
         matchedRoutes: action.payload
       }
+    case types.BATCH_ROUTES:
+      return {
+        ...state,
+        routes: {
+          ids: [...state.routes.ids, ...action.payload.ids],
+          routes: {
+            ...state.routes.routes,
+            ...action.payload.ids.reduce(
+              (defs, n) => {
+                const r = action.payload.routes[n]
+                return {
+                  ...defs,
+                  [r.name]: {
+                    name: r.name,
+                    path: r.path,
+                    parent: r.parent,
+                    params: {},
+                    state: {}
+                  }
+                }
+              }, {})
+          }
+        }
+      }
     case types.EDIT_ROUTE:
       route = action.payload
       return {
@@ -56,7 +81,13 @@ export default (state = defaultState, action) => {
           ids: [...state.routes.ids, route.name],
           routes: {
             ...state.routes.routes,
-            [route.name]: route
+            [route.name]: {
+              name: route.name,
+              path: route.path,
+              parent: route.parent,
+              params: route.params,
+              state: route.state
+            }
           }
         }
       }

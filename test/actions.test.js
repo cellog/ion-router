@@ -1,6 +1,7 @@
 import * as actions from '../src/actions'
 import * as types from '../src/types'
 
+
 describe('react-redux-saga-router actions', () => {
   it('push', () => {
     expect(actions.push('/hi')).eqls({
@@ -84,13 +85,45 @@ describe('react-redux-saga-router actions', () => {
     })
   })
   it('addRoute', () => {
-    expect(actions.addRoute('foo', '/hi/:there')).eqls({
+    expect(actions.addRoute({ name: 'foo', path: '/hi/:there' })).eqls({
       type: types.EDIT_ROUTE,
       payload: {
         name: 'foo',
-        url: '/hi/:there',
+        path: '/hi/:there',
+        parent: undefined,
         params: {},
         state: {}
+      }
+    })
+  })
+  it('batchRoutes', () => {
+    expect(actions.batchRoutes([{
+      name: 'foo',
+      path: '/hi/there',
+    }, {
+      name: 'bar',
+      path: '/bar/ber',
+      parent: 'foo'
+    }])).eqls({
+      type: types.BATCH_ROUTES,
+      payload: {
+        ids: ['foo', 'bar'],
+        routes: {
+          foo: {
+            name: 'foo',
+            path: '/hi/there',
+            parent: undefined,
+            params: {},
+            state: {}
+          },
+          bar: {
+            name: 'bar',
+            path: '/bar/ber',
+            parent: 'foo',
+            params: {},
+            state: {}
+          }
+        }
       }
     })
   })

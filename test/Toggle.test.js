@@ -1,5 +1,5 @@
 import React from 'react'
-import Toggle, { connectToggle, NullComponent } from '../src/Toggle'
+import Toggle, { connectToggle, error, NullComponent } from '../src/Toggle'
 import DisplaysChildren from '../src/DisplaysChildren'
 import { renderComponent, connect } from './test_helper'
 
@@ -11,6 +11,7 @@ describe('Toggle', () => {
   )
   let Route, state // eslint-disable-line
   it('should freak out if we don\'t initialize', () => {
+    connectToggle(error)
     const R = Toggle(() => true)
     expect(() => renderComponent(R, { component: Component, foo: 'bar' }, { week: 1 }))
       .throws('call connectToggle with the connect function from react-redux to ' +

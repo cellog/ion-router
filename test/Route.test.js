@@ -2,6 +2,8 @@ import React from 'react'
 import Route, { fake } from '../src/Route'
 import Routes, { connectRoutes } from '../src/Routes'
 import * as actions from '../src/actions'
+import { setEnhancedRoutes } from '../src'
+import * as enhancers from '../src/enhancers'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Route', () => {
@@ -45,34 +47,43 @@ describe('react-redux-saga-router Route', () => {
     </Routes>)
     make({}, R)
     expect(log).eqls([
-      actions.createRoute({
+      actions.batchRoutes([{
         name: 'ensembles',
         path: '/ensembles/:id',
         paramsFromState,
         stateFromParams,
+        parent: undefined,
         updateState
-      })
+      }])
     ])
   })
   it('uses parent', () => {
     const R = () => <Routes>
       <Route name="test" parent="foo" path="mine/" />
     </Routes>
+    setEnhancedRoutes(enhancers.save({
+      name: 'foo',
+      path: '/testing/'
+    }, {}))
     make({}, R, {
       routing: {
         routes: {
-          foo: {
-            name: 'foo',
-            path: '/testing/'
+          ids: ['foo'],
+          routes: {
+            foo: {
+              name: 'foo',
+              path: '/testing/'
+            }
           }
         }
       }
     })
-    expect(log).eqls([actions.createRoute({ name: 'test',
+    expect(log).eqls([actions.batchRoutes([{ name: 'test',
       path: '/testing/mine/',
+      parent: 'foo',
       paramsFromState: fake,
       stateFromParams: fake,
-      updateState: {} })])
+      updateState: {} }])])
   })
   it('passes url down to children', () => {
     fake() // for coverage
@@ -97,27 +108,25 @@ describe('react-redux-saga-router Route', () => {
     </Routes>
     make({}, R)
     expect(log).eqls([
-      actions.createRoute({
+      actions.batchRoutes([{
         name: 'ensembles',
         path: '/ensembles/:id',
         paramsFromState,
         stateFromParams,
         updateState
-      }),
-      actions.createRoute({
+      }, {
         name: 'test',
         path: '/ensembles/:id/hi/',
         paramsFromState: fake,
         stateFromParams: fake,
         updateState: {}
-      }),
-      actions.createRoute({
+      }, {
         name: 'gronk',
         path: '/ensembles/:id/hi/fi',
         paramsFromState: fake,
         stateFromParams: fake,
         updateState: {}
-      })
+      }])
     ])
   })
 })

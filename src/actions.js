@@ -1,12 +1,5 @@
 import * as types from './types'
 
-export function createRoute(params) {
-  return {
-    type: types.CREATE_ROUTE,
-    payload: params
-  }
-}
-
 function makeUrlAction(name) {
   return (details, state = undefined) => ({
     type: types.ACTION,
@@ -63,14 +56,35 @@ export function route(location) {
   }
 }
 
-export function addRoute(name, url) {
+export function addRoute(params) {
   return {
     type: types.EDIT_ROUTE,
     payload: {
-      name,
-      url,
+      name: params.name,
+      path: params.path,
+      parent: params.parent,
       params: {},
       state: {}
+    }
+  }
+}
+
+export function batchRoutes(routes) {
+  return {
+    type: types.BATCH_ROUTES,
+    payload: {
+      ids: routes.map(r => r.name),
+      routes: routes.reduce(
+        (defs, r) => ({
+          ...defs,
+          [r.name]: {
+            parent: r.parent,
+            ...r,
+            params: {},
+            state: {}
+          }
+        }), {}
+      )
     }
   }
 }

@@ -102,7 +102,11 @@ describe('react-redux-saga-router reducer', () => {
         }
       }
     }
-    expect(reducer(state, actions.addRoute('hi', '/hi/:there'))).eqls({
+    expect(reducer(state, actions.addRoute({
+      name: 'hi',
+      path: '/hi/:there',
+      stateFromParams: hi => hi
+    }))).eqls({
       ...state,
       routes: {
         ids: ['foo', 'bar', 'hi'],
@@ -110,7 +114,8 @@ describe('react-redux-saga-router reducer', () => {
           ...state.routes.routes,
           hi: {
             name: 'hi',
-            url: '/hi/:there',
+            path: '/hi/:there',
+            parent: undefined,
             params: {},
             state: {}
           }
@@ -118,9 +123,75 @@ describe('react-redux-saga-router reducer', () => {
       }
     })
   })
+  it('BATCH_ROUTE', () => {
+    const state = reducer()
+    state.routes = {
+      ids: ['foo', 'bar'],
+      routes: {
+        foo: {
+          name: 'foo',
+          path: '/foo(/:foo)',
+          params: {
+            foo: undefined
+          },
+          state: {
+            bar: undefined
+          }
+        },
+        bar: {
+          name: 'bar',
+          path: '/bar(/:foo)',
+          params: {
+            foo: undefined
+          },
+          state: {
+            bar: undefined
+          }
+        }
+      }
+    }
+    const action = actions.batchRoutes([
+      {
+        name: 'fer',
+        path: '/fer',
+        params: {},
+        state: {}
+      }, {
+        name: 'far',
+        path: '/far',
+        parent: 'foo',
+        params: {},
+        state: {}
+      }
+    ])
+    const newstate = {
+      ...state,
+      routes: {
+        ids: [...state.routes.ids, 'fer', 'far'],
+        routes: {
+          ...state.routes.routes,
+          fer: {
+            name: 'fer',
+            path: '/fer',
+            parent: undefined,
+            params: {},
+            state: {}
+          },
+          far: {
+            name: 'far',
+            path: '/far',
+            parent: 'foo',
+            params: {},
+            state: {}
+          }
+        }
+      }
+    }
+    expect(reducer(state, action)).eqls(newstate)
+  })
   it('REMOVE_ROUTE', () => {
     const start = reducer()
-    const state = reducer(start, actions.addRoute('hi', '/hi/:there'))
+    const state = reducer(start, actions.addRoute({ name: 'hi', path: '/hi/:there' }))
     expect(reducer(state, actions.removeRoute('hi'))).eqls(start)
   })
   it('unknown type', () => {

@@ -1,8 +1,9 @@
 import React from 'react'
-import makeHistory from 'history/createMemoryHistory'
 
 import ConnectLink, { Link, connectLink } from '../src/Link'
-import { push, replace, makeRoute } from '../src'
+import { push, replace } from '../src/actions'
+import { setEnhancedRoutes } from '../src'
+import * as enhancers from '../src/enhancers'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Link', () => {
@@ -67,15 +68,13 @@ describe('react-redux-saga-router Link', () => {
   })
   describe('generates the correct path when route option is used', () => {
     before(() => {
-      const h = makeHistory()
-      makeRoute(h, {
-        name: 'hi',
-        path: '/hi/:there'
-      })
-      makeRoute(h, {
+      setEnhancedRoutes(enhancers.save({
         name: 'there',
         path: '/there/:there'
-      })
+      }, enhancers.save({
+        name: 'hi',
+        path: '/hi/:there'
+      }, {})))
     })
     it('push', () => {
       const dispatch = sinon.spy()

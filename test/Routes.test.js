@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { Component } from 'react'
 import ConnectedRoutes, { connectRoutes, RawRoutes } from '../src/Routes'
+import * as actions from '../src/actions'
+import { setServer } from '../src'
 import { renderComponent, connect } from './test_helper'
 
 describe('react-redux-saga-router Routes', () => {
@@ -30,18 +32,25 @@ describe('react-redux-saga-router Routes', () => {
     expect(spy.args[0]).eqls([RawRoutes])
   })
 
-  it('passes in dispatch prop', () => {
-    const Thing = ({ dispatch }) => { // eslint-disable-line
-      expect(dispatch).is.instanceof(Function)
-      return <div onClick={() => dispatch({ type: 'foo', payload: 'bar' })}>hi</div> // eslint-disable-line
+  it('passes in @@AddRoute prop', () => {
+    class Thing extends Component {
+      constructor(props) {
+        super(props)
+        expect(props['@@AddRoute']).is.instanceof(Function) // eslint-disable-line
+        props['@@AddRoute']({ name: 'foo', path: '/bar' }) // eslint-disable-line
+      }
+
+      render() {
+        return <div></div>
+      }
     }
     const R = () => <ConnectedRoutes>
       <Thing />
     </ConnectedRoutes>
     make({}, R)
-    component.find('div').trigger('click')
+
     expect(log).eqls([
-      { type: 'foo', payload: 'bar' }
+      actions.batchRoutes([{ name: 'foo', path: '/bar' }])
     ])
   })
   it('passes in routes from state', () => {
@@ -52,9 +61,12 @@ describe('react-redux-saga-router Routes', () => {
     make({}, R, {
       routing: {
         routes: {
-          hi: {
-            name: 'hi',
-            path: '/there'
+          ids: ['hi'],
+          routes: {
+            hi: {
+              name: 'hi',
+              path: '/there'
+            }
           }
         }
       }
@@ -77,5 +89,16 @@ describe('react-redux-saga-router Routes', () => {
     expect(component.props('props').children).has.length(2)
     expect(component.props('props').children[0].props.className).eqls('hi')
     expect(component.props('props').children[1].props.className).eqls('there')
+  })
+  describe('server', () => {
+    before(() => setServer())
+    after(() => setServer(false))
+    it('addRoute', () => {
+      const Thing = (
+        <ConnectedRoutes>
+
+        </ConnectedRoutes>
+      )
+    })
   })
 })

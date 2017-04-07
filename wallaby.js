@@ -51,6 +51,6 @@ module.exports = function(wallaby) {
       propagateToGlobal(win)
       global.window.____isjsdom = true
     },
-    //debug: true
-  };
-};
+    // debug: true
+  }
+}
