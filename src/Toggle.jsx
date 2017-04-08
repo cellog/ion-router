@@ -115,7 +115,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
       if (Object.hasOwnProperty.call(props, 'loading') && !Object.hasOwnProperty.call(props, 'loadingComponent')) {
         const name = props.component.displayName || props.component.name || 'Component'
         if (!componentLoadingMap.loadingComponent) {
-          console.warn(`${propName} in Toggle:${name} should be loadingComponent for react-redux-saga-router`)
+          console.warn(`${propName} in Toggle:${name} should be loadingComponent for react-redux-saga-router`) // eslint-disable-line
         }
       }
       return null

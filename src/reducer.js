@@ -104,6 +104,16 @@ export default (state = defaultState, action) => {
           routes,
         }
       }
+    case types.BATCH_REMOVE_ROUTES:
+      ids = state.routes.ids.filter(id => !action.payload.ids.includes(id))
+      routes = ids.reduce((newroutes, id) => ({ ...newroutes, [id]: state.routes.routes[id] }), {})
+      return {
+        ...state,
+        routes: {
+          ids,
+          routes
+        }
+      }
     default:
       return state
   }

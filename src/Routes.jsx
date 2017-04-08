@@ -20,6 +20,10 @@ export class RawRoutes extends Component {
     this.props.dispatch(actions.batchRoutes(this.myRoutes))
   }
 
+  componentWillUnmount() {
+    this.props.dispatch(actions.batchRemoveRoutes(this.myRoutes))
+  }
+
   addRoute(route) {
     this.myRoutes.push(route)
     if (this.isServer) {

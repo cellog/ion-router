@@ -10,7 +10,7 @@
     "build": "npm run clean && babel src --out-dir lib",
     "clean": "rimraf lib/",
     "local-test": "./local-test.env",
-    "lint": "eslint src test",
+    "lint": "eslint --ext jsx --ext js src test",
     "test": "./run-tests.sh",
     "release": "npm run build && npm publish"
   },

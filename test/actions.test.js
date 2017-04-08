@@ -127,6 +127,38 @@ describe('react-redux-saga-router actions', () => {
       }
     })
   })
+
+  it('batchRemoveRoutes', () => {
+    expect(actions.batchRemoveRoutes([{
+      name: 'foo',
+      path: '/hi/there',
+    }, {
+      name: 'bar',
+      path: '/bar/ber',
+      parent: 'foo'
+    }])).eqls({
+      type: types.BATCH_REMOVE_ROUTES,
+      payload: {
+        ids: ['foo', 'bar'],
+        routes: {
+          foo: {
+            name: 'foo',
+            path: '/hi/there',
+            parent: undefined,
+            params: {},
+            state: {}
+          },
+          bar: {
+            name: 'bar',
+            path: '/bar/ber',
+            parent: 'foo',
+            params: {},
+            state: {}
+          }
+        }
+      }
+    })
+  })
   it('removeRoute', () => {
     expect(actions.removeRoute('foo')).eqls({
       type: types.REMOVE_ROUTE,

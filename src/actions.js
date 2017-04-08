@@ -96,6 +96,26 @@ export function removeRoute(name) {
   }
 }
 
+export function batchRemoveRoutes(routes) {
+  return {
+    type: types.BATCH_REMOVE_ROUTES,
+    payload: {
+      ids: routes.map(r => r.name),
+      routes: routes.reduce(
+        (defs, r) => ({
+          ...defs,
+          [r.name]: {
+            parent: r.parent,
+            ...r,
+            params: {},
+            state: {}
+          }
+        }), {}
+      )
+    }
+  }
+}
+
 export function setParamsAndState(details, params, state) {
   return {
     type: types.SET_PARAMS,

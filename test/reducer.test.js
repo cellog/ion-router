@@ -194,6 +194,38 @@ describe('react-redux-saga-router reducer', () => {
     const state = reducer(start, actions.addRoute({ name: 'hi', path: '/hi/:there' }))
     expect(reducer(state, actions.removeRoute('hi'))).eqls(start)
   })
+  it('BATCH_REMOVE_ROUTES', () => {
+    const state = reducer(undefined, actions.batchRoutes([
+      {
+        name: 'fer',
+        path: '/fer',
+        params: {},
+        state: {}
+      }, {
+        name: 'far',
+        path: '/far',
+        parent: 'foo',
+        params: {},
+        state: {}
+      }
+    ]))
+    expect(reducer(state, actions.batchRemoveRoutes([
+      {
+        name: 'fer',
+        path: '/fer',
+        params: {},
+        state: {}
+      }
+    ]))).eqls({
+      ...state,
+      routes: {
+        ids: ['far'],
+        routes: {
+          far: state.routes.routes.far
+        }
+      }
+    })
+  })
   it('unknown type', () => {
     const state = reducer()
     expect(reducer(state, { type: '@#%Y@#$*(##$' })).equals(state)
