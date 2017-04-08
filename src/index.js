@@ -69,7 +69,7 @@ export function *router(connect, routeDefinitions, history, channel, isServer) {
     fork(sagas.browserListener, history),
     fork(sagas.locationListener, channel, options),
   ]
-  if (routeDefinitions.length) {
+  if (routeDefinitions && routeDefinitions.length) {
     yield put(actions.batchRoutes(routeDefinitions))
   }
   yield put(actions.route(history.location))
