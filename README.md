@@ -21,6 +21,7 @@ Table of Contents
     * [Dynamic Routes](#dynamic-routes)
     * [enter/exit hooks](#enterexit-hooks)
     * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
+    * [Server-side Rendering](#server-side-rendering)
     * [Explicitly changing URL](#explicitly-changing-url)
     * [Reverse routing: creating URLs from parameters](#reverse-routing-creating-urls-from-parameters)
   * [Why a new router?](#why-a-new-router)
@@ -650,6 +651,65 @@ Routes can be loaded at any time.  If you load a new component asynchronously (u
 require.ensure, for instance), and dynamically add a new `<Routes><Route>...` inside that
 component, the router will seamlessly start using the route.  Code splitting has never
 been simpler.
+
+### Server-side Rendering
+
+When rendering routes on the server, there are 2 options.  No changes need be made
+to the component source.  However, because of the way server rendering works, multiple
+actions and re-renders will occur when setting up routes.  To avoid the performance
+penalty for complex applications, an optional third parameter to the router setup
+can be used to pass in the routes.  The definition of routes is an object with the
+same keys as the props one would pass to a `<Route>` tag.
+
+so instead of:
+
+```javascript
+// set up our router
+router(sagaMiddleware, connect)
+
+exitParams = params => ({
+  required: params.required,
+  optional: undefined
+})
+const Routes = () => (
+  <Routes>
+    <Route
+      name="test"
+      path="/path/:required(/:optional)"
+      stateToParams={...}
+      paramsToState={...}
+      updateState={...}
+      exitParams={exitParams}
+    />
+  </Routes>
+)
+```
+
+one would use:
+
+
+```javascript
+exitParams = params => ({
+  required: params.required,
+  optional: undefined
+})
+
+// set up our router
+router(sagaMiddleware, connect, {
+  name: 'test',
+  path: '/path/:required(/:optional)',
+  stateToParams=...,
+  paramsToState=...,
+  updateState={...},
+  exitParams={exitParams},
+})
+
+```
+
+The same setup can be used on both client and server for root routes, so there is no
+need to keep the `<Routes>` and `<Route>` elements in your component tree if
+you choose to initialize on start-up.  You should continue to use the comopnents for
+dynamic routes loaded later.
 
 ### Explicitly changing URL
 
