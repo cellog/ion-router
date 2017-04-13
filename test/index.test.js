@@ -172,4 +172,53 @@ describe('react-redux-saga-router', () => {
     expect(middleware.run.args[0]).eqls([index.router, connect, routes, a, b, true])
     index.default(middleware, connect, routes) // for coverage
   })
+  it('synchronousMakeRoutes', () => {
+    const routes = [{
+      name: 'campers',
+      path: '/campers/:year(/:id)',
+      paramsFromState: state => ({
+        id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
+        year: state.currentYear + '' // eslint-disable-line
+      }),
+      stateFromParams: params => ({
+        id: params.id ? params.id : false,
+        year: +params.year
+      }),
+      updateState: {
+        id: id => ({ type: 'select', payload: id }),
+        year: year => ({ type: 'year', payload: year })
+      }
+    }, {
+      name: 'ensembles',
+      path: '/ensembles(/:id)',
+      paramsFromState: state => ({
+        id: state.ensembleTypes.selectedEnsembleType ?
+          state.ensembleTypes.selectedEnsembleType : undefined,
+      }),
+      stateFromParams: params => ({
+        id: params.id ? params.id : false,
+      }),
+      updateState: {
+        id: id => ({ type: 'ensemble', payload: id }),
+      }
+    }, {
+      name: 'foo',
+      path: '/my/:fancy/path(/:wow/*supercomplicated(/:thing))',
+    }]
+    expect(index.synchronousMakeRoutes(routes)).eqls(actions.batchRoutes(routes))
+    expect(index.options.enhancedRoutes).eqls({
+      campers: {
+        ...enhancers.enhanceRoute(routes[0]),
+        parent: undefined,
+      },
+      ensembles: {
+        ...enhancers.enhanceRoute(routes[1]),
+        parent: undefined,
+      },
+      foo: {
+        ...enhancers.enhanceRoute(routes[2]),
+        parent: undefined,
+      }
+    })
+  })
 })

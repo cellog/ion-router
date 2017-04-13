@@ -5,6 +5,7 @@ import historyChannel from './historyChannel'
 import routerReducer from './reducer'
 import * as actions from './actions'
 import * as sagas from './sagas'
+import * as enhancers from './enhancers'
 import { connectLink } from './Link'
 import { connectRoutes } from './Routes'
 import { connectToggle } from './Toggle'
@@ -55,6 +56,14 @@ export { routerReducer }
 export const onServer = () => options.server
 export const setEnhancedRoutes = (r) => {
   options.enhancedRoutes = r
+}
+
+// for unit-testing purposes
+export function synchronousMakeRoutes(routes) {
+  const action = actions.batchRoutes(routes)
+  setEnhancedRoutes(Object.keys(action.payload.routes).reduce((en, route) =>
+    enhancers.save(action.payload.routes[route], en), options.enhancedRoutes))
+  return action
 }
 
 export function *router(connect, routeDefinitions, history, channel, isServer) {

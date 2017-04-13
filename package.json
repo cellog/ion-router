@@ -1,6 +1,6 @@
 {
   "name": "react-redux-saga-router",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
   "directories": {

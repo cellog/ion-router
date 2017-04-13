@@ -963,6 +963,44 @@ Everything is properly isolated, and testable.  You can easily unit test your ro
 stateFromParams and paramsFromState and updateState properties.  Components are
 simply components, no magic.
 
+To set up routes for testing in a unit test, the `synchronousMakeRoutes` functions is
+available.  Pass in an array of routes, and use the return in the reducer
+
+```javascript
+import { synchronousMakeRoutes, routerReducer } from 'react-redux-saga-router'
+
+describe('some component that uses routes', () => {
+  let fakeState
+  beforeEach(() => {
+    const action = synchronousMakeRoutes([
+      {
+        name: 'route1',
+        path: '/route1'
+      },
+      {
+        name: 'route1',
+        path: '/route2/:thing',
+        stateToParams: state => state,
+        paramsToState: params => params,
+        update: {
+          thing: thing => ({ type: 'changething', payload: thing })
+        }
+      }
+    ])
+    fakeState = {
+      routing: routerReducer(undefined, action)
+    }
+  })
+  it('test something', () => {
+    // use components that have <Link> or <Toggle>
+  })
+})
+```
+
+You will need to set this up for any `<Link>` components that use route to generate
+the path, and any components that contain `<Router>` or `<Route>` tags when rendering
+them.
+
 ## License
 
 MIT License
