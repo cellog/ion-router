@@ -1,7 +1,7 @@
 import * as types from './types'
 
 function makeUrlAction(name) {
-  return (details, state = undefined) => ({
+  return (details, state = {}) => ({
     type: types.ACTION,
     payload: {
       verb: name,

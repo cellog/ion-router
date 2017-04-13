@@ -22,6 +22,8 @@ export const tests = Object.keys(utils.asEffect).reduce((effects, name) => ({
   takem: effect => utils.is.notUndef(utils.asEffect.take(effect)) && effect.TAKE.maybe,
   apply: () => false,
   spawn: effect => utils.is.notUndef(utils.asEffect.fork(effect)) && effect.FORK.detached,
+  exception: effect => effect instanceof Error,
+  endSaga: effect => Object.hasOwnProperty.call(effect, 'effect') && effect.effect === undefined,
 })
 
 function sagaStore(state, reducers = { routing: reducer, week: fakeWeekReducer }) {
@@ -58,6 +60,8 @@ export const effectNames =
     takem: 'takem',
     apply: 'apply',
     spawn: 'spawn',
+    exception: 'exception',
+    endSaga: 'endSaga',
   })
 
 export const effectName = effect =>
@@ -70,29 +74,48 @@ export const toEffectAction = effect => ({
 
 export const START = { type: '###@@@start' }
 
-export function testSaga(state = undefined) {
-  const { sagaMiddleware, store, monitor } = sagaStore(state)
+export function testSaga(state = undefined,
+  reducers = { routing: reducer, week: fakeWeekReducer }) {
+  const { sagaMiddleware, store, monitor } = sagaStore(state, {
+    ...reducers,
+    routing: reducer
+  })
   return (sagas, test) => {
+    const cbs = []
     sagaMiddleware.run(function*() {
       yield effects.take('###@@@start')
-      yield sagas.map(args => effects.fork(...args))
+      yield sagas.map(args => effects.fork(function *f() {
+        try {
+          yield effects.call(...args)
+        } catch (e) {
+          cbs.forEach(cb => cb(e))
+        }
+      }))
     })
+    const vars = {
+      log: []
+    }
+    monitor.effectTriggered = (info) => {
+      const effect = info.effect || info
+      if (effect && !effect.length) {
+        vars.log.push(toEffectAction(effect))
+        cbs.forEach((cb) => {
+          cb(toEffectAction(effect))
+        })
+      }
+    }
     runSaga(test(), {
       subscribe: (callback) => {
-        monitor.effectTriggered = ({ effect }) => {
-          if (effect.length) {
-            effect.forEach((e) => {
-              callback(toEffectAction(e))
-            })
-          } else {
-            callback(toEffectAction(effect))
-          }
+        vars.log.forEach(effect => callback(effect))
+        cbs.push(callback)
+        return () => {
+          cbs.splice(cbs.indexOf(callback), 1)
         }
-        return () => null
       },
       dispatch: (output) => {
         store.dispatch(output)
-      }
+      },
+      getState: () => vars.log
     })
   }
 }

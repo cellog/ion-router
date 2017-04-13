@@ -74,7 +74,7 @@ describe('react-redux-saga-router state changes sagas', () => {
       const params = enhanced.there['@parser'].match('/there/boo')
       next = saga.next(params)
 
-      expect(next.value).eqls(call([enhanced.there, enhanced.there.stateFromParams], params, state))
+      expect(next.value).eqls(call(enhanced.there.stateFromParams, params, state))
       next = saga.next(params)
 
       expect(next.value).eqls(put(actions.setParamsAndState('there', params, params)))

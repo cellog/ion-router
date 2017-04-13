@@ -19,7 +19,7 @@ describe('react-redux-saga-router event sagas', () => {
     expect(next.value).eqls(take(types.ACTION))
     next = saga.next(actions.push('/hi'))
 
-    expect(next.value).eqls(fork([fake, fake.push], '/hi', undefined))
+    expect(next.value).eqls(fork([fake, fake.push], '/hi', {}))
     next = saga.next()
 
     expect(next.value).eqls(take(types.ACTION))
@@ -51,7 +51,7 @@ describe('react-redux-saga-router event sagas', () => {
       }
     })
 
-    expect(next.value).eqls(call(index.pending, options))
+    expect(next.value).eqls(call(index.nonBlockingPending, options))
     next = saga.next(false)
 
     expect(next.value).eqls(call(index.begin, options))
@@ -63,14 +63,14 @@ describe('react-redux-saga-router event sagas', () => {
     expect(next.value).eqls(call(routing.matchRoutes, 'hi', '/campers/2017', options.enhancedRoutes))
     next = saga.next()
 
-    expect(next.value).eqls(call(index.commit, options))
-    next = saga.next()
-
     expect(next.value).eqls(put(actions.route({
       pathname: '/campers/2017',
       search: '',
       hash: ''
     })))
+    next = saga.next()
+
+    expect(next.value).eqls(call(index.commit, options))
     next = saga.next()
 
     expect(next.value).eqls(take(channel))
@@ -81,15 +81,6 @@ describe('react-redux-saga-router event sagas', () => {
         hash: ''
       }
     })
-
-    expect(next.value).eqls(put(actions.route({
-      pathname: '/campers/2017',
-      search: '',
-      hash: ''
-    })))
-    next = saga.next()
-
-    expect(next.value).eqls(take(channel))
   })
   describe('stateMonitor', () => {
     it('normal flow, state change', () => {
@@ -105,32 +96,22 @@ describe('react-redux-saga-router event sagas', () => {
       expect(next.value).eqls(take('*'))
       next = saga.next(actions.route('hi'))
 
-      expect(next.value).eqls(call(index.pending, options))
-      next = saga.next()
-
       expect(next.value).eqls(select())
       next = saga.next('there')
 
-      expect(next.value).eqls(fork(events.doState, 'there', options))
+      expect(next.value).eqls(call(index.nonBlockingPending, options))
       next = saga.next()
-
-      expect(next.value).eqls(take('*'))
-    })
-    it('doState', () => {
-      const options = { enhancedRoutes: {} }
-      const saga = events.doState('hi', options)
-      let next = saga.next()
 
       expect(next.value).eqls(call(index.begin, options))
       next = saga.next()
 
-      expect(next.value).eqls(call(stateChanges.handleStateChange, 'hi', options.enhancedRoutes))
+      expect(next.value).eqls(call(stateChanges.handleStateChange, 'there', options.enhancedRoutes))
       next = saga.next()
 
       expect(next.value).eqls(call(index.commit, options))
       next = saga.next()
 
-      expect(next).eqls({ value: undefined, done: true })
+      expect(next.value).eqls(take('*'))
     })
     it('normal flow, no state change', () => {
       const options = { enhancedRoutes: {} }
@@ -146,11 +127,11 @@ describe('react-redux-saga-router event sagas', () => {
       expect(next.value).eqls(take('*'))
       next = saga.next(actions.route('hi'))
 
-      expect(next.value).eqls(call(index.pending, options))
-      next = saga.next()
-
       expect(next.value).eqls(select())
       next = saga.next(fakeState)
+
+      expect(next.value).eqls(call(index.nonBlockingPending, options))
+      next = saga.next()
 
       expect(next.value).eqls(take('*'))
     })

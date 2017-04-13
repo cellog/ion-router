@@ -80,7 +80,7 @@ describe('react-redux-saga-router', () => {
     expect(pending).eqls(true)
     expect(index.pending(options)).equals(options.pending)
     options.pending.then((value) => {
-      expect(value).eqls(false)
+      expect(value).eqls(true)
       done()
     })
     index.commit(options)

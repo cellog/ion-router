@@ -1,5 +1,4 @@
 import { call, put, select } from 'redux-saga/effects'
-import { createPath } from 'history'
 
 import * as selectors from '../selectors'
 import * as actions from '../actions'
@@ -7,11 +6,11 @@ import * as urlChanges from './urlChanges'
 
 export function template(s, params) {
   return s.exitParams instanceof Function ?
-    s.exitParams(params) : s.exitParams
+    { ...s.exitParams(params) } : { ...s.exitParams }
 }
 
 export const exitRoute = (state, enhanced) => function *(s) {
-  const params = selectors.oldParams(state, s.name)
+  const params = s.params
   let parentParams = params
   let a = s
   while (a.parent) {
@@ -23,12 +22,13 @@ export const exitRoute = (state, enhanced) => function *(s) {
     a = parent
   }
   parentParams = { ...parentParams, ...template(s, parentParams) }
-  yield call(urlChanges.updateState, parentParams, state)
+  yield call(urlChanges.updateState, s, parentParams, state)
 }
 
 export const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
 export const exitRoutes = exit => location => name => call(exit, name, location)
 export const filter = (enhancedRoutes, path) => name => enhancedRoutes[name]['@parser'].match(path)
+export const mapRoute = (er, enhancedRoutes) => route => exitRoutes(er)(enhancedRoutes[route])
 
 export function *matchRoutes(state, path, enhancedRoutes) {
   const lastMatches = state.routing.matchedRoutes
@@ -46,7 +46,8 @@ export function *matchRoutes(state, path, enhancedRoutes) {
   }
   if (exiting.length) {
     const er = yield call(exitRoute, state, enhancedRoutes)
-    yield exiting.map(exitRoutes(er)(createPath(state.routing.location)))
+    const r = yield call(mapRoute, er, enhancedRoutes)
+    yield exiting.map(route => call(r, route))
   }
   yield call(urlChanges.stateFromLocation, enhancedRoutes, yield select(), path)
 }

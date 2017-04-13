@@ -6,7 +6,6 @@ const defaultState = {
     search: '',
     hash: ''
   },
-  pending: false,
   matchedRoutes: [],
   routes: {
     ids: [],

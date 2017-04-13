@@ -9,7 +9,7 @@ describe('react-redux-saga-router actions', () => {
       payload: {
         verb: 'push',
         route: '/hi',
-        state: undefined
+        state: {}
       }
     })
     expect(actions.push('/hi', { some: 'state' })).eqls({
@@ -27,7 +27,7 @@ describe('react-redux-saga-router actions', () => {
       payload: {
         verb: 'replace',
         route: '/hi',
-        state: undefined
+        state: {}
       }
     })
     expect(actions.replace('/hi', { some: 'state' })).eqls({

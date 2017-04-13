@@ -24,7 +24,7 @@ export function *handleStateChange(state, enhancedRoutes) {
       const url = yield call(getUrlUpdate, state, s)
       if (url) {
         const params = yield call([s['@parser'], s['@parser'].match], url)
-        const newState = yield call([s, s.stateFromParams], params, state)
+        const newState = yield call(s.stateFromParams, params, state)
         yield put(actions.setParamsAndState(s.name, params, newState))
         yield put(actions.push(url))
       }

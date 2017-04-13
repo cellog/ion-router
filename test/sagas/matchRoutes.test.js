@@ -105,7 +105,7 @@ describe('react-redux-saga-router route matching sagas', () => {
       buddy: 'boo'
     }))
 
-    expect(next.value).eqls(call(urlChanges.updateState, {
+    expect(next.value).eqls(call(urlChanges.updateState, enhanced.there, {
       wow: undefined,
       there: undefined,
       buddy: undefined
@@ -163,7 +163,11 @@ describe('react-redux-saga-router route matching sagas', () => {
     const er = routes.exitRoute(mystate)
     next = saga.next(er)
 
-    expect(next.value).eqls([call(er, 'there', '/hi/there/fizz/bang')])
+    expect(next.value).eqls(call(routes.mapRoute, er, enhanced))
+    const mapped = routes.mapRoute(er, enhanced)
+    next = saga.next(mapped)
+
+    expect(next.value).eqls([call(mapped, 'there')])
     next = saga.next()
 
     expect(next.value).eqls(select())

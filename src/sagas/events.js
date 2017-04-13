@@ -6,7 +6,7 @@ import * as actions from '../actions'
 import * as routes from './matchRoutes'
 import * as create from './createRoutes'
 import * as stateChanges from './stateChanges'
-import { begin, commit, pending } from '..'
+import { begin, commit, nonBlockingPending } from '..'
 
 export function *browserListener(history) {
   while (true) { // eslint-disable-line
@@ -22,30 +22,31 @@ export function *locationListener(channel, options) {
     const path = createPath(locationChange.location)
     if (location !== path) {
       location = path
-      yield call(pending, options)
+      if (yield call(nonBlockingPending, options)) {
+        continue // eslint-disable-line
+      }
       yield call(begin, options)
       yield call(routes.matchRoutes, yield select(), path, options.enhancedRoutes)
+      yield put(actions.route(locationChange.location))
       yield call(commit, options)
     }
-    yield put(actions.route(locationChange.location))
   }
-}
-
-export function *doState(state, options) {
-  yield call(begin, options)
-  yield call(stateChanges.handleStateChange, state, options.enhancedRoutes)
-  yield call(commit, options)
 }
 
 export function *stateMonitor(options) {
   let state = yield select()
   while (true) { // eslint-disable-line
     yield take('*')
-    yield call(pending, options)
     const newState = yield select()
+    if (yield call(nonBlockingPending, options)) {
+      state = newState
+      continue // eslint-disable-line
+    }
     if (state !== newState) {
       state = newState
-      yield fork(doState, state, options)
+      yield call(begin, options)
+      yield call(stateChanges.handleStateChange, state, options.enhancedRoutes)
+      yield call(commit, options)
     }
   }
 }

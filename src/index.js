@@ -21,6 +21,7 @@ export const setServer = (val = true) => {
 }
 
 export const pending = opts => opts.pending
+export const nonBlockingPending = opts => !!opts.pending
 
 export const begin = (opts) => {
   const o = opts
@@ -35,7 +36,7 @@ export const begin = (opts) => {
 export const commit = (opts) => {
   const o = opts
   o.pending = false
-  o.resolve(false)
+  o.resolve(true)
   return false
 }
 

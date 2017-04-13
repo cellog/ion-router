@@ -195,7 +195,7 @@ describe('react-redux-saga-router reducer', () => {
     expect(reducer(state, actions.removeRoute('hi'))).eqls(start)
   })
   it('BATCH_REMOVE_ROUTES', () => {
-    const state = reducer(undefined, actions.batchRoutes([
+    const fstate = reducer(undefined, actions.batchRoutes([
       {
         name: 'fer',
         path: '/fer',
@@ -209,7 +209,7 @@ describe('react-redux-saga-router reducer', () => {
         state: {}
       }
     ]))
-    expect(reducer(state, actions.batchRemoveRoutes([
+    expect(reducer(fstate, actions.batchRemoveRoutes([
       {
         name: 'fer',
         path: '/fer',
@@ -217,11 +217,11 @@ describe('react-redux-saga-router reducer', () => {
         state: {}
       }
     ]))).eqls({
-      ...state,
+      ...fstate,
       routes: {
         ids: ['far'],
         routes: {
-          far: state.routes.routes.far
+          far: fstate.routes.routes.far
         }
       }
     })

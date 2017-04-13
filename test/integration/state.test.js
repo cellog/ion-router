@@ -4,7 +4,9 @@ import createHistory from 'history/createMemoryHistory'
 import * as helpers from '../test_helper'
 import * as sagas from '../../src/sagas'
 import * as enhancers from '../../src/enhancers'
+import * as selectors from '../../src/selectors'
 import * as actions from '../../src/actions'
+import * as types from '../../src/types'
 import historyChannel from '../../src/historyChannel'
 import * as index from '../../src'
 
@@ -106,18 +108,12 @@ describe('react-redux-saga-router integration tests: url changes', () => {
         case 'camperid':
           return {
             ...state,
-            campers: {
-              ...state.campers,
-              id: action.payload
-            }
+            id: action.payload
           }
         case 'camperfilter':
           return {
             ...state,
-            campers: {
-              ...state.campers,
-              filter: action.payload
-            }
+            filter: action.payload
           }
         default :
           return state
@@ -160,7 +156,7 @@ describe('react-redux-saga-router integration tests: url changes', () => {
   }
   const run = helpers.testSaga(state, reducers)
 
-  it('URL change affects state, does not cause loop', (done) => {
+  it('proof of concept', (done) => {
     run([
       [sagas.routeMonitor, options, history],
       [sagas.stateMonitor, options],
@@ -173,173 +169,94 @@ describe('react-redux-saga-router integration tests: url changes', () => {
       for (let i = 1; i < stuff; i++) {
         yield effects.take()
       }
-      history.go(-1)
+      yield effects.put({ type: 'camperfilter', payload: 'hi' })
 
       let ef = yield effects.take()
+      expect(ef.effect).eqls(effects.select())
+
+      ef = yield effects.take()
       expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
+
+      const newState = {
+        ...state,
+        campers: {
+          ...state.campers,
+          filter: 'hi'
+        }
+      }
 
       ef = yield effects.take()
       expect(ef.effect).eqls(effects.call(index.begin, options))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
+      expect(ef.effect).eqls(effects.call(sagas.handleStateChange, newState,
+        options.enhancedRoutes))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(sagas.matchRoutes, state, '/groups/2017/1', options.enhancedRoutes))
+      expect(ef.effect).eqls(effects.call(selectors.matchedRoute, newState, 'campers'))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.put(actions.matchRoutes(['groups'])))
+      expect(ef.effect).eqls(effects.call(sagas.getUrlUpdate, newState,
+        options.enhancedRoutes.campers))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
+      expect(ef.effect).eqls(effects.call([options.enhancedRoutes.campers['@parser'],
+        options.enhancedRoutes.campers['@parser'].match], '/campers/filter/hi'))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
+      expect(ef.effect).eqls(effects.call(options.enhancedRoutes.campers.stateFromParams,
+        { search: 'hi', id: undefined }, newState))
 
       ef = yield effects.take()
-      expect(ef.effect).eql(effects.take('*'))
-
-      ef = yield effects.take('put')
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
+      expect(ef.effect).eqls(effects.put(actions.setParamsAndState('campers',
+        { search: 'hi', id: undefined }, { id: undefined, search: 'hi' })))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.take('*'))
-
-      ef = yield effects.take('put')
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.take('*'))
-
-      ef = yield effects.take('call')
-      expect(ef.effect).eqls(effects.call(sagas.exitRoute, state, options.enhancedRoutes))
-
-      ef = yield effects.take()
-      expect(ef.effect.CALL.fn).eqls(sagas.mapRoute)
-      expect(ef.effect.CALL.args).has.length(2)
-      expect(ef.effect.CALL.args[1]).eqls(options.enhancedRoutes)
-
-      ef = yield effects.take()
-      expect(ef.effect.CALL.args).has.length(1)
-      expect(ef.effect.CALL.args[0]).eqls('campers')
-
-      ef = yield effects.take('call')
-      const newState = {
-        ...state,
-        routing: {
-          ...state.routing,
-          matchedRoutes: ['groups'],
-        }
-      }
-      expect(ef.effect).eqls(effects.call(sagas.stateFromLocation, options.enhancedRoutes, newState, '/groups/2017/1'))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.fork(sagas.updateState, options.enhancedRoutes.groups, {
-        year: '2017', week: '1', num: undefined
-      }, newState))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(sagas.getStateUpdates, options.enhancedRoutes.groups, {
-        year: '2017', week: '1', num: false
-      }))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.put(actions.setParamsAndState('groups', {
-        year: '2017', week: '1', num: undefined
-      }, {
-        year: '2017', week: '1', num: false
-      })))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.fork(sagas.saveParams, options, actions.setParamsAndState('groups', {
-        year: '2017', week: '1', num: undefined
-      }, {
-        year: '2017', week: '1', num: false
-      })))
+      expect(ef.effect).eqls(effects.fork(sagas.saveParams, options, actions.setParamsAndState('campers',
+        { search: 'hi', id: undefined }, { id: undefined, search: 'hi' })))
 
       ef = yield effects.take()
       expect(ef.effect).eqls(effects.call(index.setEnhancedRoutes, {
         ...options.enhancedRoutes,
-        groups: {
-          ...options.enhancedRoutes.groups,
+        campers: {
+          ...options.enhancedRoutes.campers,
           params: {
-            year: '2017', week: '1', num: undefined
+            search: 'hi', id: undefined
           },
           state: {
-            year: '2017', week: '1', num: false
-          }
+            search: 'hi', id: undefined
+          },
         }
       }))
 
-      ef = yield effects.take('put')
-      expect(ef.effect).eqls(effects.put({ type: 'groupyear', payload: '2017' }))
+      ef = yield effects.take()
+      expect(ef.effect).eqls(effects.take(types.SET_PARAMS))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
+      expect(ef.effect).eqls(effects.put(actions.push('/campers/filter/hi')))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.take('*'))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.put({ type: 'groupweek', payload: '1' }))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
+      expect(ef.effect).eqls(effects.fork([history, history.push], '/campers/filter/hi', {}))
 
       ef = yield effects.take()
       expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.take('*'))
+      expect(ef.effect).eqls(effects.take(channel))
+
+      ef = yield effects.take('endSaga')
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.put({ type: 'groupnum', payload: false }))
+      expect(ef.effect).eqls(effects.take(types.ACTION))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.take('*'))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.put(actions.route({
-        pathname: '/groups/2017/1',
-        search: '',
-        hash: '',
-        state: undefined,
-        key: undefined
-      })))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.select())
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.call(index.nonBlockingPending, options))
-
-      ef = yield effects.take()
-      expect(ef.effect).eqls(effects.take('*'))
+      expect(ef.effect).eqls(effects.call(selectors.matchedRoute, newState, 'groups'))
 
       ef = yield effects.take()
       expect(ef.effect).eqls(effects.call(index.commit, options))
 
       ef = yield effects.take()
-      expect(ef.effect).eqls(effects.take(channel))
+      expect(ef.effect).eqls(effects.take('*'))
 
       yield effects.call(done)
     })
