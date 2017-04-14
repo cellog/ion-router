@@ -221,4 +221,11 @@ describe('react-redux-saga-router', () => {
       }
     })
   })
+  it('setServer', () => {
+    expect(index.options.server).is.false
+    index.setServer()
+    expect(index.options.server).is.true
+    index.setServer(false)
+    expect(index.options.server).is.false
+  })
 })

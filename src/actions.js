@@ -69,9 +69,9 @@ export function addRoute(params) {
   }
 }
 
-export function batchRoutes(routes) {
+export function batch(routes, type) {
   return {
-    type: types.BATCH_ROUTES,
+    type,
     payload: {
       ids: routes.map(r => r.name),
       routes: routes.reduce(
@@ -87,6 +87,10 @@ export function batchRoutes(routes) {
       )
     }
   }
+}
+
+export function batchRoutes(routes) {
+  return batch(routes, types.BATCH_ROUTES)
 }
 
 export function removeRoute(name) {
@@ -97,23 +101,7 @@ export function removeRoute(name) {
 }
 
 export function batchRemoveRoutes(routes) {
-  return {
-    type: types.BATCH_REMOVE_ROUTES,
-    payload: {
-      ids: routes.map(r => r.name),
-      routes: routes.reduce(
-        (defs, r) => ({
-          ...defs,
-          [r.name]: {
-            parent: r.parent,
-            ...r,
-            params: {},
-            state: {}
-          }
-        }), {}
-      )
-    }
-  }
+  return batch(routes, types.BATCH_REMOVE_ROUTES)
 }
 
 export function setParamsAndState(details, params, state) {

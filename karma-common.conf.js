@@ -56,11 +56,11 @@ module.exports = function (config, extraoptions) {
 
     files: [
       '../../node_modules/babel-polyfill/dist/polyfill.js',
-      '../*.test.js'
+      '../**/*.test.js'
     ],
 
     preprocessors: {
-      '../*.test.js': ['webpack'],
+      '../**/*.test.js': ['webpack'],
     },
 
     webpack,

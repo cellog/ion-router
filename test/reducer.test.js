@@ -3,7 +3,7 @@ import * as actions from '../src/actions'
 
 describe('react-redux-saga-router reducer', () => {
   it('ROUTE', () => {
-    const state = reducer()
+    const state = { ...reducer() }
     expect(reducer(state, actions.route({
       pathname: '',
       search: '',
@@ -23,14 +23,14 @@ describe('react-redux-saga-router reducer', () => {
     })
   })
   it('MATCH_ROUTES', () => {
-    const state = reducer()
+    const state = { ...reducer() }
     expect(reducer(state, actions.matchRoutes(['foo']))).eqls({
       ...state,
       matchedRoutes: ['foo']
     })
   })
   it('SET_PARAMS', () => {
-    const state = reducer()
+    const state = { ...reducer() }
     state.routes = {
       ids: ['foo', 'bar'],
       routes: {
@@ -78,7 +78,7 @@ describe('react-redux-saga-router reducer', () => {
     })
   })
   it('EDIT_ROUTE', () => {
-    const state = reducer()
+    const state = { ...reducer() }
     state.routes = {
       ids: ['foo', 'bar'],
       routes: {
@@ -124,7 +124,7 @@ describe('react-redux-saga-router reducer', () => {
     })
   })
   it('BATCH_ROUTE', () => {
-    const state = reducer()
+    const state = { ...reducer() }
     state.routes = {
       ids: ['foo', 'bar'],
       routes: {
@@ -190,12 +190,12 @@ describe('react-redux-saga-router reducer', () => {
     expect(reducer(state, action)).eqls(newstate)
   })
   it('REMOVE_ROUTE', () => {
-    const start = reducer()
+    const start = { ...reducer() }
     const state = reducer(start, actions.addRoute({ name: 'hi', path: '/hi/:there' }))
     expect(reducer(state, actions.removeRoute('hi'))).eqls(start)
   })
   it('BATCH_REMOVE_ROUTES', () => {
-    const fstate = reducer(undefined, actions.batchRoutes([
+    const fstate = { ...reducer(undefined, actions.batchRoutes([
       {
         name: 'fer',
         path: '/fer',
@@ -208,7 +208,7 @@ describe('react-redux-saga-router reducer', () => {
         params: {},
         state: {}
       }
-    ]))
+    ])) }
     expect(reducer(fstate, actions.batchRemoveRoutes([
       {
         name: 'fer',
