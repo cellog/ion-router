@@ -26,7 +26,7 @@ export const tests = Object.keys(utils.asEffect).reduce((effects, name) => ({
   endSaga: effect => Object.hasOwnProperty.call(effect, 'effect') && effect.effect === undefined,
 })
 
-function sagaStore(state, reducers = { routing: reducer, week: fakeWeekReducer }) {
+function sagaStore(state, reducers = { routing: reducer, week: fakeWeekReducer }, middleware = []) {
   const log = []
   const logger = store => next => action => { // eslint-disable-line
     log.push(action)
@@ -37,7 +37,7 @@ function sagaStore(state, reducers = { routing: reducer, week: fakeWeekReducer }
   const sagaMiddleware = createSagaMiddleware({ sagaMonitor: monitor })
 
   const store = createStore(combineReducers(reducers),
-    state, applyMiddleware(logger, sagaMiddleware))
+    state, applyMiddleware(sagaMiddleware, ...middleware, logger))
   return {
     log,
     store,
