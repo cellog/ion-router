@@ -20,22 +20,34 @@ export const ignoreKey = '#@#$@$#@$@#$@#$@#$@#$@#$@#$@#$@#$@#$@#$ignore'
 export const actionHandlers = {
   [ignoreKey]: ignore,
 
-  [types.EDIT_ROUTE]: (enhancedRoutes, state, action) => {
-    const route = action.payload
+  [types.EDIT_ROUTE]: (enhancedRoutes, state, action) => ({
+    newEnhancedRoutes: enhancers.save(action.payload, enhancedRoutes),
+    toDispatch: []
+  }),
+  [types.BATCH_ROUTES]: (enhancedRoutes, state, action) => ({
+    newEnhancedRoutes: {
+      ...enhancedRoutes,
+      ...action.payload.ids.reduce((routes, name) => ({
+        ...routes,
+        [name]: enhancers.enhanceRoute(action.payload.routes[name])
+      }), {})
+    },
+    toDispatch: []
+  }),
+  [types.REMOVE_ROUTE]: (enhancedRoutes, state, action) => {
+    const newRoutes = { ...enhancedRoutes }
+    delete newRoutes[action.payload]
     return {
-      newEnhancedRoutes: enhancers.save(route, enhancedRoutes),
+      newEnhancedRoutes: newRoutes,
       toDispatch: []
     }
   },
-  [types.BATCH_ROUTES]: (enhancedRoutes, state, action) => {
+  [types.BATCH_REMOVE_ROUTES]: (enhancedRoutes, state, action) => {
+    const newRoutes = { ...enhancedRoutes }
+    console.log(action)
+    action.payload.ids.forEach(name => delete newRoutes[name])
     return {
-      newEnhancedRoutes: {
-        ...enhancedRoutes,
-        ...action.payload.ids.reduce((routes, name) => ({
-          ...routes,
-          [name]: enhancers.enhanceRoute(action.payload.routes[name])
-        }), {})
-      },
+      newEnhancedRoutes: newRoutes,
       toDispatch: []
     }
   },

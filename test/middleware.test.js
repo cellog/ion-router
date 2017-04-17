@@ -165,5 +165,47 @@ describe('middleware', () => {
       expect(enhanced).equals(testenhanced)
       expect(state).equals(teststate)
     })
+    it('REMOVE_ROUTE', () => {
+      const enhanced = {
+        foo: {
+          name: 'foo',
+          path: '/hi'
+        }
+      }
+      const testenhanced = enhanced
+      const state = {}
+      const teststate = state
+      const action = actions.removeRoute('foo')
+      expect(actionHandlers[types.REMOVE_ROUTE](enhanced, state, action)).eqls({
+        newEnhancedRoutes: {},
+        toDispatch: []
+      })
+      // verify purity of the function
+      expect(enhanced).equals(testenhanced)
+      expect(state).equals(teststate)
+    })
+    it('BATCH_REMOVE_ROUTES', () => {
+      const enhanced = {
+        foo: {
+          name: 'foo',
+          path: '/hi'
+        },
+        bar: {
+          name: 'bar',
+          path: '/there'
+        }
+      }
+      const testenhanced = enhanced
+      const state = {}
+      const teststate = state
+      const action = actions.batchRemoveRoutes([enhanced.foo, enhanced.bar])
+      expect(actionHandlers[types.BATCH_REMOVE_ROUTES](enhanced, state, action)).eqls({
+        newEnhancedRoutes: {},
+        toDispatch: []
+      })
+      // verify purity of the function
+      expect(enhanced).equals(testenhanced)
+      expect(state).equals(teststate)
+    })
   })
 })
