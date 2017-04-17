@@ -5,6 +5,7 @@ import { synchronousMakeRoutes, routerReducer } from '../src'
 import * as actions from '../src/actions'
 import * as types from '../src/types'
 import * as enhancers from '../src/enhancers'
+import { reducer } from '../src'
 import { sagaStore } from './test_helper'
 
 describe('middleware', () => {
@@ -43,13 +44,13 @@ describe('middleware', () => {
     })
     expect(store.dispatch.called).is.false
   })
+  let history
+  let opts
+  function makeStuff(spies = actionHandlers, reducers = undefined) {
+    const mid = createMiddleware(history, opts, spies)
+    return sagaStore(undefined, reducers, [mid])
+  }
   describe('normal functionality tests', () => {
-    let history
-    let opts
-    function makeStuff(spies = actionHandlers) {
-      const mid = createMiddleware(history, opts, spies)
-      return sagaStore(undefined, undefined, [mid])
-    }
     beforeEach(() => {
       history = createHistory({
         initialEntries: ['/']
@@ -111,12 +112,17 @@ describe('middleware', () => {
           }
         }
       }
-      const info = makeStuff(spies)
+      const info = makeStuff(spies, {
+        routing: routerReducer,
+        bar: (state = '', action) => (action.type === 'hithere' ? 'wow' : '')
+      })
+      const oldState = info.store.getState()
       const action = { type: 'hithere' }
       info.store.dispatch(action)
       expect(spy.called).is.true
       expect(spy.args[0][0]).equals(opts.enhancedRoutes)
-      expect(spy.args[0][1]).equals(info.store.getState())
+      // shows we pass old state
+      expect(spy.args[0][1]).equals(oldState)
       expect(spy.args[0][2]).equals(action)
       expect(spy.args.length).eqls(1)
       expect(info.log).eqls([
@@ -124,20 +130,55 @@ describe('middleware', () => {
         { type: 'hithere' },
       ])
     })
+    it('triggers * for unknown actions', () => {
+      const spy = sinon.spy()
+      const spies = {
+        '*': (enhancedRoutes, state, action) => {
+          spy(enhancedRoutes, state, action)
+          return {
+            newEnhancedRoutes: enhancedRoutes,
+            toDispatch: []
+          }
+        }
+      }
+
+      const info = makeStuff(spies, {
+        routing: routerReducer,
+        bar: (state = '', action) => (action.type === 'hithere' ? 'wow' : '')
+      })
+      const action = { type: 'hithere' }
+      info.store.dispatch(action)
+      expect(spy.called).is.true
+      expect(spy.args[0][0]).equals(opts.enhancedRoutes)
+      // next line shows we pass the new state and not old state
+      expect(spy.args[0][1]).eqls({
+        routing: {
+          ...routerReducer()
+        },
+        bar: 'wow'
+      })
+      expect(spy.args[0][2]).equals(action)
+      expect(info.log).eqls([
+        { type: 'hithere' },
+      ])
+    })
     it('url action handling', () => {
       const duds = {
         ...actionHandlers,
-        [types.ROUTE]: (newEnhancedRoutes) => ({
+        [types.ROUTE]: newEnhancedRoutes => ({
           newEnhancedRoutes,
           toDispatch: []
         })
       }
       const info = makeStuff(duds)
-      info.store.dispatch(actions.push('/hi'))
+      info.store.dispatch(actions.push('/foo'))
       expect(info.log).eqls([
-        actions.push('/hi'),
+        actions.push('/foo'),
         actions.route(info.log[1].payload)
       ])
+    })
+    it('state action handling passes new state to handler', () => {
+
     })
   })
   describe('action handlers', () => {
@@ -237,7 +278,7 @@ describe('middleware', () => {
         {
           name: 'foo',
           path: '/foo(/:param)',
-          paramsToState: params => params,
+          paramsFromState: state => ({ param: state.boo.param }),
           stateFromParams: params => params,
           updateState: {
             param: param => ({ type: 'setParam', payload: param })
@@ -246,7 +287,7 @@ describe('middleware', () => {
         {
           name: 'bar',
           path: '/bar(/:hi)',
-          paramsToState: params => params,
+          paramsFromState: state => ({ hi: state.bar.hi }),
           stateFromParams: params => params,
           updateState: {
             hi: hi => ({ type: 'setHi', payload: hi })
@@ -332,6 +373,30 @@ describe('middleware', () => {
         newEnhancedRoutes: enhanced,
         toDispatch: []
       })
+    })
+    it('*', () => {
+      expect(actionHandlers['*'](enhanced, {
+        ...state,
+        bar: {
+          hi: 'bye'
+        },
+      })).eqls({
+        newEnhancedRoutes: {
+          ...enhanced,
+          bar: {
+            ...enhanced.bar,
+            params: { hi: 'bye' },
+            state: { hi: 'bye' }
+          }
+        },
+        toDispatch: [
+          actions.setParamsAndState('bar', { hi: 'bye' }, { hi: 'bye' }),
+          actions.push('/bar/bye'),
+        ],
+      })
+      // verify purity of the function
+      expect(enhanced).equals(testenhanced)
+      expect(state).equals(teststate)
     })
   })
 })

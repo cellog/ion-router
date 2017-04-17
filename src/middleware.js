@@ -27,6 +27,38 @@ export function changed(oldItems, newItems) {
     oldItems[key] !== newItems[key])
 }
 
+export function urlFromState(enhancedRoutes, state) {
+  const toDispatch = []
+  const updatedRoutes = {}
+  const urls = []
+  state.routing.matchedRoutes.forEach((route) => {
+    const s = enhancedRoutes[route]
+    const newParams = s.paramsFromState(state)
+    const newState = s.stateFromParams(newParams)
+    if (changed(s.params, newParams)) {
+      updatedRoutes[route] = {
+        ...enhancedRoutes[route],
+        params: newParams,
+        state: newState,
+      }
+      toDispatch.push(actions.setParamsAndState(route, newParams, newState))
+      urls.push(s['@parser'].reverse(newParams))
+    }
+  })
+  const url = urls.reduce((a, b) => (a.length > b.length ? a : b), '')
+  if (!url || url === createPath(state.routing.location)) {
+    return {
+      newEnhancedRoutes: { ...enhancedRoutes, ...updatedRoutes },
+      toDispatch
+    }
+  }
+  toDispatch.push(actions.push(url))
+  return {
+    newEnhancedRoutes: { ...enhancedRoutes, ...updatedRoutes },
+    toDispatch
+  }
+}
+
 export function getStateUpdates(s, newState) {
   const oldState = s.state
   const changes = changed(oldState, newState)
@@ -160,17 +192,26 @@ export const actionHandlers = {
       toDispatch
     }
   },
-  '*': (enhancedRoutes, state, action) => { // eslint-disable-line
-    // process state changes and how they affect URL here
-    return {
-      newEnhancedRoutes: enhancedRoutes,
-      toDispatch: []
-    }
-  }
+  '*': urlFromState
 }
 
 function invariantHelper(type, condition, message) {
   invariant(condition, `router middleware action handler for action type "${type}" does not ${message}`)
+}
+
+export function processHandler(handler, routes, state, action) {
+  const info = handler(routes, state, action)
+  invariantHelper(action.type, info !== undefined, `return a map { newEnhancedRoutes, toDispatch }`)
+  invariantHelper(action.type, info.newEnhancedRoutes !== undefined &&
+    info.newEnhancedRoutes !== null &&
+    typeof info.newEnhancedRoutes === 'object' &&
+    !Array.isArray(info.newEnhancedRoutes),
+    'return a map for newEnhancedRoutes'
+  )
+  invariantHelper(action.type, Array.isArray(info.toDispatch), 'return an array for toDispatch')
+  invariantHelper(action.type, info.toDispatch.every(act => act.type),
+    'return a toDispatch array with all actions containing a "type" key')
+  return info
 }
 
 export default function createMiddleware(history = createBrowserHistory(), opts = options,
@@ -185,24 +226,19 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
       myHandlers[action.type] :
       myHandlers['*']
     const state = store.getState()
-    const info = handler(opts.enhancedRoutes, state, action)
-    invariantHelper(action.type, info !== undefined, `return a map { newEnhancedRoutes, toDispatch }`)
-    invariantHelper(action.type, info.newEnhancedRoutes !== undefined &&
-      info.newEnhancedRoutes !== null &&
-      typeof info.newEnhancedRoutes === 'object' &&
-      !Array.isArray(info.newEnhancedRoutes),
-      'return a map for newEnhancedRoutes'
-    )
-    const newEnhancedRoutes = info.newEnhancedRoutes
-    setEnhancedRoutes(newEnhancedRoutes, opts)
-    invariantHelper(action.type, Array.isArray(info.toDispatch), 'return an array for toDispatch')
-    invariantHelper(action.type, info.toDispatch.every(act => act.type),
-      'return a toDispatch array with all actions containing a "type" key')
-    const toDispatch = info.toDispatch
-    activeListener = myHandlers[ignoreKey]
+    activeListener = myHandlers[ignoreKey] || ignore
     try {
+      if (handler !== myHandlers['*']) {
+        const info = processHandler(handler, opts.enhancedRoutes, state, action)
+        const ret = next(action)
+        info.toDispatch.forEach(act => store.dispatch(act))
+        setEnhancedRoutes(info.newEnhancedRoutes, opts)
+        return ret
+      }
       const ret = next(action)
-      toDispatch.forEach(act => store.dispatch(act))
+      const info = processHandler(handler, opts.enhancedRoutes, store.getState(), action)
+      setEnhancedRoutes(info.newEnhancedRoutes, opts)
+      info.toDispatch.forEach(act => store.dispatch(act))
       return ret
     } finally {
       activeListener = listen
