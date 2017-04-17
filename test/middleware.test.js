@@ -2,6 +2,8 @@ import createHistory from 'history/createMemoryHistory'
 
 import createMiddleware, { actionHandlers, ignoreKey } from '../src/middleware'
 import * as actions from '../src/actions'
+import * as types from '../src/types'
+import * as enhancers from '../src/enhancers'
 import { sagaStore } from './test_helper'
 
 describe('middleware', () => {
@@ -120,6 +122,27 @@ describe('middleware', () => {
         { type: 'hithere' },
         { type: 'hithere' },
       ])
+    })
+  })
+  describe('action handlers', () => {
+    it('EDIT_ROUTE', () => {
+      const enhanced = {}
+      const testenhanced = enhanced
+      const state = {}
+      const teststate = state
+      expect(actionHandlers[types.EDIT_ROUTE](enhanced, state, actions.addRoute({
+        name: 'foo',
+        path: '/hi'
+      }))).eqls({
+        newEnhancedRoutes: enhancers.save(actions.addRoute({
+          name: 'foo',
+          path: '/hi'
+        }).payload, enhanced),
+        toDispatch: []
+      })
+      // verify purity of the function
+      expect(enhanced).equals(testenhanced)
+      expect(state).equals(teststate)
     })
   })
 })

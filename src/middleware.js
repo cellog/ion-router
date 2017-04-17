@@ -2,9 +2,9 @@ import createBrowserHistory from 'history/createBrowserHistory'
 import { createPath } from 'history'
 import invariant from 'invariant'
 
-// import * as types from './types'
+import * as types from './types'
 import * as actions from './actions'
-// import * as enhancers from './enhancers'
+import * as enhancers from './enhancers'
 // import * as selectors from './selectors'
 import { options, setEnhancedRoutes } from '.'
 
@@ -19,10 +19,21 @@ export const ignoreKey = '#@#$@$#@$@#$@#$@#$@#$@#$@#$@#$@#$@#$@#$ignore'
 // so all of them are pure
 export const actionHandlers = {
   [ignoreKey]: ignore,
-  '*': (enhancedRoutes, state, action) => ({ // eslint-disable-line
-    newEnhancedRoutes: enhancedRoutes,
-    toDispatch: []
-  })
+
+  [types.EDIT_ROUTE]: (enhancedRoutes, state, action) => {
+    const route = action.payload
+    return {
+      newEnhancedRoutes: enhancers.save(route, enhancedRoutes),
+      toDispatch: []
+    }
+  },
+  '*': (enhancedRoutes, state, action) => { // eslint-disable-line
+    // process state changes and how they affect URL here
+    return {
+      newEnhancedRoutes: enhancedRoutes,
+      toDispatch: []
+    }
+  }
 }
 
 function invariantHelper(type, condition, message) {
