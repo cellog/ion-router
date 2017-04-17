@@ -59,10 +59,10 @@ export const setEnhancedRoutes = (r, opts = options) => {
 }
 
 // for unit-testing purposes
-export function synchronousMakeRoutes(routes) {
+export function synchronousMakeRoutes(routes, opts = options) {
   const action = actions.batchRoutes(routes)
   setEnhancedRoutes(Object.keys(action.payload.routes).reduce((en, route) =>
-    enhancers.save(action.payload.routes[route], en), options.enhancedRoutes))
+    enhancers.save(action.payload.routes[route], en), opts.enhancedRoutes))
   return action
 }
 

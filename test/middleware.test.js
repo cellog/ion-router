@@ -1,6 +1,7 @@
 import createHistory from 'history/createMemoryHistory'
 
 import createMiddleware, { actionHandlers, ignoreKey } from '../src/middleware'
+import { synchronousMakeRoutes, routerReducer } from '../src'
 import * as actions from '../src/actions'
 import * as types from '../src/types'
 import * as enhancers from '../src/enhancers'
@@ -202,6 +203,91 @@ describe('middleware', () => {
       expect(actionHandlers[types.BATCH_REMOVE_ROUTES](enhanced, state, action)).eqls({
         newEnhancedRoutes: {},
         toDispatch: []
+      })
+      // verify purity of the function
+      expect(enhanced).equals(testenhanced)
+      expect(state).equals(teststate)
+    })
+  })
+  describe('routing handlers', () => {
+    let enhanced
+    let testenhanced
+    let state
+    let teststate
+    beforeEach(() => {
+      const opts = {
+        enhancedRoutes: {}
+      }
+      const action = synchronousMakeRoutes([
+        {
+          name: 'foo',
+          path: '/foo(/:param)',
+          paramsToState: params => params,
+          stateToParams: state => ({ param: state.boo.param }),
+          updateState: {
+            param: param => ({ type: 'setParam', payload: param })
+          }
+        },
+        {
+          name: 'bar',
+          path: '/bar(/:hi)',
+          paramsToState: params => params,
+          stateToParams: state => ({ hi: state.bar.hi }),
+          updateState: {
+            hi: hi => ({ type: 'setHi', payload: hi })
+          }
+        },
+      ], opts)
+      enhanced = opts.enhancedRoutes
+      testenhanced = enhanced
+      const info = routerReducer(undefined, action)
+      state = {
+        routing: {
+          ...info,
+          location: {
+            pathname: '/bar/wow',
+            search: '',
+            hash: ''
+          },
+          matchedRoutes: ['bar'],
+          routes: {
+            ...info.routes,
+            routes: {
+              ...info.routes.routes,
+              bar: {
+                ...info.routes.routes.bar,
+                params: {
+                  hi: 'wow'
+                },
+                state: {
+                  hi: 'wow'
+                }
+              }
+            }
+          }
+        },
+        boo: {
+          param: undefined
+        },
+        bar: {
+          hi: 'wow'
+        }
+      }
+      teststate = state
+    })
+    it('ROUTE', () => {
+      const action = actions.route('/foo/hi')
+      expect(actionHandlers[types.ROUTE](enhanced, state, action)).eqls({
+        newEnhancedRoutes: enhanced,
+        toDispatch: [
+          actions.matchRoutes(['foo']),
+          actions.exitRoutes(['bar']),
+          actions.enterRoutes(['foo']),
+          { type: 'setParam', payload: undefined },
+          { type: 'setHi', payload: 'hi' },
+          actions.setParamsAndState('bar', { hi: undefined }, { hi: undefined }),
+          actions.setParamsAndState('foo', { param: 'hi' }, { param: 'hi' }),
+        ]
       })
       // verify purity of the function
       expect(enhanced).equals(testenhanced)

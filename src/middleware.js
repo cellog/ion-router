@@ -13,6 +13,8 @@ function ignore(store, next, action) {
 }
 
 export const ignoreKey = '#@#$@$#@$@#$@#$@#$@#$@#$@#$@#$@#$@#$@#$ignore'
+export const filter = (enhancedRoutes, path) => name => enhancedRoutes[name]['@parser'].match(path)
+export const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
 
 // every action handler accepts enhanced routes, state, and action
 // and returns enhanced routes and a list of actions to send
@@ -44,11 +46,24 @@ export const actionHandlers = {
   },
   [types.BATCH_REMOVE_ROUTES]: (enhancedRoutes, state, action) => {
     const newRoutes = { ...enhancedRoutes }
-    console.log(action)
     action.payload.ids.forEach(name => delete newRoutes[name])
     return {
       newEnhancedRoutes: newRoutes,
       toDispatch: []
+    }
+  },
+
+  [types.ROUTE]: (newEnhancedRoutes, state, action) => {
+    const toDispatch = []
+    const lastMatches = state.routing.matchedRoutes
+    const path = createPath(state.routing.location)
+    const matchedRoutes = state.routing.routes.ids
+      .filter(filter(newEnhancedRoutes, path))
+    const exiting = diff(lastMatches, matchedRoutes)
+    const entering = diff(matchedRoutes, lastMatches)
+    return {
+      newEnhancedRoutes,
+      toDispatch
     }
   },
   '*': (enhancedRoutes, state, action) => { // eslint-disable-line
