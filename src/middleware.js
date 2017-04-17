@@ -5,7 +5,7 @@ import invariant from 'invariant'
 import * as types from './types'
 import * as actions from './actions'
 import * as enhancers from './enhancers'
-// import * as selectors from './selectors'
+import * as selectors from './selectors'
 import { options, setEnhancedRoutes } from '.'
 
 function ignore(store, next, action) {
@@ -15,7 +15,67 @@ function ignore(store, next, action) {
 export const ignoreKey = '#@#$@$#@$@#$@#$@#$@#$@#$@#$@#$@#$@#$@#$ignore'
 export const filter = (enhancedRoutes, path) => name => enhancedRoutes[name]['@parser'].match(path)
 export const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
+export const exitRoutes = exit => location => name => exit(name, location)
+export const mapRoute = (er, enhancedRoutes) => route => exitRoutes(er)(enhancedRoutes[route])
 
+export function template(s, params) {
+  return s.exitParams instanceof Function ?
+    { ...s.exitParams(params) } : { ...s.exitParams }
+}
+
+export function changed(oldItems, newItems) {
+  return Object.keys({ ...newItems, ...oldItems })
+    .filter(key => !Object.prototype.hasOwnProperty.call(oldItems, key) ||
+    oldItems[key] !== newItems[key])
+}
+
+export function getStateUpdates(s, newState) {
+  const oldState = s.state
+  const changes = changed(oldState, newState)
+  const update = s.updateState
+  return changes.map(key => (update[key] ? update[key](newState[key]) : false)).filter(t => t)
+}
+
+export function updateState(s, params, state) {
+  const newState = s.stateFromParams(params, state)
+  const changes = getStateUpdates(s, newState)
+  const ret = []
+  if (changes.length) {
+    ret.push(actions.setParamsAndState(s.name, params, newState))
+    for (let i = 0; i < changes.length; i++) {
+      if (changes[i].type) changes[i] = [changes[i]]
+      changes[i].forEach(event => ret.push(event))
+    }
+  }
+  return ret
+}
+
+export function stateFromLocation(enhancedRoutes, state, location) {
+  const names = Object.keys(enhancedRoutes)
+  let ret = []
+  for (let i = 0; i < names.length; i++) {
+    const s = enhancedRoutes[names[i]]
+    const params = s['@parser'].match(location)
+    if (params) ret = [...ret, ...updateState(s, params, state)]
+  }
+  return ret
+}
+
+export const exitRoute = (state, enhanced) => function (s) {
+  const params = s.params
+  let parentParams = params
+  let a = s
+  while (a.parent) {
+    const parent = enhanced[a.parent]
+    if (!selectors.matchedRoute(state, parent.name)) {
+      // we have left a child route and its parent
+      parentParams = { ...parentParams, ...(template(parent, parentParams)) }
+    }
+    a = parent
+  }
+  parentParams = { ...parentParams, ...template(s, parentParams) }
+  return updateState(s, parentParams, state)
+}
 // every action handler accepts enhanced routes, state, and action
 // and returns enhanced routes and a list of actions to send
 // so all of them are pure
@@ -56,11 +116,20 @@ export const actionHandlers = {
   [types.ROUTE]: (newEnhancedRoutes, state, action) => {
     const toDispatch = []
     const lastMatches = state.routing.matchedRoutes
-    const path = createPath(state.routing.location)
+    const path = createPath(action.payload)
     const matchedRoutes = state.routing.routes.ids
       .filter(filter(newEnhancedRoutes, path))
     const exiting = diff(lastMatches, matchedRoutes)
     const entering = diff(matchedRoutes, lastMatches)
+    toDispatch.push(actions.matchRoutes(matchedRoutes))
+    if (exiting.length) toDispatch.push(actions.exitRoutes(exiting))
+    if (entering.length) toDispatch.push(actions.enterRoutes(entering))
+    if (exiting.length) {
+      const er = exitRoute(state, newEnhancedRoutes)
+      exiting.forEach(route => er(newEnhancedRoutes[route], path)
+        .forEach(act => toDispatch.push(act)))
+    }
+    stateFromLocation(newEnhancedRoutes, state, path).forEach(act => toDispatch.push(act))
     return {
       newEnhancedRoutes,
       toDispatch

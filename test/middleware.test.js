@@ -223,7 +223,7 @@ describe('middleware', () => {
           name: 'foo',
           path: '/foo(/:param)',
           paramsToState: params => params,
-          stateToParams: state => ({ param: state.boo.param }),
+          stateFromParams: params => params,
           updateState: {
             param: param => ({ type: 'setParam', payload: param })
           }
@@ -232,13 +232,15 @@ describe('middleware', () => {
           name: 'bar',
           path: '/bar(/:hi)',
           paramsToState: params => params,
-          stateToParams: state => ({ hi: state.bar.hi }),
+          stateFromParams: params => params,
           updateState: {
             hi: hi => ({ type: 'setHi', payload: hi })
           }
         },
       ], opts)
       enhanced = opts.enhancedRoutes
+      enhanced.bar.params = { hi: 'wow' }
+      enhanced.bar.state = { hi: 'wow' }
       testenhanced = enhanced
       const info = routerReducer(undefined, action)
       state = {
@@ -276,17 +278,21 @@ describe('middleware', () => {
       teststate = state
     })
     it('ROUTE', () => {
-      const action = actions.route('/foo/hi')
+      const action = actions.route({
+        pathname: '/foo/hi',
+        search: '',
+        hash: ''
+      })
       expect(actionHandlers[types.ROUTE](enhanced, state, action)).eqls({
         newEnhancedRoutes: enhanced,
         toDispatch: [
           actions.matchRoutes(['foo']),
           actions.exitRoutes(['bar']),
           actions.enterRoutes(['foo']),
-          { type: 'setParam', payload: undefined },
-          { type: 'setHi', payload: 'hi' },
           actions.setParamsAndState('bar', { hi: undefined }, { hi: undefined }),
+          { type: 'setHi', payload: undefined },
           actions.setParamsAndState('foo', { param: 'hi' }, { param: 'hi' }),
+          { type: 'setParam', payload: 'hi' },
         ]
       })
       // verify purity of the function
