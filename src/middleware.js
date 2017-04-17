@@ -37,7 +37,6 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
     ...handlers
   }
   function listen(store, next, action) {
-    if (!action || !action.type) return next(action)
     const handler = myHandlers[action.type] ?
       myHandlers[action.type] :
       myHandlers['*']

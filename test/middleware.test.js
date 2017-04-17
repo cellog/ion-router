@@ -40,33 +40,61 @@ describe('middleware', () => {
     })
     expect(store.dispatch.called).is.false
   })
-  it('calls ignore when receiving an action in process', () => {
-    const history = createHistory({
-      initialEntries: ['/']
-    })
-    const opts = {
-      enhancedRoutes: {}
+  describe('normal functionality tests', () => {
+    let history
+    let opts
+    function makeStuff(spies) {
+      const mid = createMiddleware(history, opts, spies)
+      return sagaStore(undefined, undefined, [mid])
     }
-    const spy = sinon.spy()
-    const spies = {
-      '*': enhancedRoutes => ({
-        newEnhancedRoutes: enhancedRoutes,
-        toDispatch: [
-          { type: 'foo' }
-        ]
-      }),
-      [ignoreKey]: (store, next, action) => {
-        spy(store, next, action)
-        next(action)
+    beforeEach(() => {
+      history = createHistory({
+        initialEntries: ['/']
+      })
+      opts = {
+        enhancedRoutes: {}
       }
-    }
-    const mid = createMiddleware(history, opts, spies)
-    const info = sagaStore(undefined, undefined, [mid])
-    info.store.dispatch(actions.route('/hi'))
-    expect(spy.called).is.true
-    expect(info.log).eqls([
-      actions.route('/hi'),
-      { type: 'foo' }
-    ])
+    })
+    it('calls ignore when receiving an action in process', () => {
+      const spy = sinon.spy()
+      const spies = {
+        '*': enhancedRoutes => ({
+          newEnhancedRoutes: enhancedRoutes,
+          toDispatch: [
+            { type: 'foo' }
+          ]
+        }),
+        [ignoreKey]: (store, next, action) => {
+          spy(store, next, action)
+          next(action)
+        }
+      }
+      const info = makeStuff(spies)
+      info.store.dispatch(actions.route('/hi'))
+      expect(spy.called).is.true
+      expect(info.log).eqls([
+        actions.route('/hi'),
+        { type: 'foo' }
+      ])
+    })
+    it('calls an action handler', () => {
+      const spy = sinon.spy()
+      const spies = {
+        hithere: (enhancedRoutes, state, action) => {
+          spy(enhancedRoutes, state, action)
+          return {
+            newEnhancedRoutes: enhancedRoutes,
+            toDispatch: []
+          }
+        }
+      }
+      const info = makeStuff(spies)
+      const action = { type: 'hithere' }
+      info.store.dispatch(action)
+      expect(spy.called).is.true
+      expect(spy.args[0][0]).equals(opts.enhancedRoutes)
+      expect(spy.args[0][1]).equals(info.store.getState())
+      expect(spy.args[0][2]).equals(action)
+    })
   })
 })
