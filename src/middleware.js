@@ -96,12 +96,20 @@ export function stateFromLocation(enhancedRoutes, state, location) {
     acts: ret
   }
 }
+
+function pass(newEnhancedRoutes) {
+  return {
+    newEnhancedRoutes,
+    toDispatch: []
+  }
+}
 // every action handler accepts enhanced routes, state, and action
 // and returns enhanced routes and a list of actions to send
 // so all of them are pure
 export const actionHandlers = {
   [ignoreKey]: ignore,
 
+  [types.ACTION]: pass,
   [types.EDIT_ROUTE]: (enhancedRoutes, state, action) => ({
     newEnhancedRoutes: enhancers.save(action.payload, enhancedRoutes),
     toDispatch: []
@@ -207,6 +215,12 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
       lastLocation = a
       store.dispatch(actions.route(location))
     })
-    return next => action => activeListener(store, next, action)
+    return next => (action) => {
+      const ret = activeListener(store, next, action)
+      if (action.type === types.ACTION) {
+        history[action.payload.verb](action.payload.route, action.payload.state)
+      }
+      return ret
+    }
   }
 }

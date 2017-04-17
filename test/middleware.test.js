@@ -46,7 +46,7 @@ describe('middleware', () => {
   describe('normal functionality tests', () => {
     let history
     let opts
-    function makeStuff(spies) {
+    function makeStuff(spies = actionHandlers) {
       const mid = createMiddleware(history, opts, spies)
       return sagaStore(undefined, undefined, [mid])
     }
@@ -122,6 +122,21 @@ describe('middleware', () => {
       expect(info.log).eqls([
         { type: 'hithere' },
         { type: 'hithere' },
+      ])
+    })
+    it('url action handling', () => {
+      const duds = {
+        ...actionHandlers,
+        [types.ROUTE]: (newEnhancedRoutes) => ({
+          newEnhancedRoutes,
+          toDispatch: []
+        })
+      }
+      const info = makeStuff(duds)
+      info.store.dispatch(actions.push('/hi'))
+      expect(info.log).eqls([
+        actions.push('/hi'),
+        actions.route(info.log[1].payload)
       ])
     })
   })
@@ -310,6 +325,13 @@ describe('middleware', () => {
       // verify purity of the function
       expect(enhanced).equals(testenhanced)
       expect(state).equals(teststate)
+    })
+    it('ACTION', () => {
+      const action = actions.push('/foo')
+      expect(actionHandlers[types.ACTION](enhanced, state, action)).eqls({
+        newEnhancedRoutes: enhanced,
+        toDispatch: []
+      })
     })
   })
 })
