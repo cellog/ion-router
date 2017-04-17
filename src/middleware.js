@@ -27,6 +27,18 @@ export const actionHandlers = {
       toDispatch: []
     }
   },
+  [types.BATCH_ROUTES]: (enhancedRoutes, state, action) => {
+    return {
+      newEnhancedRoutes: {
+        ...enhancedRoutes,
+        ...action.payload.ids.reduce((routes, name) => ({
+          ...routes,
+          [name]: enhancers.enhanceRoute(action.payload.routes[name])
+        }), {})
+      },
+      toDispatch: []
+    }
+  },
   '*': (enhancedRoutes, state, action) => { // eslint-disable-line
     // process state changes and how they affect URL here
     return {

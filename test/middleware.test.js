@@ -144,5 +144,26 @@ describe('middleware', () => {
       expect(enhanced).equals(testenhanced)
       expect(state).equals(teststate)
     })
+    it('BATCH_ROUTES', () => {
+      const enhanced = {}
+      const testenhanced = enhanced
+      const state = {}
+      const teststate = state
+      const action = actions.batchRoutes([{
+        name: 'foo',
+        path: '/hi'
+      }, {
+        name: 'bar',
+        path: '/there'
+      }])
+      expect(actionHandlers[types.BATCH_ROUTES](enhanced, state, action)).eqls({
+        newEnhancedRoutes: enhancers.save(action.payload.routes.bar,
+          enhancers.save(action.payload.routes.foo, enhanced)),
+        toDispatch: []
+      })
+      // verify purity of the function
+      expect(enhanced).equals(testenhanced)
+      expect(state).equals(teststate)
+    })
   })
 })
