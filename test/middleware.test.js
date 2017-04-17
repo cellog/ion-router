@@ -1,5 +1,8 @@
-import createMiddleware from '../src/middleware'
+import createHistory from 'history/createMemoryHistory'
+
+import createMiddleware, { ignoreKey } from '../src/middleware'
 import * as actions from '../src/actions'
+import { sagaStore } from './test_helper'
 
 describe('middleware', () => {
   it('subscribes to history', () => {
@@ -37,5 +40,33 @@ describe('middleware', () => {
     })
     expect(store.dispatch.called).is.false
   })
-  it('')
+  it('calls ignore when receiving an action in process', () => {
+    const history = createHistory({
+      initialEntries: ['/']
+    })
+    const opts = {
+      enhancedRoutes: {}
+    }
+    const spy = sinon.spy()
+    const spies = {
+      '*': enhancedRoutes => ({
+        newEnhancedRoutes: enhancedRoutes,
+        toDispatch: [
+          { type: 'foo' }
+        ]
+      }),
+      [ignoreKey]: (store, next, action) => {
+        spy(store, next, action)
+        next(action)
+      }
+    }
+    const mid = createMiddleware(history, opts, spies)
+    const info = sagaStore(undefined, undefined, [mid])
+    info.store.dispatch(actions.route('/hi'))
+    expect(spy.called).is.true
+    expect(info.log).eqls([
+      actions.route('/hi'),
+      { type: 'foo' }
+    ])
+  })
 })

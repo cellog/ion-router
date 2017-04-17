@@ -54,8 +54,8 @@ export function matchesPath(route, locationOrPath) {
 export { routerReducer }
 
 export const onServer = () => options.server
-export const setEnhancedRoutes = (r) => {
-  options.enhancedRoutes = r
+export const setEnhancedRoutes = (r, opts = options) => {
+  opts.enhancedRoutes = r // eslint-disable-line
 }
 
 // for unit-testing purposes
