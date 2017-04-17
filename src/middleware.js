@@ -15,8 +15,6 @@ function ignore(store, next, action) {
 export const ignoreKey = '#@#$@$#@$@#$@#$@#$@#$@#$@#$@#$@#$@#$@#$ignore'
 export const filter = (enhancedRoutes, path) => name => enhancedRoutes[name]['@parser'].match(path)
 export const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
-export const exitRoutes = exit => location => name => exit(name, location)
-export const mapRoute = (er, enhancedRoutes) => route => exitRoutes(er)(enhancedRoutes[route])
 
 export function template(s, params) {
   return s.exitParams instanceof Function ?
@@ -39,29 +37,28 @@ export function getStateUpdates(s, newState) {
 export function updateState(s, params, state) {
   const newState = s.stateFromParams(params, state)
   const changes = getStateUpdates(s, newState)
-  const ret = []
+  const acts = []
+  const updatedRoutes = {}
   if (changes.length) {
-    ret.push(actions.setParamsAndState(s.name, params, newState))
+    acts.push(actions.setParamsAndState(s.name, params, newState))
+    updatedRoutes[s.name] = {
+      ...s,
+      params,
+      state: newState
+    }
     for (let i = 0; i < changes.length; i++) {
       if (changes[i].type) changes[i] = [changes[i]]
-      changes[i].forEach(event => ret.push(event))
+      changes[i].forEach(event => acts.push(event))
     }
   }
-  return ret
-}
-
-export function stateFromLocation(enhancedRoutes, state, location) {
-  const names = Object.keys(enhancedRoutes)
-  let ret = []
-  for (let i = 0; i < names.length; i++) {
-    const s = enhancedRoutes[names[i]]
-    const params = s['@parser'].match(location)
-    if (params) ret = [...ret, ...updateState(s, params, state)]
+  return {
+    acts,
+    updatedRoutes
   }
-  return ret
 }
 
-export const exitRoute = (state, enhanced) => function (s) {
+export const exitRoute = (state, enhanced, name) => {
+  const s = enhanced[name]
   const params = s.params
   let parentParams = params
   let a = s
@@ -75,6 +72,29 @@ export const exitRoute = (state, enhanced) => function (s) {
   }
   parentParams = { ...parentParams, ...template(s, parentParams) }
   return updateState(s, parentParams, state)
+}
+
+export function stateFromLocation(enhancedRoutes, state, location) {
+  const names = Object.keys(enhancedRoutes)
+  let ret = []
+  let n = enhancedRoutes
+  for (let i = 0; i < names.length; i++) {
+    const s = enhancedRoutes[names[i]]
+    const params = s['@parser'].match(location)
+    if (params) {
+      const { updatedRoutes, acts } = updateState(s, params, state, n)
+      n = { ...n, ...updatedRoutes }
+      ret = [...ret, ...acts]
+    } else if (state.routing.matchedRoutes.includes(names[i])) {
+      const { updatedRoutes, acts } = exitRoute(state, n, names[i])
+      ret = [...ret, ...acts]
+      n = { ...n, ...updatedRoutes }
+    }
+  }
+  return {
+    updatedRoutes: n,
+    acts: ret
+  }
 }
 // every action handler accepts enhanced routes, state, and action
 // and returns enhanced routes and a list of actions to send
@@ -113,23 +133,20 @@ export const actionHandlers = {
     }
   },
 
-  [types.ROUTE]: (newEnhancedRoutes, state, action) => {
+  [types.ROUTE]: (enhancedRoutes, state, action) => {
     const toDispatch = []
     const lastMatches = state.routing.matchedRoutes
     const path = createPath(action.payload)
     const matchedRoutes = state.routing.routes.ids
-      .filter(filter(newEnhancedRoutes, path))
+      .filter(filter(enhancedRoutes, path))
     const exiting = diff(lastMatches, matchedRoutes)
     const entering = diff(matchedRoutes, lastMatches)
     toDispatch.push(actions.matchRoutes(matchedRoutes))
     if (exiting.length) toDispatch.push(actions.exitRoutes(exiting))
     if (entering.length) toDispatch.push(actions.enterRoutes(entering))
-    if (exiting.length) {
-      const er = exitRoute(state, newEnhancedRoutes)
-      exiting.forEach(route => er(newEnhancedRoutes[route], path)
-        .forEach(act => toDispatch.push(act)))
-    }
-    stateFromLocation(newEnhancedRoutes, state, path).forEach(act => toDispatch.push(act))
+    const { updatedRoutes: newEnhancedRoutes, acts } =
+      stateFromLocation(enhancedRoutes, state, path)
+    acts.forEach(act => toDispatch.push(act))
     return {
       newEnhancedRoutes,
       toDispatch

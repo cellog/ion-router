@@ -284,15 +284,27 @@ describe('middleware', () => {
         hash: ''
       })
       expect(actionHandlers[types.ROUTE](enhanced, state, action)).eqls({
-        newEnhancedRoutes: enhanced,
+        newEnhancedRoutes: {
+          ...enhanced,
+          bar: {
+            ...enhanced.bar,
+            params: { hi: undefined },
+            state: { hi: undefined }
+          },
+          foo: {
+            ...enhanced.foo,
+            params: { param: 'hi' },
+            state: { param: 'hi' }
+          }
+        },
         toDispatch: [
           actions.matchRoutes(['foo']),
           actions.exitRoutes(['bar']),
           actions.enterRoutes(['foo']),
-          actions.setParamsAndState('bar', { hi: undefined }, { hi: undefined }),
-          { type: 'setHi', payload: undefined },
           actions.setParamsAndState('foo', { param: 'hi' }, { param: 'hi' }),
           { type: 'setParam', payload: 'hi' },
+          actions.setParamsAndState('bar', { hi: undefined }, { hi: undefined }),
+          { type: 'setHi', payload: undefined },
         ]
       })
       // verify purity of the function
