@@ -1,6 +1,6 @@
 import createHistory from 'history/createMemoryHistory'
 
-import createMiddleware, { ignoreKey } from '../src/middleware'
+import createMiddleware, { actionHandlers, ignoreKey } from '../src/middleware'
 import * as actions from '../src/actions'
 import { sagaStore } from './test_helper'
 
@@ -95,6 +95,31 @@ describe('middleware', () => {
       expect(spy.args[0][0]).equals(opts.enhancedRoutes)
       expect(spy.args[0][1]).equals(info.store.getState())
       expect(spy.args[0][2]).equals(action)
+    })
+    it('ignores actions triggered in toDispatch', () => {
+      const spy = sinon.spy()
+      const spies = {
+        ...actionHandlers,
+        hithere: (enhancedRoutes, state, action) => {
+          spy(enhancedRoutes, state, action)
+          return {
+            newEnhancedRoutes: enhancedRoutes,
+            toDispatch: [{ type: 'hithere' }]
+          }
+        }
+      }
+      const info = makeStuff(spies)
+      const action = { type: 'hithere' }
+      info.store.dispatch(action)
+      expect(spy.called).is.true
+      expect(spy.args[0][0]).equals(opts.enhancedRoutes)
+      expect(spy.args[0][1]).equals(info.store.getState())
+      expect(spy.args[0][2]).equals(action)
+      expect(spy.args.length).eqls(1)
+      expect(info.log).eqls([
+        { type: 'hithere' },
+        { type: 'hithere' },
+      ])
     })
   })
 })
