@@ -1,5 +1,15 @@
 import * as types from './types'
 
+export function stateRouteShape(params) {
+  return {
+    name: params.name,
+    path: params.path,
+    parent: params.parent,
+    params: {},
+    state: {}
+  }
+}
+
 function makeUrlAction(name) {
   return (details, state = {}) => ({
     type: types.ACTION,
@@ -59,13 +69,7 @@ export function route(location) {
 export function addRoute(params) {
   return {
     type: types.EDIT_ROUTE,
-    payload: {
-      name: params.name,
-      path: params.path,
-      parent: params.parent,
-      params: {},
-      state: {}
-    }
+    payload: stateRouteShape(params)
   }
 }
 

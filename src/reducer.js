@@ -1,4 +1,5 @@
 import * as types from './types'
+import { stateRouteShape } from './actions'
 
 const defaultState = {
   location: {
@@ -60,13 +61,7 @@ export default (state = defaultState, action) => {
                 const r = action.payload.routes[n]
                 return {
                   ...defs,
-                  [r.name]: {
-                    name: r.name,
-                    path: r.path,
-                    parent: r.parent,
-                    params: {},
-                    state: {}
-                  }
+                  [r.name]: stateRouteShape(r)
                 }
               }, {})
           }

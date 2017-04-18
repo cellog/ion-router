@@ -4,28 +4,21 @@ import invariant from 'invariant'
 
 import * as actions from './actions'
 
+const urlShape = PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.shape({
+    pathname: PropTypes.string,
+    search: PropTypes.string,
+    hash: PropTypes.string,
+    state: PropTypes.any
+  }),
+  PropTypes.bool,
+])
+
 class Link extends Component {
   static propTypes = {
-    to: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.shape({
-        pathname: PropTypes.string,
-        search: PropTypes.string,
-        hash: PropTypes.string,
-        state: PropTypes.any
-      }),
-      PropTypes.bool,
-    ]),
-    replace: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.shape({
-        pathname: PropTypes.string,
-        search: PropTypes.string,
-        hash: PropTypes.string,
-        state: PropTypes.any
-      }),
-      PropTypes.bool,
-    ]),
+    to: urlShape,
+    replace: urlShape,
     dispatch: PropTypes.func.isRequired,
     onClick: PropTypes.func,
     href: PropTypes.string,
@@ -37,12 +30,14 @@ class Link extends Component {
   constructor(props) {
     super(props)
     this.click = this.click.bind(this)
-    if (props.route && props['@@__routes'] && props['@@__routes'][props.route]) {
-      this.route = new RouteParser(props['@@__routes'][props.route].path)
-    }
+    this.setupRoute(props)
   }
 
   componentWillReceiveProps(props) {
+    this.setupRoute(props)
+  }
+
+  setupRoute(props) {
     if (props.route && props['@@__routes'] && props['@@__routes'][props.route]) {
       this.route = new RouteParser(props['@@__routes'][props.route].path)
     }
@@ -50,17 +45,16 @@ class Link extends Component {
 
   click(e) {
     e.preventDefault()
+    let url
+    const action = this.props.replace ? 'replace' : 'push'
     if (this.props.route) {
-      if (this.props.replace) {
-        this.props.dispatch(actions.replace(this.route.reverse(this.props)))
-      } else {
-        this.props.dispatch(actions.push(this.route.reverse(this.props)))
-      }
+      url = this.route.reverse(this.props)
     } else if (this.props.replace) {
-      this.props.dispatch(actions.replace(this.props.replace))
+      url = this.props.replace
     } else {
-      this.props.dispatch(actions.push(this.props.to))
+      url = this.props.to
     }
+    this.props.dispatch(actions[action](url))
     if (this.props.onClick) {
       this.props.onClick(e)
     }
