@@ -1,11 +1,5 @@
-import createHistory from 'history/createMemoryHistory'
-import createBrowserHistory from 'history/createBrowserHistory'
-
 import * as index from '../src'
 import reducer from '../src/reducer'
-import { connectLink } from '../src/Link'
-import { connectRoutes } from '../src/Routes'
-import { connectToggle } from '../src/Toggle'
 import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
 
@@ -194,11 +188,11 @@ describe('ion-router', () => {
           path: '/there',
           parent: undefined,
         }, enhancers.save(
-        {
-          name: 'hi',
-          path: '/hi',
-          parent: undefined,
-        }, {}
+          {
+            name: 'hi',
+            path: '/hi',
+            parent: undefined,
+          }, {}
       )))
     })
   })
