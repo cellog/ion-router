@@ -4,7 +4,7 @@ import DisplaysChildren from './DisplaysChildren'
 
 export const error = () => {
   throw new Error('call connectToggle with the connect function from react-redux to ' +
-    'initialize Toggle (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+    'initialize Toggle (see https://github.com/cellog/ion-router/issues/1)')
 }
 
 let connect = error
@@ -115,7 +115,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
       if (Object.hasOwnProperty.call(props, 'loading') && !Object.hasOwnProperty.call(props, 'loadingComponent')) {
         const name = props.component.displayName || props.component.name || 'Component'
         if (!componentLoadingMap.loadingComponent) {
-          console.warn(`${propName} in Toggle:${name} should be loadingComponent for react-redux-saga-router`) // eslint-disable-line
+          console.warn(`${propName} in Toggle:${name} should be loadingComponent for ion-router`) // eslint-disable-line
         }
       }
       return null

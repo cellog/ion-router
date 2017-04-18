@@ -1,7 +1,7 @@
 import reducer from '../src/reducer'
 import * as actions from '../src/actions'
 
-describe('react-redux-saga-router reducer', () => {
+describe('ion-router reducer', () => {
   it('ROUTE', () => {
     const state = { ...reducer() }
     expect(reducer(state, actions.route({

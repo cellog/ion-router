@@ -16,7 +16,7 @@ describe('react-redux-saga-router Routes', () => {
   it('errors (in dev) on href passed in', () => {
     expect(() => renderComponent(ConnectedRoutes, { href: '/hi' }, {}, true))
       .throws('call connectRoutes with the connect function from react-redux to ' +
-        'initialize Routes (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+        'initialize Routes (see https://github.com/cellog/ion-router/issues/1)')
   })
   it('connectRoutes', () => {
     const spy1 = sinon.spy()

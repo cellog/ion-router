@@ -1,6 +1,6 @@
 {
-  "name": "react-redux-saga-router",
-  "version": "0.9.1",
+  "name": "ion-router",
+  "version": "0.10.0",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
   "directories": {
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cellog/react-redux-saga-router.git"
+    "url": "git+https://github.com/cellog/ion-router.git"
   },
   "keywords": [
     "redux",
@@ -28,9 +28,9 @@
   "author": "Gregory Beaver",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cellog/react-redux-saga-router/issues"
+    "url": "https://github.com/cellog/ion-router/issues"
   },
-  "homepage": "https://github.com/cellog/react-redux-saga-router#readme",
+  "homepage": "https://github.com/cellog/ion-router#readme",
   "dependencies": {
     "history": "^4.5.1",
     "invariant": "^2.2.2",

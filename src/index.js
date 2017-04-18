@@ -1,10 +1,10 @@
-import { call, fork, put } from 'redux-saga/effects'
 import createBrowserHistory from 'history/createBrowserHistory'
 import { createPath } from 'history'
-import historyChannel from './historyChannel'
+import { createStore, applyMiddleware } from 'redux'
+
 import routerReducer from './reducer'
+import middleware, { actionHandlers } from './middleware'
 import * as actions from './actions'
-import * as sagas from './sagas'
 import * as enhancers from './enhancers'
 import { connectLink } from './Link'
 import { connectRoutes } from './Routes'
@@ -21,26 +21,6 @@ export const setServer = (val = true) => {
   options.server = val
 }
 
-export const pending = opts => opts.pending
-export const nonBlockingPending = opts => !!opts.pending
-
-export const begin = (opts) => {
-  const o = opts
-  if (!o.pending) {
-    o.pending = new Promise((resolve) => {
-      o.resolve = resolve
-    })
-  }
-  return true
-}
-
-export const commit = (opts) => {
-  const o = opts
-  o.pending = false
-  o.resolve(true)
-  return false
-}
-
 export function makePath(name, params) {
   if (!options.enhancedRoutes[name]) return false
   return options.enhancedRoutes[name]['@parser'].reverse(params)
@@ -51,45 +31,52 @@ export function matchesPath(route, locationOrPath) {
   return options.enhancedRoutes[route]['@parser'].match(locationOrPath.pathname ? createPath(locationOrPath) : locationOrPath)
 }
 
-export { routerReducer }
-
 export const onServer = () => options.server
-export const setEnhancedRoutes = (r) => {
-  options.enhancedRoutes = r
+export const setEnhancedRoutes = (r, opts = options) => {
+  opts.enhancedRoutes = r // eslint-disable-line
 }
 
 // for unit-testing purposes
-export function synchronousMakeRoutes(routes) {
+export function synchronousMakeRoutes(routes, opts = options) {
   const action = actions.batchRoutes(routes)
   setEnhancedRoutes(Object.keys(action.payload.routes).reduce((en, route) =>
-    enhancers.save(action.payload.routes[route], en), options.enhancedRoutes))
+    enhancers.save(action.payload.routes[route], en), opts.enhancedRoutes), opts)
   return action
 }
 
-export function *router(connect, routeDefinitions, history, channel, isServer) {
-  options.server = !!isServer
-  yield [
-    call(connectLink, connect),
-    call(connectRoutes, connect),
-    call(connectToggle, connect),
-
-    fork(sagas.routeMonitor, options, history),
-
-    fork(sagas.stateMonitor, options),
-    fork(sagas.browserListener, history),
-    fork(sagas.locationListener, channel, options),
-  ]
-  if (routeDefinitions && routeDefinitions.length) {
-    yield put(actions.batchRoutes(routeDefinitions))
+export function routingReducer(reducers = state => ({ ...(state || {}) })) {
+  return (state, action) => {
+    if (!state) {
+      return {
+        ...routerReducer(),
+        ...(reducers() || {})
+      }
+    }
+    let newState = state
+    if (!newState.routing) {
+      newState = {
+        ...state,
+        routing: routerReducer()
+      }
+    }
+    return reducers(routerReducer(newState, action), action)
   }
-  yield put(actions.route(history.location))
 }
 
-export default (sagaMiddleware,
-                connect,
-                routeDefinitions,
-                history = createBrowserHistory(),
-                isServer = false,
-                channel = historyChannel(history)) => {
-  sagaMiddleware.run(router, connect, routeDefinitions, history, channel, isServer)
-}
+export default (
+  connect, routeDefinitions, history = createBrowserHistory(),
+  isServer = false, opts = options, handlers = actionHandlers) => (reducer, state, enhancer) => {
+    connectLink(connect)
+    connectRoutes(connect)
+    connectToggle(connect)
+    options.isServer = isServer
+    const routerMiddleware = applyMiddleware(middleware(history, opts, handlers))(createStore)
+    const store = routerMiddleware(routingReducer(reducer), state, enhancer)
+    if (routeDefinitions) {
+      store.dispatch(synchronousMakeRoutes(routeDefinitions, opts))
+    }
+    return {
+      ...store,
+      dispatch: store.dispatch
+    }
+  }

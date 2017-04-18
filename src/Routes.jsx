@@ -44,7 +44,7 @@ export class RawRoutes extends Component {
 
 export const Placeholder = () => {
   throw new Error('call connectRoutes with the connect function from react-redux to ' +
-    'initialize Routes (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+    'initialize Routes (see https://github.com/cellog/ion-router/issues/1)')
 }
 
 let ConnectedRoutes = null

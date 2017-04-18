@@ -68,7 +68,7 @@ module.exports = function (config, extraoptions) {
     browserStack: {
       username: process.env.BROWSER_STACK_USERNAME,
       accessKey: process.env.BROWSER_STACK_ACCESS_KEY,
-      project: "react-redux-saga-router"
+      project: "ion-router"
     },
 
     webpackMiddleware: {

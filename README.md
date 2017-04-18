@@ -1,14 +1,16 @@
-# react-redux-saga-router
+<img src='logos/ion-router.png' alt='Ion Router Logo' width='300px'>
+
+# ion-router
 ###### Connecting your url and redux state
 
-[![Code Climate](https://codeclimate.com/github/cellog/react-redux-saga-router/badges/gpa.svg)](https://codeclimate.com/github/cellog/react-redux-saga-router) [![Test Coverage](https://codeclimate.com/github/cellog/react-redux-saga-router/badges/coverage.svg)](https://codeclimate.com/github/cellog/react-redux-saga-router/coverage) [![Build Status](https://travis-ci.org/cellog/react-redux-saga-router.svg?branch=master)](https://travis-ci.org/cellog/react-redux-saga-router) [![npm](https://img.shields.io/npm/v/react-redux-saga-router.svg)](https://www.npmjs.com/package/react-redux-saga-router)
+[![Code Climate](https://codeclimate.com/github/cellog/ion-router/badges/gpa.svg)](https://codeclimate.com/github/cellog/ion-router) [![Test Coverage](https://codeclimate.com/github/cellog/ion-router/badges/coverage.svg)](https://codeclimate.com/github/cellog/ion-router/coverage) [![Build Status](https://travis-ci.org/cellog/ion-router.svg?branch=master)](https://travis-ci.org/cellog/ion-router) [![npm](https://img.shields.io/npm/v/ion-router.svg)](https://www.npmjs.com/package/ion-router)
 
 Elegant powerful routing based on the simplicity of storing url as state
 
 To install:
 
 ```bash
-$ npm i -S react-redux-saga-router
+$ npm i -S ion-router
 ```
 Table of Contents
 =================
@@ -17,7 +19,7 @@ Table of Contents
     * [Internal Linking with &lt;Link&gt;](#internal-linking-with-link)
     * [Extending the example: asynchronous state loading](#extending-the-example-asynchronous-state-loading)
     * [Available selectors for Toggle](#available-selectors-for-toggle)
-    * [What about complex routes like react\-router &lt;Route&gt;?](#what-about-complex-routes-like-react-router-route)
+    * [What about complex routes like react\-router nested &lt;Route&gt;?](#what-about-complex-routes-like-react-router-nested-route)
     * [Dynamic Routes](#dynamic-routes)
     * [enter/exit hooks](#enterexit-hooks)
     * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
@@ -61,7 +63,7 @@ To do this, we'll need to add four items to the app:
 reducers/index.js:
 ```javascript
 import { combineReducers } from 'redux'
-import routing from 'react-redux-saga-router/reducer' // the new line
+import routing from 'ion-router/reducer' // the new line
 import todos from './todos'
 import visibilityFilter from './visibilityFilter'
 
@@ -77,8 +79,8 @@ export default todoApp
 Routes.js:
 ```javascript
 import React from 'react'
-import Routes from 'react-redux-saga-router/Routes'
-import Route from 'react-redux-saga-router/Route'
+import Routes from 'ion-router/Routes'
+import Route from 'ion-router/Route'
 import * as actions from './actions'
 
 const paramsFromState = state => ({ visibilityFilter: state.visibilityFilter })
@@ -105,18 +107,14 @@ index.js:
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider, connect } from 'react-redux' // new - import connect
-import { createStore, applyMiddleware } from 'redux'
-import createSagaMiddleware from 'redux-saga' // redux-saga - new line
-import router from 'react-redux-saga-router' // our router - new line
+import createRouterStore from 'ion-router' // our router - new line
 
 import todoApp from './reducers'
 import App from './components/App'
 
-// add the saga middleware
-let store = createStore(todoApp, undefined, applyMiddleware(sagaMiddleware))
+// set up the router and create the store
+const store = createRouterStore(connect)(todoApp)
 
-// set up our router
-router(sagaMiddleware, connect)
 
 render(
   <Provider store={store}>
@@ -144,7 +142,7 @@ const App = () => (
 
 ### Internal linking with `<Link>`
 
-Note that if we want to set up a menu of urls, react-redux-saga-router provides a
+Note that if we want to set up a menu of urls, ion-router provides a
 `<Link>` component that should be used for all internal links.  It uses the `to`
 prop in place of href.  An onClick handler may be passed to handle the click in
 a custom fashion.  All other props will be passed through to the internal `<a>`
@@ -193,9 +191,8 @@ To implement this with our router, you will use:
     actions and reducer code to capture this state.
 
 redux-saga is an excellent solution for expressing complex asynchronous actions in a
-simple way.  Although react-redux-router-saga uses redux-saga internally and highly
-recommends it, you can write your asynchronous loader in any manner you choose, whether
-it is a thunk or an epic or fill-in-your-favorite.
+simple way.  You can write your asynchronous loader in any manner you choose, whether
+it is a thunk, saga, observable, or fill-in-your-favorite.
 
 For this example, we will assume that you can add a simple "loaded" field to the todos
 reducer, and actions to set it to true or false.
@@ -250,7 +247,7 @@ loading component.  Here is the source:
 
 TodosToggle.js:
 ```javascript
-import Toggle from 'react-redux-saga-router/Toggle'
+import Toggle from 'ion-router/Toggle'
 
 export default Toggle(state => state.loaded, state => !state.loaded)
 ```
@@ -296,7 +293,7 @@ selecting a sub-application.  To display components whose sole display criteria 
 the selection of a route, use a `RouteToggle`
 
 ```javascript
-import RouteToggle from 'react-redux-saga-router'
+import RouteToggle from 'ion-router'
 
 const TodosRoute = RouteToggle('todos')
 ```
@@ -305,10 +302,10 @@ In this way, you can display several components scattered around a layout templa
 that are route-specific without having to make a new layout template just for that route,
 or doing any strange contortions.
 
-A `RouteToggle` accepts all the arguments of Toggle afterwards:
+A `RouteToggle` accepts all the arguments of Toggle after the route name to match:
 
 ```javascript
-import RouteToggle from 'react-redux-saga-router'
+import RouteToggle from 'ion-router'
 
 const TodosRoute = RouteToggle('todos', state => state.whatever === 'hi')
 ```
@@ -320,8 +317,8 @@ A `RouteToggle` can be thought of
 as a simpler version of this source code:
 
 ```javascript
-import Toggle from 'react-redux-saga-router/Toggle'
-import { matchedRoutes } from 'react-redux-saga-router/selectors'
+import Toggle from 'ion-router/Toggle'
+import { matchedRoutes } from 'ion-router/selectors'
 
 const TodosRoute = Toggle(state => matchedRoutes(state, 'todos'))
 ```
@@ -331,14 +328,14 @@ const TodosRoute = Toggle(state => matchedRoutes(state, 'todos'))
 The following selectors are available for use with Toggles. import as follows:
 
 ```javascript
-import * as selectors from 'react-redux-saga-router/selectors'
+import * as selectors from 'ion-router/selectors'
 ```
 
 #### matchedRoute(state, name)
 
 ```javascript
-import * as selectors from 'react-redux-saga-router/selectors'
-import Toggle from 'react-redux-saga-router/Toggle'
+import * as selectors from 'ion-router/selectors'
+import Toggle from 'ion-router/Toggle'
 
 export Toggle(state => selectors.matchedRoute(state, 'routename'))
 ```
@@ -348,8 +345,8 @@ By default, it matches on any route.  To enable strict matching (all routes must
 pass in true to the third parameter of matchedRoute
 
 ```javascript
-import * as selectors from 'react-redux-saga-router/selectors'
-import Toggle from 'react-redux-saga-router/Toggle'
+import * as selectors from 'ion-router/selectors'
+import Toggle from 'ion-router/Toggle'
 
 export Toggle(state => selectors.matchedRoute(state, ['route', 'subroute'], true))
 ```
@@ -359,7 +356,7 @@ This is useful for strict matching of a sub-route path.
 Note that a convenience Toggle, `RouteToggle` exists to match a route:
 
 ```javascript
-import RouteToggle from 'react-redux-saga-router/RouteToggle'
+import RouteToggle from 'ion-router/RouteToggle'
 
 export RouteToggle('routename', state => otherconditions())
 ```
@@ -368,8 +365,8 @@ This selector returns true if the route specified by `'routename'` is active
 
 #### noMatches
 ```javascript
-import * as selectors from 'react-redux-saga-router/selectors'
-import Toggle from 'react-redux-saga-router/Toggle'
+import * as selectors from 'ion-router/selectors'
+import Toggle from 'ion-router/Toggle'
 
 export Toggle(state => selectors.noMatches(state))
 ```
@@ -380,8 +377,8 @@ or default component
 #### stateExists
 
 ```javascript
-import * as selectors from 'react-redux-saga-router/selectors'
-import Toggle from 'react-redux-saga-router/Toggle'
+import * as selectors from 'ion-router/selectors'
+import Toggle from 'ion-router/Toggle'
 
 export Toggle(state => state.whatever, state => selectors.stateExists(state, /* state descriptor */))
 ```
@@ -392,8 +389,8 @@ a skeleton of the state shape and it will traverse the state to determine whethe
 Here is a sample from an actual project:
 
 ```javascript
-import Toggle from 'react-redux-saga-router/Toggle'
-import * as selectors from 'react-redux-saga-router/selectors'
+import Toggle from 'ion-router/Toggle'
+import * as selectors from 'ion-router/selectors'
 
 export const check = state => selectors.stateExists(state, {
   campers: {
@@ -428,7 +425,7 @@ For selectedGroup, a callback is called, passed the value of the state item plus
 entire state tree. The callback verifies that the selected group's state is internally
 consistent and when everything is set up, returns true.
 
-### What about complex routes like react-router `<Route>`?
+### What about complex routes like react-router nested `<Route>`?
 
 For a complex application, there will be components that should only display on certain
 routes.  For example, an example from the react-router documentation:
@@ -456,7 +453,7 @@ There are 3 things happening here.
     will have its children set to `Users` with its children set to `User`
 
 This complexity is forced by the design of react-router.  How can we express these routes
-using react-redux-saga-router?
+using ion-router?
 
 We need 2 things:
 
@@ -464,9 +461,9 @@ We need 2 things:
  2. Plugging in the Toggles where they should be displayed within the React tree.
 
 ```javascript
-import * as selectors from 'react-redux-saga-router/selectors'
-import Toggle from 'react-redux-saga-router/Toggle'
-import RouteToggle from 'react-redux-saga-router/RouteToggle'
+import * as selectors from 'ion-router/selectors'
+import Toggle from 'ion-router/Toggle'
+import RouteToggle from 'ion-router/RouteToggle'
 
 const AboutToggle = RouteToggle('about')
 const UsersToggle = RouteToggle(['users', 'user'])
@@ -494,8 +491,8 @@ App.js
 Routes.js:
 ```javascript
 import React from 'react'
-import Routes from 'react-redux-saga-router/Routes'
-import Route from 'react-redux-saga-router/Route'
+import Routes from 'ion-router/Routes'
+import Route from 'ion-router/Route'
 import * as actions from './actions'
 
 const paramsFromState = state => ({ userId: state.users.selectedUser || undefined })
@@ -568,7 +565,7 @@ To implement enter or exit hooks you can listen for the `ENTER_ROUTES` or
 Here is a sample implementation:
 
 ```javascript
-import * as types from 'react-redux-saga-router/types'
+import * as types from 'ion-router/types'
 
 function *enter() {
   while (true) {
@@ -591,7 +588,7 @@ hooks directly.
 #### updating state on route exit
 
 All routes that accept parameters and map them to state will need to unset that state
-upon exiting the route.  react-redux-saga-router can do this automatically for any
+upon exiting the route.  ion-router can do this automatically for any
 route with only optional parameters, such as:
 
 `/path(/:optional(/:second_optional))`
@@ -665,7 +662,7 @@ so instead of:
 
 ```javascript
 // set up our router
-router(sagaMiddleware, connect)
+const store = createRouterStore(connect)(reducers)
 
 exitParams = params => ({
   required: params.required,
@@ -695,20 +692,20 @@ exitParams = params => ({
 })
 
 // set up our router
-router(sagaMiddleware, connect, {
+createRouterStore(connect, {
   name: 'test',
   path: '/path/:required(/:optional)',
   stateToParams=...,
   paramsToState=...,
   updateState={...},
   exitParams={exitParams},
-})
+})(reducers)
 
 ```
 
 The same setup can be used on both client and server for root routes, so there is no
 need to keep the `<Routes>` and `<Route>` elements in your component tree if
-you choose to initialize on start-up.  You should continue to use the comopnents for
+you choose to initialize on start-up.  You should continue to use the components for
 dynamic routes loaded later.
 
 ### Explicitly changing URL
@@ -716,20 +713,27 @@ dynamic routes loaded later.
 A number of actions are provided to change the browser state directly, most useful
 for menus and other direct links.
 
-react-redux-saga-router uses the [history](https://github.com/mjackson/history) package
+ion-router uses the [history](https://github.com/mjackson/history) package
 internally.  The actions mirror the push/replace/go/goBack/goForward methods as
 documented for the history package.
 
+```javascript
+import * as actions from 'ion-router/actions'
+dispatch(actions.push('/path/to/go/to/next'))
+dispatch(actions.goBack())
+// etc.
+```
+
 ### Reverse routing: creating URLs from parameters
 
-react-redux-saga-router uses the [route-parser](https://github.com/rcs/route-parser)
+ion-router uses the [route-parser](https://github.com/rcs/route-parser)
 package internally, which allows us to take advantage of some great features.
 
 The `makePath` function is available for creating a url from params, allowing
 separation of the URL structure from the data that is used to populate it.
 
 ```javascript
-import { makePath } from 'react-redux-saga-router'
+import { makePath } from 'ion-router'
 
 // if we have a route like this:
 const a = <Route name="foo" path="/my/:fancy/path(/:wow/*supercomplicated(/:thing))" />
@@ -774,24 +778,21 @@ corresponds to the way data is used.  In many cases, I find myself rendering dif
 portions of the component tree using the same data. So I will have 2 React components
 in totally different parts of the component tree using the same piece of data.
 With react-router, I found myself duplicating a lot of content with a single component,
-or using complex routing rules to enable displaying this information.
+or using complex routing rules to enable displaying this information.  react-router
+version 4 allows declaring the same route multiple times throughout the code, but
+this can make things more confusing, and opens up another vector for bugs since
+route information must be duplicated wherever it is used.
 
-With react-redux-saga-router, multiple components can respond to a route change anywhere
-in the React component tree, allowing for more modular design.  It is important to note
-here that react-router version 4 addresses this design flaw by using a similar design
-principle to react-redux-saga-router.  Great minds think alike.  However, by coupling
-tightly the route definition and the component display, you are still limited to using
-a single component per route, and so the ability to display different components for
-the same route would require using some clever hacks such as coupling both components into
-a single component that chooses which one to render based on the route params passed in
-from react-router.  The below solution is more performant both because the components
+With ion-router, multiple components can respond to a route change anywhere
+in the React component tree, allowing for more modular design.  The below solution
+is more performant both because the components
 are not rendered at all if the route is not satisfied.
 
 ```javascript
 import React from 'react'
-import Routes from 'react-redux-saga-router/Routes'
-import Route from 'react-redux-saga-router/Route'
-import Toggle from 'react-redux-saga-router/Toggle'
+import Routes from 'ion-router/Routes'
+import Route from 'ion-router/Route'
+import Toggle from 'ion-router/Toggle'
 import { connect } from 'react-redux'
 
 import * as actions from './actions'
@@ -870,12 +871,13 @@ const MyComponent = () => (
 
 In addition, declaring new routes in asynchronously loaded code is trivial with this
 design.  One need only put in `<Routes>` declarations in the child code and the new routes
-will be added.
+will be added, and also automatically removed if the child code is removed from the
+render tree.
 
 ## Principles
 
 Most routers start from an assumption that the url determines what part of the application
-to display.  This first results in a tree of urls mapping to components.  Because routes
+to display.  This results in a tree of urls mapping to components.  Because routes
 are defined by the URL, it then becomes necessary to provide hooks and an index route, and
 an unknown route and so on and so forth.
 
@@ -938,8 +940,8 @@ A redirect can be implemented simply by listening for a URL in a saga and pushin
 one:
 
 ```javascript
-import { replace } from 'react-redux-saga-router'
-import { ROUTE } from 'react-redux-saga-router/types'
+import { replace } from 'ion-router'
+import { ROUTE } from 'ion-router/types'
 import { take, put } from 'redux-saga/effects'
 import { createPath } from 'history'
 import RouteParser from 'route-parser' // this is used internally
@@ -967,7 +969,7 @@ To set up routes for testing in a unit test, the `synchronousMakeRoutes` functio
 available.  Pass in an array of routes, and use the return in the reducer
 
 ```javascript
-import { synchronousMakeRoutes, routerReducer } from 'react-redux-saga-router'
+import { synchronousMakeRoutes, routerReducer } from 'ion-router'
 
 describe('some component that uses routes', () => {
   let fakeState

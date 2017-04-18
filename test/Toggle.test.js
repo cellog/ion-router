@@ -15,7 +15,7 @@ describe('Toggle', () => {
     const R = Toggle(() => true)
     expect(() => renderComponent(R, { component: Component, foo: 'bar' }, { week: 1 }))
       .throws('call connectToggle with the connect function from react-redux to ' +
-      'initialize Toggle (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+      'initialize Toggle (see https://github.com/cellog/ion-router/issues/1)')
   })
   describe('initialized', () => {
     beforeEach(() => {
@@ -203,7 +203,7 @@ describe('Toggle', () => {
         component: F
       })
       expect(warn.called).is.true
-      expect(warn.args[0]).eqls(['loading in Toggle:F should be loadingComponent for react-redux-saga-router'])
+      expect(warn.args[0]).eqls(['loading in Toggle:F should be loadingComponent for ion-router'])
     })
     it('no error if componentMap is enabled', () => {
       const R = Toggle(() => true, () => true, {
