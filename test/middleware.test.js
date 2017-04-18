@@ -5,7 +5,6 @@ import { synchronousMakeRoutes, routerReducer } from '../src'
 import * as actions from '../src/actions'
 import * as types from '../src/types'
 import * as enhancers from '../src/enhancers'
-import { reducer } from '../src'
 import { sagaStore } from './test_helper'
 
 describe('middleware', () => {
