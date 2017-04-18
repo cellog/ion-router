@@ -1,17 +1,15 @@
-import { fork, call, put } from 'redux-saga/effects'
 import createHistory from 'history/createMemoryHistory'
 import createBrowserHistory from 'history/createBrowserHistory'
-import historyChannel from '../src/historyChannel'
 
 import * as index from '../src'
+import reducer from '../src/reducer'
 import { connectLink } from '../src/Link'
 import { connectRoutes } from '../src/Routes'
 import { connectToggle } from '../src/Toggle'
 import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
-import * as sagas from '../src/sagas'
 
-describe('react-redux-saga-router', () => {
+describe('ion-router', () => {
   afterEach(() => index.setEnhancedRoutes({}))
   describe('makePath/matchesPath', () => {
     beforeEach(() => {
@@ -71,107 +69,7 @@ describe('react-redux-saga-router', () => {
       expect(index.matchesPath('campers', { pathname: '/campers/2014/hi', search: '', hash: '' })).eqls({ year: '2014', id: 'hi' })
     })
   })
-  it('begin/commit', (done) => {
-    const options = {
-      pending: false
-    }
-    expect(index.pending(options)).eqls(false)
-    const pending = index.begin(options)
-    expect(pending).eqls(true)
-    expect(index.pending(options)).equals(options.pending)
-    options.pending.then((value) => {
-      expect(value).eqls(true)
-      done()
-    })
-    index.commit(options)
-  })
-  const routes = [{
-    name: 'campers',
-    path: '/campers/:year(/:id)',
-    paramsFromState: state => ({
-      id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
-      year: state.currentYear + '' // eslint-disable-line
-    }),
-    stateFromParams: params => ({
-      id: params.id ? params.id : false,
-      year: +params.year
-    }),
-    updateState: {
-      id: id => ({ type: 'select', payload: id }),
-      year: year => ({ type: 'year', payload: year })
-    }
-  }, {
-    name: 'ensembles',
-    path: '/ensembles(/:id)',
-    paramsFromState: state => ({
-      id: state.ensembleTypes.selectedEnsembleType ?
-        state.ensembleTypes.selectedEnsembleType : undefined,
-    }),
-    stateFromParams: params => ({
-      id: params.id ? params.id : false,
-    }),
-    updateState: {
-      id: id => ({ type: 'ensemble', payload: id }),
-    }
-  }]
-  it('router', () => {
-    const history = createHistory({
-      initialEntries: ['/ensembles']
-    })
-    const channel = historyChannel(history)
-    const connect = () => null
-    const saga = index.router(connect, routes, history, channel, false)
-    let next = saga.next()
 
-    expect(next.value).eqls([
-      call(connectLink, connect),
-      call(connectRoutes, connect),
-      call(connectToggle, connect),
-
-      fork(sagas.routeMonitor, index.options, history),
-
-      fork(sagas.stateMonitor, index.options),
-      fork(sagas.browserListener, history),
-      fork(sagas.locationListener, channel, index.options),
-    ])
-    next = saga.next()
-
-    expect(next.value).eqls(put(actions.batchRoutes(routes)))
-    next = saga.next()
-
-    expect(next.value).eqls(put(actions.route(history.location)))
-    next = saga.next()
-
-    expect(next).eqls({ value: undefined, done: true })
-  })
-  it('main', () => {
-    const middleware = {
-      run: sinon.spy()
-    }
-    const a = createBrowserHistory()
-    const b = historyChannel(a)
-    const routes = [{
-      name: 'campers',
-      path: '/campers/:year(/:id)',
-      paramsFromState: state => ({
-        id: state.campers.selectedCamper ? state.campers.selectedCamper : undefined,
-        year: state.currentYear + '' // eslint-disable-line
-      }),
-      stateFromParams: params => ({
-        id: params.id ? params.id : false,
-        year: +params.year
-      }),
-      updateState: {
-        id: id => ({ type: 'select', payload: id }),
-        year: year => ({ type: 'year', payload: year })
-      }
-    }]
-    const connect = () => null
-    index.default(middleware, connect, routes, a, true, b)
-    expect(middleware.run.called).is.true
-    expect(middleware.run.args[0]).eqls([index.router, connect, routes, a, b, true])
-    index.default(middleware, connect, routes) // for coverage
-  })
   it('synchronousMakeRoutes', () => {
     const routes = [{
       name: 'campers',
@@ -205,8 +103,9 @@ describe('react-redux-saga-router', () => {
       name: 'foo',
       path: '/my/:fancy/path(/:wow/*supercomplicated(/:thing))',
     }]
-    expect(index.synchronousMakeRoutes(routes)).eqls(actions.batchRoutes(routes))
-    expect(index.options.enhancedRoutes).eqls({
+    const opts = {}
+    expect(index.synchronousMakeRoutes(routes, opts)).eqls(actions.batchRoutes(routes))
+    expect(opts.enhancedRoutes).eqls({
       campers: {
         ...enhancers.enhanceRoute(routes[0]),
         parent: undefined,
@@ -227,5 +126,80 @@ describe('react-redux-saga-router', () => {
     expect(index.options.server).is.true
     index.setServer(false)
     expect(index.options.server).is.false
+  })
+  describe('routingReducer', () => {
+    it('setup', () => {
+      const spy = sinon.spy()
+      const fakeReducer = (state, action) => {
+        spy(state, action)
+        return state
+      }
+      const metareducer = index.routingReducer(fakeReducer)
+      expect(metareducer()).eqls(reducer())
+      expect(spy.called).is.true
+      expect(spy.args[0]).eqls([undefined, undefined])
+    })
+    it('sets routing if not present', () => {
+      const spy = sinon.spy()
+      const fakeReducer = (state = { hi: 'there' }, action) => {
+        spy(state, action)
+        return state
+      }
+      const metareducer = index.routingReducer(fakeReducer)
+      expect(metareducer({ hi: 'there' })).eqls({
+        routing: reducer(),
+        hi: 'there'
+      })
+      expect(spy.called).is.true
+      expect(spy.args[0]).eqls([{
+        routing: reducer(),
+        hi: 'there'
+      }, undefined])
+    })
+    it('works even with no reducer', () => {
+      expect(index.routingReducer()()).eqls(reducer())
+    })
+  })
+  describe('main', () => {
+    it('returns a createStore clone', () => {
+      expect(index.default()).is.instanceof(Function)
+    })
+    it('calls the 3 connect functions', () => {
+      const spy = sinon.spy()
+      const createStore = index.default(() => spy)
+      createStore()
+      expect(spy.called).is.true
+      expect(spy.args).has.length(2)
+    })
+    it('sets options server', () => {
+      const createStore = index.default(() => () => null, undefined, undefined, true)
+      createStore()
+      expect(index.options.isServer).is.true
+    })
+    it('sets up server routes', () => {
+      const createStore = index.default(() => () => null, [
+        {
+          name: 'hi',
+          path: '/hi'
+        },
+        {
+          name: 'there',
+          path: '/there'
+        }
+      ])
+      createStore()
+      expect(index.options.enhancedRoutes).eqls(enhancers.save(
+        {
+          name: 'there',
+          path: '/there',
+          parent: undefined,
+        }, enhancers.save(
+        {
+          name: 'hi',
+          path: '/hi',
+          parent: undefined,
+        }, {}
+      )))
+    })
   })
 })

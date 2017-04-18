@@ -1,11 +1,8 @@
-import { createPath } from 'history'
-import Parser from 'route-parser'
-
 import * as actions from '../src/actions'
-import * as selectors from '../src/selectors'
 import * as enhancers from '../src/enhancers'
 import * as helpers from '../src/helpers'
 import * as index from '../src'
+import reducer from '../src/reducer'
 
 describe('helper functions', () => {
   it('filter', () => {
@@ -74,7 +71,7 @@ describe('helper functions', () => {
     ], options)
     const state = {
       routing: {
-        ...index.routerReducer(undefined, action),
+        ...reducer(undefined, action),
         matchedRoutes: ['hi', 'there', 'three'],
         location: {
           pathname: '/foo/bar/t',

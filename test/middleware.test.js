@@ -1,7 +1,8 @@
 import createHistory from 'history/createMemoryHistory'
 
 import createMiddleware, { actionHandlers, ignoreKey } from '../src/middleware'
-import { synchronousMakeRoutes, routerReducer } from '../src'
+import { synchronousMakeRoutes } from '../src'
+import routerReducer from '../src/reducer'
 import * as actions from '../src/actions'
 import * as types from '../src/types'
 import * as enhancers from '../src/enhancers'

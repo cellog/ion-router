@@ -44,16 +44,14 @@ export function urlFromState(enhancedRoutes, state) {
         ...state.routing.routes,
         routes: {
           ...state.routing.routes.routes,
-          ...Object.keys(updatedRoutes).reduce((routes, key) => {
-            return {
-              ...routes,
-              [key]: {
-                ...state.routing.routes.routes[key],
-                params: updatedRoutes[key].params,
-                state: updatedRoutes[key].state
-              }
+          ...Object.keys(updatedRoutes).reduce((routes, key) => ({
+            ...routes,
+            [key]: {
+              ...state.routing.routes.routes[key],
+              params: updatedRoutes[key].params,
+              state: updatedRoutes[key].state
             }
-          }, {})
+          }), {})
         }
       }
     }
@@ -62,7 +60,7 @@ export function urlFromState(enhancedRoutes, state) {
     toDispatch: t
   } = matchRoutes(enhancedRoutes, tempState, actions.route({ // eslint-disable-line
     pathname: url
-  }))
+  }), false)
   toDispatch.push(actions.push(url))
   return {
     newEnhancedRoutes: { ...enhancedRoutes, ...updatedRoutes },
@@ -140,7 +138,7 @@ export function stateFromLocation(enhancedRoutes, state, location) {
   }
 }
 
-export function matchRoutes(enhancedRoutes, state, action) {
+export function matchRoutes(enhancedRoutes, state, action, updateParams = true) {
   const toDispatch = []
   const lastMatches = state.routing.matchedRoutes
   const path = createPath(action.payload)
@@ -153,11 +151,17 @@ export function matchRoutes(enhancedRoutes, state, action) {
     if (exiting.length) toDispatch.push(actions.exitRoutes(exiting))
     if (entering.length) toDispatch.push(actions.enterRoutes(entering))
   }
-  const { updatedRoutes: newEnhancedRoutes, acts } =
-    stateFromLocation(enhancedRoutes, state, path)
-  acts.forEach(act => toDispatch.push(act))
+  if (updateParams) {
+    const { updatedRoutes: newEnhancedRoutes, acts } =
+      stateFromLocation(enhancedRoutes, state, path)
+    acts.forEach(act => toDispatch.push(act))
+    return {
+      newEnhancedRoutes,
+      toDispatch
+    }
+  }
   return {
-    newEnhancedRoutes,
+    newEnhancedRoutes: enhancedRoutes,
     toDispatch
   }
 }

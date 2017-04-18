@@ -4,7 +4,6 @@ import invariant from 'invariant'
 
 import * as types from './types'
 import * as actions from './actions'
-import * as enhancers from './enhancers'
 import * as helpers from './helpers'
 import { options, setEnhancedRoutes } from '.'
 

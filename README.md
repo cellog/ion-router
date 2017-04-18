@@ -107,17 +107,14 @@ index.js:
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider, connect } from 'react-redux' // new - import connect
-import { createStore, applyMiddleware } from 'redux'
-import router, { routerMiddleware } from 'ion-router' // our router - new line
+import createRouterStore from 'ion-router' // our router - new line
 
 import todoApp from './reducers'
 import App from './components/App'
 
-// add the router middleware
-let store = createStore(todoApp, undefined, applyMiddleware(routerMiddleware))
+// set up the router and create the store
+const store = createRouterStore(connect)(todoApp)
 
-// set up our router
-router(connect)
 
 render(
   <Provider store={store}>
@@ -194,9 +191,8 @@ To implement this with our router, you will use:
     actions and reducer code to capture this state.
 
 redux-saga is an excellent solution for expressing complex asynchronous actions in a
-simple way.  Although react-redux-router-saga uses redux-saga internally and highly
-recommends it, you can write your asynchronous loader in any manner you choose, whether
-it is a thunk or an epic or fill-in-your-favorite.
+simple way.  You can write your asynchronous loader in any manner you choose, whether
+it is a thunk, saga, observable, or fill-in-your-favorite.
 
 For this example, we will assume that you can add a simple "loaded" field to the todos
 reducer, and actions to set it to true or false.
@@ -306,7 +302,7 @@ In this way, you can display several components scattered around a layout templa
 that are route-specific without having to make a new layout template just for that route,
 or doing any strange contortions.
 
-A `RouteToggle` accepts all the arguments of Toggle afterwards:
+A `RouteToggle` accepts all the arguments of Toggle after the route name to match:
 
 ```javascript
 import RouteToggle from 'ion-router'
@@ -666,7 +662,7 @@ so instead of:
 
 ```javascript
 // set up our router
-router(connect)
+const store = createRouterStore(connect)(reducers)
 
 exitParams = params => ({
   required: params.required,
@@ -696,20 +692,20 @@ exitParams = params => ({
 })
 
 // set up our router
-router(sagaMiddleware, connect, {
+createRouterStore(connect, {
   name: 'test',
   path: '/path/:required(/:optional)',
   stateToParams=...,
   paramsToState=...,
   updateState={...},
   exitParams={exitParams},
-})
+})(reducers)
 
 ```
 
 The same setup can be used on both client and server for root routes, so there is no
 need to keep the `<Routes>` and `<Route>` elements in your component tree if
-you choose to initialize on start-up.  You should continue to use the comopnents for
+you choose to initialize on start-up.  You should continue to use the components for
 dynamic routes loaded later.
 
 ### Explicitly changing URL
@@ -720,6 +716,13 @@ for menus and other direct links.
 ion-router uses the [history](https://github.com/mjackson/history) package
 internally.  The actions mirror the push/replace/go/goBack/goForward methods as
 documented for the history package.
+
+```javascript
+import * as actions from 'ion-router/actions'
+dispatch(actions.push('/path/to/go/to/next'))
+dispatch(actions.goBack())
+// etc.
+```
 
 ### Reverse routing: creating URLs from parameters
 
@@ -775,17 +778,14 @@ corresponds to the way data is used.  In many cases, I find myself rendering dif
 portions of the component tree using the same data. So I will have 2 React components
 in totally different parts of the component tree using the same piece of data.
 With react-router, I found myself duplicating a lot of content with a single component,
-or using complex routing rules to enable displaying this information.
+or using complex routing rules to enable displaying this information.  react-router
+version 4 allows declaring the same route multiple times throughout the code, but
+this can make things more confusing, and opens up another vector for bugs since
+route information must be duplicated wherever it is used.
 
 With ion-router, multiple components can respond to a route change anywhere
-in the React component tree, allowing for more modular design.  It is important to note
-here that react-router version 4 addresses this design flaw by using a similar design
-principle to ion-router.  However, by coupling
-tightly the route definition and the component display, you are still limited to using
-a single component per route, and so the ability to display different components for
-the same route would require using some clever hacks such as coupling both components into
-a single component that chooses which one to render based on the route params passed in
-from react-router.  The below solution is more performant both because the components
+in the React component tree, allowing for more modular design.  The below solution
+is more performant both because the components
 are not rendered at all if the route is not satisfied.
 
 ```javascript
@@ -871,12 +871,13 @@ const MyComponent = () => (
 
 In addition, declaring new routes in asynchronously loaded code is trivial with this
 design.  One need only put in `<Routes>` declarations in the child code and the new routes
-will be added.
+will be added, and also automatically removed if the child code is removed from the
+render tree.
 
 ## Principles
 
 Most routers start from an assumption that the url determines what part of the application
-to display.  This first results in a tree of urls mapping to components.  Because routes
+to display.  This results in a tree of urls mapping to components.  Because routes
 are defined by the URL, it then becomes necessary to provide hooks and an index route, and
 an unknown route and so on and so forth.
 
