@@ -85,6 +85,7 @@
     "lolex": "^1.5.2",
     "mocha": "^3.2.0",
     "raw-loader": "^0.5.1",
+    "react": "^15.5.4",
     "react-redux": "^5.0.4",
     "rimraf": "^2.5.4",
     "selenium-webdriver": "^3.0.1",
