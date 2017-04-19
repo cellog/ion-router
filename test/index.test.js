@@ -1,5 +1,4 @@
 import * as index from '../src'
-import reducer from '../src/reducer'
 import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
 

@@ -1,6 +1,5 @@
 import { createPath } from 'history'
 
-import routerReducer from './reducer'
 import * as actions from './actions'
 import * as enhancers from './enhancers'
 import { connectLink } from './Link'

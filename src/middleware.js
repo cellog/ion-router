@@ -79,8 +79,8 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
       const info = processHandler(handler, opts.enhancedRoutes, store.getState(), action)
       setEnhancedRoutes(info.newEnhancedRoutes, opts)
       if (debug && info.toDispatch.length) {
-        console.info(`ion-router PROCESSING: ${action.type}`)
-        console.info(`dispatching: `, info.toDispatch)
+        console.info(`ion-router PROCESSING: ${action.type}`) // eslint-disable-line
+        console.info(`dispatching: `, info.toDispatch) // eslint-disable-line
       }
       info.toDispatch.forEach(act => store.dispatch(act))
       return ret

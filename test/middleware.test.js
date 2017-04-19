@@ -94,9 +94,9 @@ describe('middleware', () => {
       createMiddleware() // coverage of default options
     })
     it('calls console.info when debug is true', () => {
-      const orig = console.info
+      const orig = console.info // eslint-disable-line
       try {
-        console.info = sinon.spy()
+        console.info = sinon.spy() // eslint-disable-line
         const spy = sinon.spy()
         const spies = {
           '*': enhancedRoutes => ({
@@ -112,11 +112,11 @@ describe('middleware', () => {
         }
         const info = makeStuff(spies, undefined, true)
         info.store.dispatch(actions.route('/hi'))
-        expect(console.info.called).is.true
-        expect(console.info.args[0]).eqls(['ion-router PROCESSING: @@ion-router/ROUTE'])
-        expect(console.info.args[1]).eqls(['dispatching: ', [{ type: 'foo' }]])
+        expect(console.info.called).is.true // eslint-disable-line
+        expect(console.info.args[0]).eqls(['ion-router PROCESSING: @@ion-router/ROUTE']) // eslint-disable-line
+        expect(console.info.args[1]).eqls(['dispatching: ', [{ type: 'foo' }]]) // eslint-disable-line
       } finally {
-        console.info = orig
+        console.info = orig // eslint-disable-line
       }
     })
     it('calls an action handler', () => {
