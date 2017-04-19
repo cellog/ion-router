@@ -55,7 +55,7 @@ export function processHandler(handler, routes, state, action) {
 }
 
 export default function createMiddleware(history = createBrowserHistory(), opts = options,
-  handlers = actionHandlers) {
+  handlers = actionHandlers, debug = false) {
   let lastLocation = createPath(history.location)
   let activeListener = listen // eslint-disable-line
   const myHandlers = {
@@ -78,6 +78,10 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
       const ret = next(action)
       const info = processHandler(handler, opts.enhancedRoutes, store.getState(), action)
       setEnhancedRoutes(info.newEnhancedRoutes, opts)
+      if (debug && info.toDispatch.length) {
+        console.info(`ion-router PROCESSING: ${action.type}`)
+        console.info(`dispatching: `, info.toDispatch)
+      }
       info.toDispatch.forEach(act => store.dispatch(act))
       return ret
     } finally {
@@ -91,9 +95,13 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
       lastLocation = a
       store.dispatch(actions.route(location))
     })
+    store.dispatch(actions.route(history.location))
     return next => (action) => {
       const ret = activeListener(store, next, action)
       if (action.type === types.ACTION) {
+        if (!action.payload.route) {
+          throw new Error(`ion-router action ${action.payload.verb} must be a string or a location object`)
+        }
         history[action.payload.verb](action.payload.route, action.payload.state)
       }
       return ret

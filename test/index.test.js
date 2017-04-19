@@ -122,66 +122,22 @@ describe('ion-router', () => {
     index.setServer(false)
     expect(index.options.server).is.false
   })
-  describe('routingReducer', () => {
-    it('setup', () => {
-      const spy = sinon.spy()
-      const fakeReducer = (state, action) => {
-        spy(state, action)
-        return state
-      }
-      const metareducer = index.routingReducer(fakeReducer)
-      expect(metareducer()).eqls({
-        routing: reducer()
-      })
-      expect(spy.called).is.true
-      expect(spy.args[0]).eqls([undefined, undefined])
-    })
-    it('sets routing if not present', () => {
-      const spy = sinon.spy()
-      const fakeReducer = (state = { hi: 'there' }, action) => {
-        spy(state, action)
-        return state
-      }
-      const metareducer = index.routingReducer(fakeReducer)
-      expect(metareducer({ hi: 'there' })).eqls({
-        routing: reducer(),
-        hi: 'there'
-      })
-      expect(spy.called).is.true
-      expect(spy.args[0]).eqls([{
-        routing: reducer(),
-        hi: 'there'
-      }, undefined])
-    })
-    it('works even with no reducer', () => {
-      expect(index.routingReducer()()).eqls({
-        routing: reducer()
-      })
-    })
-    it('normal flow', () => {
-      const state = index.routingReducer()()
-      console.log(state)
-      expect(index.routingReducer()(state, { type: 'hi' })).eqls(state)
-    })
-  })
   describe('main', () => {
-    it('returns a createStore clone', () => {
-      expect(index.default()).is.instanceof(Function)
-    })
     it('calls the 3 connect functions', () => {
       const spy = sinon.spy()
-      const createStore = index.default(() => spy)
-      createStore()
+      index.default(() => spy)
       expect(spy.called).is.true
       expect(spy.args).has.length(2)
     })
     it('sets options server', () => {
-      const createStore = index.default(() => () => null, undefined, undefined, true)
-      createStore()
+      index.default(() => () => null, {}, undefined, true)
       expect(index.options.isServer).is.true
     })
     it('sets up server routes', () => {
-      const createStore = index.default(() => () => null, [
+      const store = {
+        dispatch: () => null
+      }
+      index.default(() => () => null, store, [
         {
           name: 'hi',
           path: '/hi'
@@ -191,7 +147,6 @@ describe('ion-router', () => {
           path: '/there'
         }
       ])
-      createStore()
       expect(index.options.enhancedRoutes).eqls(enhancers.save(
         {
           name: 'there',
@@ -204,6 +159,66 @@ describe('ion-router', () => {
             parent: undefined,
           }, {}
       )))
+      index.setEnhancedRoutes({})
+    })
+    it('uses options passed in', () => {
+      const store = {
+        dispatch: sinon.spy()
+      }
+      const opts = {}
+      index.default(() => () => null, store, [
+        {
+          name: 'hi',
+          path: '/hi'
+        },
+        {
+          name: 'there',
+          path: '/there'
+        }
+      ], true, opts)
+      expect(opts).eqls({
+        enhancedRoutes: enhancers.save(
+          {
+            name: 'there',
+            path: '/there',
+            parent: undefined,
+          }, enhancers.save(
+            {
+              name: 'hi',
+              path: '/hi',
+              parent: undefined,
+            }, {})),
+        isServer: true
+      })
+    })
+    it('dispatches routes', () => {
+      const store = {
+        dispatch: sinon.spy()
+      }
+      const opts = {}
+      index.default(() => () => null, store, [
+        {
+          name: 'hi',
+          path: '/hi'
+        },
+        {
+          name: 'there',
+          path: '/there'
+        }
+      ], true, opts)
+      expect(store.dispatch.called).is.true
+      expect(store.dispatch.args[0]).eqls([
+        actions.batchRoutes([
+          {
+            name: 'hi',
+            path: '/hi'
+          },
+          {
+            name: 'there',
+            path: '/there'
+          }
+        ])
+      ])
     })
   })
 })

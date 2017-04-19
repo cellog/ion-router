@@ -48,6 +48,15 @@ describe('helper functions', () => {
       hi: 'there',
       boo: 'boo'
     })).eqls(['hi', 'boo'])
+    expect(helpers.changed({
+      composer: undefined,
+      piece: undefined,
+      filter: ''
+    }, {
+      composer: undefined,
+      piece: undefined,
+      filter: ''
+    })).eqls([])
   })
   it('urlFromState', () => {
     const options = {}
@@ -100,7 +109,6 @@ describe('helper functions', () => {
       },
       toDispatch: [
         actions.setParamsAndState('hi', { a: 'foo', test: 'tenth' }, { a: 'foo', test: 'tenth' }),
-        actions.setParamsAndState('there', { }, { }),
         actions.setParamsAndState('three', { bar: 'barb', a: 't' }, { bar: 'barb', a: 't' }),
         actions.push('foo/bar/tenth'),
         actions.matchRoutes(['hi']),

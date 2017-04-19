@@ -3,6 +3,7 @@ import { createPath } from 'history'
 import * as actions from './actions'
 import * as selectors from './selectors'
 import * as enhancers from './enhancers'
+import reducer from './reducer'
 
 export const filter = (enhancedRoutes, path) => name => enhancedRoutes[name]['@parser'].match(path)
 export const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
@@ -17,11 +18,12 @@ export function urlFromState(enhancedRoutes, state) {
   const toDispatch = []
   const updatedRoutes = {}
   let url = false
+  const currentUrl = createPath(state.routing.location)
   state.routing.matchedRoutes.forEach((route) => {
     const s = enhancedRoutes[route]
     const newParams = s.paramsFromState(state)
     const newState = s.stateFromParams(newParams)
-    if (changed(s.params, newParams)) {
+    if (changed(s.params, newParams).length) {
       updatedRoutes[route] = {
         ...enhancedRoutes[route],
         params: newParams,
@@ -54,9 +56,9 @@ export function urlFromState(enhancedRoutes, state) {
   const {
     toDispatch: t
   } = matchRoutes(enhancedRoutes, tempState, actions.route({ // eslint-disable-line
-    pathname: url
+    pathname: url || currentUrl
   }), false)
-  toDispatch.push(actions.push(url))
+  if (url && url !== currentUrl) toDispatch.push(actions.push(url))
   return {
     newEnhancedRoutes: { ...enhancedRoutes, ...updatedRoutes },
     toDispatch: [...toDispatch, ...t],
@@ -166,23 +168,36 @@ export function matchRoutes(enhancedRoutes, state, action, updateParams = true) 
   }
 }
 
-export function makeRoute(enhancedRoutes, state, action) {
+function stateWithRoutes(state, action) {
   return {
-    newEnhancedRoutes: enhancers.save(action.payload, enhancedRoutes),
-    toDispatch: []
+    ...state,
+    routing: reducer(state.routing, action)
+  }
+}
+
+export function makeRoute(enhancedRoutes, state, action) {
+  const newEnhancedRoutes = enhancers.save(action.payload, enhancedRoutes)
+  const { toDispatch } = matchRoutes(newEnhancedRoutes, stateWithRoutes(state, action),
+    actions.route(state.routing.location))
+  return {
+    newEnhancedRoutes,
+    toDispatch
   }
 }
 
 export function batchRoutes(enhancedRoutes, state, action) {
+  const newEnhancedRoutes = {
+    ...enhancedRoutes,
+    ...action.payload.ids.reduce((routes, name) => ({
+      ...routes,
+      [name]: enhancers.enhanceRoute(action.payload.routes[name])
+    }), {})
+  }
+  const { toDispatch } = matchRoutes(newEnhancedRoutes, stateWithRoutes(state, action),
+    actions.route(state.routing.location))
   return {
-    newEnhancedRoutes: {
-      ...enhancedRoutes,
-      ...action.payload.ids.reduce((routes, name) => ({
-        ...routes,
-        [name]: enhancers.enhanceRoute(action.payload.routes[name])
-      }), {})
-    },
-    toDispatch: []
+    newEnhancedRoutes,
+    toDispatch
   }
 }
 

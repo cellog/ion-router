@@ -106,14 +106,21 @@ index.js:
 ```javascript
 import React from 'react'
 import { render } from 'react-dom'
+import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { Provider, connect } from 'react-redux' // new - import connect
-import createRouterStore from 'ion-router' // our router - new line
+import makeRouter, { makeRouterMiddleware } from 'ion-router' // our router - new line
+import routing from 'ion-router/reducer'
 
 import todoApp from './reducers'
 import App from './components/App'
 
 // set up the router and create the store
-const store = createRouterStore(connect)(todoApp)
+const routerMiddleware = makeRouterMiddleware()
+const store = createStore(combineReducers({
+  todoApp,
+  routing // router reducer here
+}), undefined, applyMiddleware(routerMiddleware)) // router middleware
+makeRouter(connect, store) // set up the router
 
 
 render(
@@ -662,7 +669,7 @@ so instead of:
 
 ```javascript
 // set up our router
-const store = createRouterStore(connect)(reducers)
+makeRouter(connect, store)
 
 exitParams = params => ({
   required: params.required,
@@ -692,14 +699,14 @@ exitParams = params => ({
 })
 
 // set up our router
-createRouterStore(connect, {
+makeRouter(connect, store, [{
   name: 'test',
   path: '/path/:required(/:optional)',
   stateToParams=...,
   paramsToState=...,
   updateState={...},
   exitParams={exitParams},
-})(reducers)
+}])
 
 ```
 

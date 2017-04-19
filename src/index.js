@@ -1,14 +1,14 @@
-import createBrowserHistory from 'history/createBrowserHistory'
 import { createPath } from 'history'
-import { createStore, applyMiddleware } from 'redux'
 
 import routerReducer from './reducer'
-import middleware, { actionHandlers } from './middleware'
 import * as actions from './actions'
 import * as enhancers from './enhancers'
 import { connectLink } from './Link'
 import { connectRoutes } from './Routes'
 import { connectToggle } from './Toggle'
+import middleware from './middleware'
+
+export { middleware as makeRouterMiddleware }
 
 export const options = {
   server: false,
@@ -16,6 +16,10 @@ export const options = {
   pending: false,
   resolve: false,
 }
+
+
+export { actionHandlers } from './middleware'
+export reducer from './reducer'
 
 export const setServer = (val = true) => {
   options.server = val
@@ -44,47 +48,13 @@ export function synchronousMakeRoutes(routes, opts = options) {
   return action
 }
 
-export function routingReducer(reducers = state => ({ ...(state || {}) })) {
-  return (state, action) => {
-    if (!state) {
-      return {
-        routing: routerReducer(),
-        ...(reducers() || {})
-      }
-    }
-    let newState = state
-    if (!newState.routing) {
-      newState = {
-        ...state,
-        routing: routerReducer()
-      }
-    } else {
-      const routing = routerReducer(newState.routing, action)
-      if (routing !== newState.routing) {
-        newState = {
-          ...newState,
-          routing
-        }
-      }
-    }
-    return reducers(newState, action)
+export default function makeRouter(connect, store, routeDefinitions,
+  isServer = false, opts = options) {
+  connectLink(connect)
+  connectRoutes(connect)
+  connectToggle(connect)
+  opts.isServer = isServer // eslint-disable-line
+  if (routeDefinitions) {
+    store.dispatch(synchronousMakeRoutes(routeDefinitions, opts))
   }
 }
-
-export default (
-  connect, routeDefinitions, history = createBrowserHistory(),
-  isServer = false, opts = options, handlers = actionHandlers) => (reducer, state, enhancer) => {
-    connectLink(connect)
-    connectRoutes(connect)
-    connectToggle(connect)
-    options.isServer = isServer
-    const routerMiddleware = applyMiddleware(middleware(history, opts, handlers))(createStore)
-    const store = routerMiddleware(routingReducer(reducer), state, enhancer)
-    if (routeDefinitions) {
-      store.dispatch(synchronousMakeRoutes(routeDefinitions, opts))
-    }
-    return {
-      ...store,
-      dispatch: store.dispatch
-    }
-  }
