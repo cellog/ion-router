@@ -1,4 +1,5 @@
-import React, { PropTypes, Component, Children } from 'react'
+import React, { Component, Children } from 'react'
+import PropTypes from 'prop-types'
 import * as actions from './actions'
 import { onServer } from '.'
 

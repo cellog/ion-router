@@ -7,11 +7,6 @@ import * as enhancers from './enhancers'
 export const filter = (enhancedRoutes, path) => name => enhancedRoutes[name]['@parser'].match(path)
 export const diff = (main, second) => main.filter(name => second.indexOf(name) === -1)
 
-export function template(s, params) {
-  return s.exitParams instanceof Function ?
-    { ...s.exitParams(params) } : { ...s.exitParams }
-}
-
 export function changed(oldItems, newItems) {
   return Object.keys({ ...newItems, ...oldItems })
     .filter(key => !Object.prototype.hasOwnProperty.call(oldItems, key) ||
@@ -96,6 +91,11 @@ export function updateState(s, params, state) {
     acts,
     updatedRoutes
   }
+}
+
+export function template(s, params) {
+  return s.exitParams instanceof Function ?
+    { ...s.exitParams(params) } : { ...s.exitParams }
 }
 
 export const exitRoute = (state, enhanced, name) => {

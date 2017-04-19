@@ -34,10 +34,10 @@
   "dependencies": {
     "history": "^4.5.1",
     "invariant": "^2.2.2",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "prop-types": "^15.5.8",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
     "redux": "^3.6.0",
-    "redux-saga": "^0.14.2",
     "route-parser": "0.0.5"
   },
   "devDependencies": {
@@ -84,7 +84,7 @@
     "lolex": "^1.5.2",
     "mocha": "^3.2.0",
     "raw-loader": "^0.5.1",
-    "react-redux": "^5.0.2",
+    "react-redux": "^5.0.4",
     "rimraf": "^2.5.4",
     "selenium-webdriver": "^3.0.1",
     "should": "^11.1.2",

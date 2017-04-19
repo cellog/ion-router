@@ -1,7 +1,7 @@
 import reducer from '../src/reducer'
 import * as actions from '../src/actions'
 
-describe('ion-router reducer', () => {
+describe('reducer', () => {
   it('ROUTE', () => {
     const state = { ...reducer() }
     expect(reducer(state, actions.route({

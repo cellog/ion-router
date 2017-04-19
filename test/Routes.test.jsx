@@ -4,11 +4,11 @@ import * as actions from '../src/actions'
 import { setServer, onServer } from '../src'
 import { renderComponent, connect } from './test_helper'
 
-describe('react-redux-saga-router Routes', () => {
+describe('Routes', () => {
   let component, store, log // eslint-disable-line
-  function make(props = {}, Comp = ConnectedRoutes, state = {}) {
+  function make(props = {}, Comp = ConnectedRoutes, state = {}, mount = false) {
     connectRoutes(connect)
-    const info = renderComponent(Comp, props, state, true)
+    const info = renderComponent(Comp, props, state, true, false, mount)
     component = info[0]
     store = info[1]
     log = info[2]
@@ -54,13 +54,14 @@ describe('react-redux-saga-router Routes', () => {
         }
       </div>
     )
-    make({ thing: true }, R)
+    make({ thing: true }, R, {}, true)
     component.props({ thing: false })
 
     expect(log).eqls([
       actions.batchRoutes([{ name: 'foo', path: '/bar' }]),
       actions.batchRemoveRoutes([{ name: 'foo', path: '/bar' }])
     ])
+    component.unmount()
   })
   it('passes in routes from state', () => {
     const Thing = () => <div />

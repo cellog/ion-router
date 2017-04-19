@@ -186,35 +186,4 @@ describe('Toggle', () => {
       })
     })
   })
-  describe('propTypes loading', () => {
-    let warn
-    beforeEach(() => {
-      connectToggle(connect)
-      warn = sinon.stub(console, 'warn')
-    })
-    afterEach(() => {
-      warn.restore()
-    })
-    it('loading proptype validation', () => {
-      const R = Toggle(() => true, () => true)
-      const F = () => null
-      const container = renderComponent(R, { // eslint-disable-line
-        loading: F,
-        component: F
-      })
-      expect(warn.called).is.true
-      expect(warn.args[0]).eqls(['loading in Toggle:F should be loadingComponent for ion-router'])
-    })
-    it('no error if componentMap is enabled', () => {
-      const R = Toggle(() => true, () => true, {
-        loadingComponent: 'foo'
-      })
-      const F = () => null
-      const container = renderComponent(R, { // eslint-disable-line
-        loading: F,
-        component: F
-      })
-      expect(warn.called).is.false
-    })
-  })
 })

@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import RouteParser from 'route-parser'
 import invariant from 'invariant'
 
@@ -64,15 +65,26 @@ class Link extends Component {
     const {
       '@@__routes': unused, dispatch, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
     } = this.props
+    const validProps = [
+      'download', 'hrefLang', 'referrerPolicy', 'rel', 'target', 'type',
+      'id', 'accessKey', 'className', 'contentEditable', 'contextMenu', 'dir', 'draggable',
+      'hidden', 'itemID', 'itemProp', 'itemRef', 'itemScope', 'itemType', 'lang',
+      'spellCheck', 'style', 'tabIndex', 'title'
+    ]
+    const aProps = Object.keys(props).reduce((newProps, key) => {
+      if (validProps.includes(key)) newProps[key] = props[key] // eslint-disable-line
+      if (key.slice(0, 5) === 'data-') newProps[key] = props[key] // eslint-disable-line
+      return newProps
+    }, {})
     invariant(!href, 'href should not be passed to Link, use "to," "replace" or "route" (passed "%s")', href)
-    let landing = replace || to
+    let landing = replace || to || ''
     if (this.route) {
       landing = this.route.reverse(props)
     } else if (landing.pathname) {
       landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
     return (
-      <a href={landing} onClick={this.click} {...props}>
+      <a href={landing} onClick={this.click} {...aProps}>
         {this.props.children}
       </a>
     )
@@ -83,7 +95,7 @@ export { Link }
 
 export const Placeholder = () => {
   throw new Error('call connectLink with the connect function from react-redux to ' +
-    'initialize Link (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+    'initialize Link (see https://github.com/cellog/ion-router/issues/1)')
 }
 
 let ConnectedLink = null

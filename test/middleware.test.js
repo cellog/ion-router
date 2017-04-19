@@ -80,6 +80,7 @@ describe('middleware', () => {
         actions.route('/hi'),
         { type: 'foo' }
       ])
+      createMiddleware() // coverage of default options
     })
     it('calls an action handler', () => {
       const spy = sinon.spy()

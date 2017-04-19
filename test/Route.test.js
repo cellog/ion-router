@@ -6,7 +6,7 @@ import { setEnhancedRoutes } from '../src'
 import * as enhancers from '../src/enhancers'
 import { renderComponent, connect } from './test_helper'
 
-describe('react-redux-saga-router Route', () => {
+describe('Route', () => {
   const paramsFromState = state => ({
     id: state.ensembleTypes.selectedEnsembleType ?
       (state.ensembleTypes.selectedEnsembleType === true ? 'new' : state.ensembleTypes.selectedEnsembleType) :

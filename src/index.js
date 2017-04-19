@@ -48,7 +48,7 @@ export function routingReducer(reducers = state => ({ ...(state || {}) })) {
   return (state, action) => {
     if (!state) {
       return {
-        ...routerReducer(),
+        routing: routerReducer(),
         ...(reducers() || {})
       }
     }
@@ -58,8 +58,16 @@ export function routingReducer(reducers = state => ({ ...(state || {}) })) {
         ...state,
         routing: routerReducer()
       }
+    } else {
+      const routing = routerReducer(newState.routing, action)
+      if (routing !== newState.routing) {
+        newState = {
+          ...newState,
+          routing
+        }
+      }
     }
-    return reducers(routerReducer(newState, action), action)
+    return reducers(newState, action)
   }
 }
 

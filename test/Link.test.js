@@ -6,7 +6,7 @@ import { setEnhancedRoutes } from '../src'
 import * as enhancers from '../src/enhancers'
 import { renderComponent, connect } from './test_helper'
 
-describe('react-redux-saga-router Link', () => {
+describe('Link', () => {
   it('dispatches replace', () => {
     const dispatch = sinon.spy()
     const component = renderComponent(Link, { dispatch, replace: '/hi' })
@@ -31,9 +31,9 @@ describe('react-redux-saga-router Link', () => {
   })
   it('renders placeholder', () => {
     expect(() => {
-      renderComponent(ConnectLink, { to: '/hi' }, {}, true)
+      renderComponent(ConnectLink, { dispatch: () => null, to: '/hi' }, {}, true)
     }).throws('call connectLink with the connect function from react-redux to ' +
-      'initialize Link (see https://github.com/cellog/react-redux-saga-router/issues/1)')
+      'initialize Link (see https://github.com/cellog/ion-router/issues/1)')
   })
   it('connectLink', () => {
     const spy1 = sinon.spy()
@@ -56,14 +56,14 @@ describe('react-redux-saga-router Link', () => {
   it('dispatches actions when initialized', () => {
     const spy = sinon.spy()
     connectLink(connect)
-    const [component, , log] = renderComponent(ConnectLink, { to: '/hi', onClick: spy }, {}, true)
+    const [component, , log] = renderComponent(ConnectLink, { dispatch: () => null, to: '/hi', onClick: spy }, {}, true)
     component.find('a').trigger('click')
     expect(log).eqls([push('/hi')])
     expect(spy.called).is.true
   })
   it('errors (in dev) on href passed in', () => {
     connectLink(connect)
-    expect(() => renderComponent(ConnectLink, { href: '/hi' }, {}, true))
+    expect(() => renderComponent(ConnectLink, { dispatch: () => null, href: '/hi' }, {}, true))
       .throws('href should not be passed to Link, use "to," "replace" or "route" (passed "/hi")')
   })
   describe('generates the correct path when route option is used', () => {
@@ -149,5 +149,26 @@ describe('react-redux-saga-router Link', () => {
       })
       expect(component.find('a').props('href')).eqls('/there/baby')
     })
+  })
+  it('only valid props are passed to the a tag', () => {
+    const component = renderComponent(Link, {
+      ...[
+        'download', 'hrefLang', 'referrerPolicy', 'rel', 'target', 'type',
+        'id', 'accessKey', 'className', 'contentEditable', 'contextMenu', 'dir', 'draggable',
+        'hidden', 'itemID', 'itemProp', 'itemRef', 'itemScope', 'itemType', 'lang',
+        'spellCheck', 'style', 'tabIndex', 'title'
+      ].reduce((coll, item) => ({ ...coll, [item]: {} }), {}),
+      'data-hi': 'there',
+      foo: 'bar',
+      to: 'hi',
+      dispatch: () => null,
+    })
+    expect(Object.keys(component.find('a').props())).eqls([
+      'href', 'onClick', 'download', 'hrefLang', 'referrerPolicy', 'rel', 'target', 'type',
+      'id', 'accessKey', 'className', 'contentEditable', 'contextMenu', 'dir', 'draggable',
+      'hidden', 'itemID', 'itemProp', 'itemRef', 'itemScope', 'itemType', 'lang',
+      'spellCheck', 'style', 'tabIndex', 'title',
+      'data-hi', 'children'
+    ])
   })
 })

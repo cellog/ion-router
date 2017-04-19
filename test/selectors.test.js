@@ -1,6 +1,6 @@
 import * as selectors from '../src/selectors'
 
-describe('react-redux-saga-router selectors', () => {
+describe('selectors', () => {
   it('matchedRoute', () => {
     const state = {
       routing: {

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 
 import DisplaysChildren from './DisplaysChildren'
 
@@ -107,21 +108,5 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
       names[item] = componentLoadingMap[item]
     }
   })
-
-  Toggle.propTypes = {
-    [names.component]: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-    [names.loadingComponent]: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-    loading: (props, propName) => {
-      if (Object.hasOwnProperty.call(props, 'loading') && !Object.hasOwnProperty.call(props, 'loadingComponent')) {
-        const name = props.component.displayName || props.component.name || 'Component'
-        if (!componentLoadingMap.loadingComponent) {
-          console.warn(`${propName} in Toggle:${name} should be loadingComponent for ion-router`) // eslint-disable-line
-        }
-      }
-      return null
-    },
-    [names.else]: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-    children: PropTypes.any
-  }
   return Toggle
 }

@@ -108,4 +108,76 @@ describe('helper functions', () => {
       ]
     })
   })
+  it('getStateUpdates', () => {
+    expect(helpers.getStateUpdates({
+      state: {
+        a: 1,
+        b: 2,
+        c: 3,
+      },
+      updateState: {
+        a: a => ({ type: 'a', a }),
+        b: b => ({ type: 'b', b }),
+      }
+    }, {
+      a: 2,
+      b: 2,
+      c: 5,
+    })).eqls([
+      { type: 'a', a: 2 },
+    ])
+  })
+  it('exitRoute', () => {
+    expect(helpers.exitRoute({
+      routing: reducer(),
+    }, {
+      a: {
+        params: {
+          hi: 5
+        },
+        state: {
+          hi: 5,
+        },
+        parent: 'b',
+        exitParams: {
+          hi: undefined
+        },
+        stateFromParams: params => params,
+        updateState: {
+          hi: hi => ({ type: 'hi', hi })
+        }
+      },
+      b: {
+        params: {
+          there: 6
+        },
+        state: {
+          there: 6
+        },
+        parent: 'c',
+        exitParams: {
+          there: undefined
+        },
+        stateFromParams: params => params,
+        updateState: {
+          there: there => ({ type: 'there', there })
+        }
+      },
+      c: {
+        params: {
+          booboo: 1
+        },
+        state: {
+          booboo: 1
+        },
+        exitParams: {
+          booboo: undefined
+        },
+        stateFromParams: params => params,
+        updateState: {
+          booboo: booboo => ({ type: 'booboo', booboo })
+        }
+      }
+    }, 'a'))
+  })
 })

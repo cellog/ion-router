@@ -113,6 +113,7 @@ describe('ion-router', () => {
         parent: undefined,
       }
     })
+    index.synchronousMakeRoutes([])
   })
   it('setServer', () => {
     expect(index.options.server).is.false
@@ -129,7 +130,9 @@ describe('ion-router', () => {
         return state
       }
       const metareducer = index.routingReducer(fakeReducer)
-      expect(metareducer()).eqls(reducer())
+      expect(metareducer()).eqls({
+        routing: reducer()
+      })
       expect(spy.called).is.true
       expect(spy.args[0]).eqls([undefined, undefined])
     })
@@ -151,7 +154,14 @@ describe('ion-router', () => {
       }, undefined])
     })
     it('works even with no reducer', () => {
-      expect(index.routingReducer()()).eqls(reducer())
+      expect(index.routingReducer()()).eqls({
+        routing: reducer()
+      })
+    })
+    it('normal flow', () => {
+      const state = index.routingReducer()()
+      console.log(state)
+      expect(index.routingReducer()(state, { type: 'hi' })).eqls(state)
     })
   })
   describe('main', () => {

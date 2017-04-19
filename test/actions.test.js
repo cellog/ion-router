@@ -2,7 +2,7 @@ import * as actions from '../src/actions'
 import * as types from '../src/types'
 
 
-describe('react-redux-saga-router actions', () => {
+describe('actions', () => {
   it('push', () => {
     expect(actions.push('/hi')).eqls({
       type: types.ACTION,

@@ -1,7 +1,7 @@
 import RouteParser from 'route-parser'
 import * as enhance from '../src/enhancers'
 
-describe('react-redux-saga-router enhanced route store', () => {
+describe('enhanced route store', () => {
   it('fake', () => {
     expect(enhance.fake('hi')).eqls({})
   })
