@@ -58,7 +58,7 @@ describe('helper functions', () => {
       filter: ''
     })).eqls([])
   })
-  it('urlFromState', () => {
+  describe('urlFromState', () => {
     const options = {}
     const action = index.synchronousMakeRoutes([
       {
@@ -93,27 +93,62 @@ describe('helper functions', () => {
       bar: 'barb',
       threet: 't',
     }
-    expect(helpers.urlFromState(options.enhancedRoutes, state)).eqls({
-      newEnhancedRoutes: {
-        ...options.enhancedRoutes,
-        hi: {
-          ...options.enhancedRoutes.hi,
-          params: { a: 'foo', test: 'tenth' },
-          state: { a: 'foo', test: 'tenth' }
+    it('normal', () => {
+      expect(helpers.urlFromState(options.enhancedRoutes, state)).eqls({
+        newEnhancedRoutes: {
+          ...options.enhancedRoutes,
+          hi: {
+            ...options.enhancedRoutes.hi,
+            params: { a: 'foo', test: 'tenth' },
+            state: { a: 'foo', test: 'tenth' }
+          },
+          three: {
+            ...options.enhancedRoutes.three,
+            params: { bar: 'barb', a: 't' },
+            state: { bar: 'barb', a: 't' },
+          }
         },
-        three: {
-          ...options.enhancedRoutes.three,
-          params: { bar: 'barb', a: 't' },
-          state: { bar: 'barb', a: 't' },
+        toDispatch: [
+          actions.setParamsAndState('hi', { a: 'foo', test: 'tenth' }, { a: 'foo', test: 'tenth' }),
+          actions.setParamsAndState('three', { bar: 'barb', a: 't' }, { bar: 'barb', a: 't' }),
+          actions.push('foo/bar/tenth'),
+          actions.matchRoutes(['hi']),
+          actions.exitRoutes(['there', 'three'])
+        ]
+      })
+    })
+    it('urlFromState, no change to url', () => {
+      const newState = {
+        ...state,
+        routing: {
+          ...[
+            actions.setParamsAndState('hi', { a: 'foo', test: 'tenth' }, { a: 'foo', test: 'tenth' }),
+            actions.setParamsAndState('three', { bar: 'barb', a: 't' }, { bar: 'barb', a: 't' }),
+            actions.push('foo/bar/tenth'),
+            actions.matchRoutes(['hi']),
+            actions.exitRoutes(['there', 'three'])
+          ].reduce((a, b) => reducer(a, b), state.routing),
+          location: {
+            pathname: 'foo/bar/tenth'
+          }
+        },
+      }
+      const opts = {
+        ...options,
+        enhancedRoutes: {
+          ...options.enhancedRoutes,
+          hi: {
+            ...options.enhancedRoutes.hi,
+            params: { a: 'foo', test: 'tenth' },
+            state: { a: 'foo', test: 'tenth' }
+          }
         }
-      },
-      toDispatch: [
-        actions.setParamsAndState('hi', { a: 'foo', test: 'tenth' }, { a: 'foo', test: 'tenth' }),
-        actions.setParamsAndState('three', { bar: 'barb', a: 't' }, { bar: 'barb', a: 't' }),
-        actions.push('foo/bar/tenth'),
-        actions.matchRoutes(['hi']),
-        actions.exitRoutes(['there', 'three'])
-      ]
+      }
+      expect(helpers.urlFromState(opts.enhancedRoutes, newState)).eqls({
+        newEnhancedRoutes: opts.enhancedRoutes,
+        toDispatch: [
+        ]
+      })
     })
   })
   it('getStateUpdates', () => {

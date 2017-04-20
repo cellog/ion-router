@@ -175,13 +175,16 @@ function stateWithRoutes(state, action) {
   }
 }
 
+function routeMatching(newEnhancedRoutes, state, action) {
+  return matchRoutes(newEnhancedRoutes, stateWithRoutes(state, action),
+    actions.route(state.routing.location)).toDispatch
+}
+
 export function makeRoute(enhancedRoutes, state, action) {
   const newEnhancedRoutes = enhancers.save(action.payload, enhancedRoutes)
-  const { toDispatch } = matchRoutes(newEnhancedRoutes, stateWithRoutes(state, action),
-    actions.route(state.routing.location))
   return {
     newEnhancedRoutes,
-    toDispatch
+    toDispatch: routeMatching(newEnhancedRoutes, state, action)
   }
 }
 
@@ -193,11 +196,9 @@ export function batchRoutes(enhancedRoutes, state, action) {
       [name]: enhancers.enhanceRoute(action.payload.routes[name])
     }), {})
   }
-  const { toDispatch } = matchRoutes(newEnhancedRoutes, stateWithRoutes(state, action),
-    actions.route(state.routing.location))
   return {
     newEnhancedRoutes,
-    toDispatch
+    toDispatch: routeMatching(newEnhancedRoutes, state, action)
   }
 }
 
