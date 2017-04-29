@@ -1,0 +1,28 @@
+{
+  "name": "new-docs",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "history": "^4.6.1",
+    "ion-router": "^0.10.0",
+    "prismjs-loader": "^0.0.4",
+    "prop-types": "^15.5.8",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "react-redux": "^5.0.4",
+    "redux": "^3.6.0"
+  },
+  "devDependencies": {
+    "react-scripts": "0.9.5"
+  },
+  "scripts": {
+    "start": "PORT=3005 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
+  }
+}
