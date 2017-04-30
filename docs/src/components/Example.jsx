@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import createHistory from 'history/createMemoryHistory'
-import { createStore, applyMiddleware, combineReducers } from 'redux'
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
 import { Provider, connect } from 'react-redux'
 import makeRouter, { makeRouterMiddleware } from 'ion-router'
 import routing from 'ion-router/reducer'
@@ -9,6 +9,8 @@ import routing from 'ion-router/reducer'
 import Browser from './Browser'
 import ShowSource from './ShowSource'
 import examples from './examples'
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose // eslint-disable-line
 
 class Example extends Component {
   static propTypes = {
@@ -27,8 +29,9 @@ class Example extends Component {
 
 
     // set up the router and create the store
-    const routerMiddleware = makeRouterMiddleware()
-    this.store = createStore(reducer, undefined, applyMiddleware(routerMiddleware))
+    const routerMiddleware = makeRouterMiddleware(this.history)
+    this.store = createStore(reducer, undefined,
+      composeEnhancers(applyMiddleware(routerMiddleware)))
     makeRouter(connect, this.store)
   }
 
@@ -37,7 +40,7 @@ class Example extends Component {
       <div className="example">
         <div className="browser-panel">
           <Provider store={this.store}>
-            <Browser url="" back="" forward="" Content={examples[this.props.example].component} />
+            <Browser Content={examples[this.props.example].component} />
           </Provider>
         </div>
         <div className="source-panel">

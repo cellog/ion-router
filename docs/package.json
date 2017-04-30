@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "history": "^4.6.1",
-    "ion-router": "^0.10.0",
+    "ion-router": "^0.10.3",
     "prismjs-loader": "^0.0.4",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",

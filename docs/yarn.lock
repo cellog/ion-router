@@ -2569,9 +2569,9 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
-ion-router@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/ion-router/-/ion-router-0.10.0.tgz#bb5d0826d9ac896333699298a29dbac077cc1282"
+ion-router@^0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/ion-router/-/ion-router-0.10.3.tgz#50bc8502d8dcac3e92f1a25f8089ae3ffb500ad6"
   dependencies:
     history "^4.5.1"
     invariant "^2.2.2"

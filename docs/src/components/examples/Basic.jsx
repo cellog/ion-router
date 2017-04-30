@@ -20,14 +20,14 @@ export const reducer = {
   }
 }
 
-function Basic({ there }) {
+function Basic(props) {
   return (
     <div>
       <Routes>
         <Route path="/" name="home" />
         <Route path="/hi" name="hi" />
         <Route
-          path="/hi(/:there)"
+          path="/hi/:there"
           name="hithere"
           stateFromParams={params => params}
           paramsFromState={state => state}
@@ -39,6 +39,7 @@ function Basic({ there }) {
       <ul>
         <li><Link route="home">Home</Link></li>
         <li><Link route="hi">Hi</Link></li>
+        <li><Link route="hithere" there="Somebody">Hi to Somebody</Link></li>
         <li><Link route="hithere" there="Greg">Hi to Greg</Link></li>
       </ul>
       <HomeToggle
@@ -58,7 +59,7 @@ function Basic({ there }) {
       <HiThereToggle
         component={() => (
           <div>
-            Hi {there}!
+            Hi {props.there}!
             <ThereToggle
               component={() => (
                 <div>It&apos;s Greg!!</div>
