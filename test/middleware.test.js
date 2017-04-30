@@ -61,6 +61,16 @@ describe('middleware', () => {
       store.dispatch(actions.push(false))
     }).throws('ion-router action push must be a string or a location object')
   })
+  it('does not throw on goBack or goForward', () => {
+    expect(() => {
+      const { store } = makeStuff()
+      store.dispatch(actions.goBack())
+    }).to.not.throw()
+    expect(() => {
+      const { store } = makeStuff()
+      store.dispatch(actions.goForward())
+    }).to.not.throw()
+  })
   describe('normal functionality tests', () => {
     beforeEach(() => {
       history = createHistory({

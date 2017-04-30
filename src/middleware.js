@@ -99,7 +99,9 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
     return next => (action) => {
       const ret = activeListener(store, next, action)
       if (action.type === types.ACTION) {
-        if (!action.payload.route) {
+        if (!action.payload.route &&
+            action.payload.verb !== 'goBack' &&
+            action.payload.verb !== 'goForward') {
           throw new Error(`ion-router action ${action.payload.verb} must be a string or a location object`)
         }
         history[action.payload.verb](action.payload.route, action.payload.state)
