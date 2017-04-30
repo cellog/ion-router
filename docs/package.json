@@ -2,6 +2,7 @@
   "name": "new-docs",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://cellog.github.io/ion-router",
   "dependencies": {
     "history": "^4.6.1",
     "ion-router": "^0.10.3",
