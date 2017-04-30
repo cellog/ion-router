@@ -1,6 +1,6 @@
 {
   "name": "ion-router",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
   "directories": {
@@ -20,10 +20,10 @@
   },
   "keywords": [
     "redux",
-    "redux-saga",
     "react",
     "react-router",
-    "route"
+    "route",
+    "router"
   ],
   "author": "Gregory Beaver",
   "license": "MIT",
