@@ -83,9 +83,12 @@ describe('Link', () => {
         there: 'baby',
         dispatch,
         '@@__routes': {
-          hi: {
-            name: 'hi',
-            path: '/hi/:there'
+          ids: ['hi'],
+          routes: {
+            hi: {
+              name: 'hi',
+              path: '/hi/:there'
+            }
           }
         }
       })
@@ -102,9 +105,12 @@ describe('Link', () => {
         replace: true,
         dispatch,
         '@@__routes': {
-          hi: {
-            name: 'hi',
-            path: '/hi/:there'
+          ids: ['hi'],
+          routes: {
+            hi: {
+              name: 'hi',
+              path: '/hi/:there'
+            }
           }
         }
       })
@@ -120,13 +126,16 @@ describe('Link', () => {
         replace: true,
         dispatch: () => null,
         '@@__routes': {
-          hi: {
-            name: 'hi',
-            path: '/hi/:there'
-          },
-          there: {
-            name: 'there',
-            path: '/there/:there'
+          ids: ['hi', 'there'],
+          routes: {
+            hi: {
+              name: 'hi',
+              path: '/hi/:there'
+            },
+            there: {
+              name: 'there',
+              path: '/there/:there'
+            }
           }
         }
       })
@@ -137,13 +146,16 @@ describe('Link', () => {
         replace: true,
         dispatch: () => null,
         '@@__routes': {
-          hi: {
-            name: 'hi',
-            path: '/hi/:there'
-          },
-          there: {
-            name: 'there',
-            path: '/there/:there'
+          ids: ['hi', 'there'],
+          routes: {
+            hi: {
+              name: 'hi',
+              path: '/hi/:there'
+            },
+            there: {
+              name: 'there',
+              path: '/there/:there'
+            }
           }
         }
       })

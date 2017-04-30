@@ -39,8 +39,8 @@ class Link extends Component {
   }
 
   setupRoute(props) {
-    if (props.route && props['@@__routes'] && props['@@__routes'][props.route]) {
-      this.route = new RouteParser(props['@@__routes'][props.route].path)
+    if (props.route && props['@@__routes'] && props['@@__routes'].routes[props.route]) {
+      this.route = new RouteParser(props['@@__routes'].routes[props.route].path)
     }
   }
 
