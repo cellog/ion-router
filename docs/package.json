@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://cellog.github.io/ion-router",
   "dependencies": {
+    "font-awesome": "^4.7.0",
     "history": "^4.6.1",
     "ion-router": "^0.10.3",
     "prismjs-loader": "^0.0.4",

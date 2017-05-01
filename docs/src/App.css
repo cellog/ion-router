@@ -27,16 +27,17 @@
 .browser {
   display: flex;
   flex-direction: column;
-  border: 1px solid black;
-  height: 500px;
+  border: 1px solid #dddddd;
+  height: 100vh;
   width: 400px;
+  border-radius: 5px;
 }
 
 .browser header {
   display: flex;
   flex-direction: row;
-  border-bottom: 1px solid black;
   padding: 10px;
+  background-color: #dddddd;
 }
 
 .browser header input {
@@ -47,7 +48,8 @@
   border: 2px ridge black;
   padding: 5px;
   width: 386px;
-  height: 100%;
+  overflow-y: scroll;
+  flex-grow: 2;
 }
 
 .example {
@@ -57,4 +59,6 @@
 
 .example .source-panel {
   padding-left: 30px;
+  overflow-y: scroll;
+  height: 100vh;
 }

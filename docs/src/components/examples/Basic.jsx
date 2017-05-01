@@ -7,15 +7,13 @@ import Toggle from 'ion-router/Toggle'
 import RouteToggle from 'ion-router/RouteToggle'
 import Link from 'ion-router/Link'
 
-const HomeToggle = RouteToggle('home')
-const HiToggle = RouteToggle('hi')
 const HiThereToggle = RouteToggle('hithere')
 const ThereToggle = Toggle(state => state.there === 'Greg')
 
 export const reducer = {
   there: (state = '', action) => {
     if (!action || !action.type) return state
-    if (action.type === 'UPDATE_THERE') return action.payload
+    if (action.type === 'UPDATE_THERE') return action.payload || ''
     return state
   }
 }
@@ -23,39 +21,17 @@ export const reducer = {
 function Basic(props) {
   return (
     <div>
-      <Routes>
-        <Route path="/" name="home" />
-        <Route path="/hi" name="hi" />
-        <Route
-          path="/hi/:there"
-          name="hithere"
-          stateFromParams={params => params}
-          paramsFromState={state => state}
-          updateState={{
-            there: t => ({ type: 'UPDATE_THERE', payload: t })
-          }}
-        />
-      </Routes>
       <ul>
         <li><Link route="home">Home</Link></li>
-        <li><Link route="hi">Hi</Link></li>
-        <li><Link route="hithere" there="Somebody">Hi to Somebody</Link></li>
+        <li>
+          <Link route="hithere" there="Somebody">Hi to Somebody</Link>
+        </li>
         <li><Link route="hithere" there="Greg">Hi to Greg</Link></li>
+        <li>
+          Change value of <code>there</code> in store:
+          <input value={props.there} onChange={e => props.change(e.target.value)} />
+        </li>
       </ul>
-      <HomeToggle
-        component={() => (
-          <div>
-            Home
-          </div>
-        )}
-      />
-      <HiToggle
-        component={() => (
-          <div>
-            Hi
-          </div>
-        )}
-      />
       <HiThereToggle
         component={() => (
           <div>
@@ -67,7 +43,24 @@ function Basic(props) {
             />
           </div>
         )}
+        else={() => (
+          <div>
+            Home
+          </div>
+        )}
       />
+      <Routes>
+        <Route path="/" name="home" />
+        <Route
+          path="/hi(/:there)"
+          name="hithere"
+          stateFromParams={params => params}
+          paramsFromState={state => state}
+          updateState={{
+            there: t => ({ type: 'UPDATE_THERE', payload: t })
+          }}
+        />
+      </Routes>
     </div>
   )
 }
@@ -76,4 +69,6 @@ Basic.propTypes = {
   there: PropTypes.string
 }
 
-export default connect(state => state)(Basic)
+export default connect(state => state, dispatch => ({
+  change: there => dispatch({ type: 'UPDATE_THERE', payload: there })
+}))(Basic)
