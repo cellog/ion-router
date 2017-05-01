@@ -1,0 +1,1 @@
+export const CHOOSE_EXAMPLE = 'CHOOSE_EXAMPLE'
