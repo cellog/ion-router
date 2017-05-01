@@ -19,7 +19,7 @@ class App extends Component {
           <Link to="/" className="menu-item">Home</Link>
           <Link route="examples" className="menu-item">Examples</Link>
           <ul>
-            {Object.keys(examples).map(example => <li>
+            {Object.keys(examples).map(example => <li key={example}>
               <Link route="examples" example={example} className="menu-item">{example}</Link>
             </li>)}
           </ul>

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import createHistory from 'history/createMemoryHistory'
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
-import { Provider, connect } from 'react-redux'
+import { createProvider, connect } from 'react-redux-custom-store'
 import makeRouter, { makeRouterMiddleware } from 'ion-router'
 import routing from 'ion-router/reducer'
 
@@ -10,7 +10,10 @@ import Browser from './Browser'
 import ShowSource from './ShowSource'
 import examples from '../examples'
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose // eslint-disable-line
+const Provider = createProvider('examples')
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? // eslint-disable-line
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: 'examples' }) // eslint-disable-line
+  : compose
 
 class Example extends Component {
   static propTypes = {
