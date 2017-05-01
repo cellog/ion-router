@@ -8,7 +8,7 @@ import routing from 'ion-router/reducer'
 
 import Browser from './Browser'
 import ShowSource from './ShowSource'
-import examples from './examples'
+import examples from '../examples'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose // eslint-disable-line
 
