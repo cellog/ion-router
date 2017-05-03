@@ -21,6 +21,11 @@ export const reducer = {
 function Basic(props) {
   return (
     <div>
+      <p>
+        This simple example demonstrates using <code>Link</code>,
+        <code>Routes</code>, <code>Route</code>, and two toggles,
+        <code>RouteToggle</code> and <code>Toggle</code>.
+      </p>
       <ul>
         <li><Link route="home">Home</Link></li>
         <li>

@@ -23,6 +23,7 @@ export default function Examples() {
           <ul>
             <li><Link route="examples" example="basic">Basic Example</Link></li>
             <li><Link route="examples" example="loading">Asynchronous loading</Link></li>
+            <li><Link route="examples" example="subroutes">Dynamic sub-routes</Link></li>
           </ul>
         </div>
       )}
