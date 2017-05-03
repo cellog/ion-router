@@ -12,6 +12,6 @@ export default {
   loading: {
     source: LoadingSource,
     component: Loading,
-    loadingReducer
+    reducer: loadingReducer
   }
 }

@@ -4,71 +4,61 @@ import PropTypes from 'prop-types'
 import Routes from 'ion-router/Routes'
 import Route from 'ion-router/Route'
 import Toggle from 'ion-router/Toggle'
-import RouteToggle from 'ion-router/RouteToggle'
-import Link from 'ion-router/Link'
 
-const HiThereToggle = RouteToggle('hithere')
-const ThereToggle = Toggle(state => state.there === 'Greg')
+const AsyncToggle = Toggle(() => true, state => !state.async.loading)
 
 export const reducer = {
-  there: (state = '', action) => {
+  async: (state = { loading: false, thing: '' }, action) => {
     if (!action || !action.type) return state
-    if (action.type === 'UPDATE_THERE') return action.payload || ''
-    return state
+    switch (action.type) {
+      case 'START_LOAD':
+        return {
+          ...state,
+          loading: true
+        }
+      case 'SET_THING':
+        return {
+          ...state,
+          loading: false,
+          thing: action.payload
+        }
+      default:
+        return state
+    }
   }
 }
 
-function Loading(props) {
+const Thing = connect(state => ({ thing: state.async.thing }))(({ thing }) => (
+  <div>This is the loaded thing: {thing}</div>
+))
+
+function Loading() {
+  return (
+    <div style={{ color: 'red' }}>LOADING...</div>
+  )
+}
+
+function LoadingDemo(props) {
   return (
     <div>
-      <ul>
-        <li><Link route="home">Home</Link></li>
-        <li>
-          <Link route="hithere" there="Somebody">Hi to Somebody</Link>
-        </li>
-        <li><Link route="hithere" there="Greg">Hi to Greg</Link></li>
-        <li>
-          Change value of <code>there</code> in store:
-          <input value={props.there} onChange={e => props.change(e.target.value)} />
-        </li>
-      </ul>
-      <HiThereToggle
-        component={() => (
-          <div>
-            Hi {props.there}!
-            <ThereToggle
-              component={() => (
-                <div>It&apos;s Greg!!</div>
-              )}
-            />
-          </div>
-        )}
-        else={() => (
-          <div>
-            Home
-          </div>
-        )}
-      />
+      <p>This example demonstrates using a loading component</p>
+      <button onClick={props.load}>Load stuff</button>
+      <AsyncToggle component={Thing} loadingComponent={Loading} />
       <Routes>
         <Route path="/" name="home" />
-        <Route
-          path="/hi(/:there)"
-          name="hithere"
-          stateFromParams={params => params}
-          paramsFromState={state => state}
-          updateState={{
-            there: t => ({ type: 'UPDATE_THERE', payload: t })
-          }}
-        />
       </Routes>
     </div>
   )
 }
 
-Loading.propTypes = {
-  there: PropTypes.string
+LoadingDemo.propTypes = {
+  load: PropTypes.func.isRequired
 }
 
-export default connect(state => state, dispatch => ({
-  change: there => dispatch({ type: 'UPDATE_THERE', payload: there })
-}))(Loading)
+export default connect(undefined, dispatch => ({
+  load: () => {
+    // fake loading from an asychronous source using setTimeout
+    dispatch({ type: 'START_LOAD', payload: true })
+    setTimeout(() => dispatch({ type: 'SET_THING', payload: '"I loaded the thing!"' }), 1000)
+  }
+}))(LoadingDemo)
