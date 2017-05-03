@@ -24,6 +24,7 @@ export default function Examples() {
             <li><Link route="examples" example="basic">Basic Example</Link></li>
             <li><Link route="examples" example="loading">Asynchronous loading</Link></li>
             <li><Link route="examples" example="subroutes">Dynamic sub-routes</Link></li>
+            <li><Link route="examples" example="statechanges">Updating url from only redux state changes</Link></li>
           </ul>
         </div>
       )}

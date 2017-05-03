@@ -40,7 +40,7 @@ class App extends Component {
                 example={example}
                 className="menu-item"
                 onClick={() => this.setState({ open: false })}>
-                {example}
+                {examples[example].name}
               </Link>
             </li>)}
           </ul>
