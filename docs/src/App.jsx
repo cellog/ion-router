@@ -1,15 +1,25 @@
 import React, { Component } from 'react'
-import Routes from 'ion-router/Routes'
+import { getConnectedRoutes } from 'ion-router/Routes'
+import { connect } from 'react-redux'
 import Route from 'ion-router/Route'
-import Link from 'ion-router/Link'
+import { getConnectedLink } from 'ion-router/Link'
+import { connectToggle } from 'ion-router/Toggle'
 import Menu from 'react-burger-menu/lib/menus/scaleRotate'
 
 import './App.css'
 import Examples from './components/Examples'
-import Example from './components/Example'
+import MarkdownViewer from './components/MarkdownViewer'
 import ExamplesToggle from './toggles/ExamplesToggle'
 import * as actions from './redux/actions'
 import examples from './examples'
+
+import test from '!!marky!../md/README.md' // eslint-disable-line
+
+const Routes = getConnectedRoutes(connect, 'mainStore')
+const Link = getConnectedLink(connect, 'mainStore')
+connectToggle(connect)
+Routes.displayName = 'FancyRoutes'
+Link.displayName = 'FancyLink'
 
 class App extends Component {
   render() {
@@ -33,7 +43,7 @@ class App extends Component {
               <ExamplesToggle
                 component={Examples}
                 else={() => (
-                  <Example example="basic" />
+                  <MarkdownViewer text={test} />
                 )}
               />
             </div>

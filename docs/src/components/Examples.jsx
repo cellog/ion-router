@@ -5,7 +5,7 @@ import thing from './Example'
 
 const Example = connect(state => ({
   example: state.examples.example
-}))(thing)
+}), undefined, undefined, { storeKey: 'mainStore' })(thing)
 
 export default function Examples() {
   return (

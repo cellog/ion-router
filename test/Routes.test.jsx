@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
 import ConnectedRoutes, { connectRoutes, RawRoutes } from '../src/Routes'
 import * as actions from '../src/actions'
-import { setServer, onServer } from '../src'
-import { renderComponent, connect } from './test_helper'
+import * as enhancers from '../src/enhancers'
+import { renderComponent, connect, sagaStore } from './test_helper'
 
 describe('Routes', () => {
   let component, store, log // eslint-disable-line
-  function make(props = {}, Comp = ConnectedRoutes, state = {}, mount = false) {
+  function make(props = {}, Comp = ConnectedRoutes, state = {}, mount = false, s = undefined) {
     connectRoutes(connect)
-    const info = renderComponent(Comp, props, state, true, false, mount)
+    const info = renderComponent(Comp, props, state, true, s, mount)
     component = info[0]
     store = info[1]
     log = info[2]
@@ -25,11 +25,12 @@ describe('Routes', () => {
       spy1(one)
       return spy
     }
-    connectRoutes(connect)
+    const raw = RawRoutes('store')
+    connectRoutes(connect, 'store', raw)
     expect(spy1.called).is.true
     expect(spy.called).is.true
 
-    expect(spy.args[0]).eqls([RawRoutes])
+    expect(spy.args[0]).eqls([raw])
   })
 
   it('passes in @@AddRoute prop', () => {
@@ -58,6 +59,11 @@ describe('Routes', () => {
     component.props({ thing: false })
 
     expect(log).eqls([
+      actions.route({ pathname: '/',
+        search: '',
+        hash: '',
+        state: undefined,
+        key: undefined }),
       actions.batchRoutes([{ name: 'foo', path: '/bar' }]),
       actions.batchRemoveRoutes([{ name: 'foo', path: '/bar' }])
     ])
@@ -68,8 +74,14 @@ describe('Routes', () => {
     const R = () => <ConnectedRoutes>
       <Thing />
     </ConnectedRoutes>
-    make({}, R, {
+    const mystore = sagaStore({
       routing: {
+        matchedRoutes: [],
+        location: {
+          pathname: '',
+          hash: '',
+          search: ''
+        },
         routes: {
           ids: ['hi'],
           routes: {
@@ -81,6 +93,11 @@ describe('Routes', () => {
         }
       }
     })
+    mystore.store.routerOptions.enhancedRoutes = enhancers.save({
+      name: 'hi',
+      path: '/there'
+    }, {})
+    make({}, R, undefined, false, mystore)
     expect(component.find(Thing).props('@@__routes')).eqls({
       hi: {
         name: 'hi',
@@ -101,8 +118,6 @@ describe('Routes', () => {
     expect(component.props('props').children[1].props.className).eqls('there')
   })
   describe('server', () => {
-    before(() => setServer())
-    after(() => setServer(false))
     it('addRoute', () => {
       class Thing extends Component {
         constructor(props) {
@@ -118,9 +133,15 @@ describe('Routes', () => {
       const R = () => <ConnectedRoutes>
         <Thing />
       </ConnectedRoutes>
-      make({}, R)
-      expect(onServer()).is.true
+      const mystore = sagaStore()
+      mystore.store.routerOptions.isServer = true
+      make({}, R, undefined, false, mystore)
       expect(log).eqls([
+        actions.route({ pathname: '/',
+          search: '',
+          hash: '',
+          state: undefined,
+          key: undefined }),
         actions.addRoute({ name: 'foo', path: '/bar' }),
         actions.batchRoutes([{ name: 'foo', path: '/bar' }])
       ])

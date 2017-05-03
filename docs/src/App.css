@@ -9,9 +9,16 @@
 
 .App-header {
   background-color: #222;
-  height: 150px;
+  height: 10vh;
+  min-height: 50px;
   padding: 20px;
   color: white;
+}
+
+.markdown-viewer {
+  padding: 20px;
+  height: 90vh;
+  overflow-y: scroll;
 }
 
 .App-intro {

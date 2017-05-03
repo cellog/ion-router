@@ -2623,9 +2623,8 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
-ion-router@^0.10.3:
-  version "0.10.3"
-  resolved "https://registry.yarnpkg.com/ion-router/-/ion-router-0.10.3.tgz#50bc8502d8dcac3e92f1a25f8089ae3ffb500ad6"
+"ion-router@file:..":
+  version "0.11.0"
   dependencies:
     history "^4.5.1"
     invariant "^2.2.2"
@@ -3220,7 +3219,7 @@ load-json-file@^1.0.0:
     pinkie-promise "^2.0.0"
     strip-bom "^2.0.0"
 
-loader-utils@0.2.14, loader-utils@^0.2.11, loader-utils@^0.2.3, loader-utils@^0.2.7, loader-utils@~0.2.2, loader-utils@~0.2.5:
+loader-utils@0.2.14:
   version "0.2.14"
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-0.2.14.tgz#3edab2a123ebb196a1c9d6dd3e83384958843e6f"
   dependencies:
@@ -3229,7 +3228,7 @@ loader-utils@0.2.14, loader-utils@^0.2.11, loader-utils@^0.2.3, loader-utils@^0.
     json5 "^0.5.0"
     object-assign "^4.0.1"
 
-loader-utils@0.2.x, loader-utils@^0.2.16:
+loader-utils@0.2.x, loader-utils@^0.2.11, loader-utils@^0.2.16, loader-utils@^0.2.3, loader-utils@^0.2.7, loader-utils@~0.2.2, loader-utils@~0.2.5:
   version "0.2.17"
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-0.2.17.tgz#f86e6374d43205a6e6c60e9196f17c0299bfb348"
   dependencies:
@@ -3366,6 +3365,13 @@ makeerror@1.0.x:
   dependencies:
     tmpl "1.0.x"
 
+markdown-loader@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/markdown-loader/-/markdown-loader-2.0.0.tgz#421862d38c4224fd3615eb648017ea385b562d78"
+  dependencies:
+    loader-utils "^0.2.16"
+    marked "^0.3.6"
+
 marked-terminal@^1.6.2:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/marked-terminal/-/marked-terminal-1.7.0.tgz#c8c460881c772c7604b64367007ee5f77f125904"
@@ -3379,6 +3385,9 @@ marked-terminal@^1.6.2:
 marked@^0.3.6:
   version "0.3.6"
   resolved "https://registry.yarnpkg.com/marked/-/marked-0.3.6.tgz#b2c6c618fccece4ef86c4fc6cb8a7cbf5aeda8d7"
+
+"marky-loader@file:my-markdown-loader/":
+  version "0.1.0"
 
 math-expression-evaluator@^1.2.14:
   version "1.2.17"

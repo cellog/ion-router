@@ -1,9 +1,7 @@
 import React from 'react'
 
 import ConnectLink, { Link, connectLink } from '../src/Link'
-import { push, replace } from '../src/actions'
-import { setEnhancedRoutes } from '../src'
-import * as enhancers from '../src/enhancers'
+import { push, replace, route } from '../src/actions'
 import { renderComponent, connect } from './test_helper'
 
 describe('Link', () => {
@@ -58,7 +56,15 @@ describe('Link', () => {
     connectLink(connect)
     const [component, , log] = renderComponent(ConnectLink, { dispatch: () => null, to: '/hi', onClick: spy }, {}, true)
     component.find('a').trigger('click')
-    expect(log).eqls([push('/hi')])
+    expect(log).eqls([
+      route({ pathname: '/',
+        search: '',
+        hash: '',
+        state: undefined,
+        key: undefined }),
+      push('/hi'),
+      route(log[2].payload)
+    ])
     expect(spy.called).is.true
   })
   it('errors (in dev) on href passed in', () => {
@@ -67,15 +73,6 @@ describe('Link', () => {
       .throws('href should not be passed to Link, use "to," "replace" or "route" (passed "/hi")')
   })
   describe('generates the correct path when route option is used', () => {
-    before(() => {
-      setEnhancedRoutes(enhancers.save({
-        name: 'there',
-        path: '/there/:there'
-      }, enhancers.save({
-        name: 'hi',
-        path: '/hi/:there'
-      }, {})))
-    })
     it('push', () => {
       const dispatch = sinon.spy()
       const component = renderComponent(Link, {

@@ -1,19 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import createHistory from 'history/createMemoryHistory'
-import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
-import { createProvider, connect } from 'react-redux-custom-store'
-import makeRouter, { makeRouterMiddleware } from 'ion-router'
+import { createStore, combineReducers, compose } from 'redux'
+import { connect, Provider } from 'react-redux'
+import makeRouter, { makeRouterStoreEnhancer } from 'ion-router'
 import routing from 'ion-router/reducer'
 
 import Browser from './Browser'
 import ShowSource from './ShowSource'
 import examples from '../examples'
-
-const Provider = createProvider('examples')
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? // eslint-disable-line
-  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: 'examples' }) // eslint-disable-line
-  : compose
 
 class Example extends Component {
   static propTypes = {
@@ -32,9 +27,13 @@ class Example extends Component {
 
 
     // set up the router and create the store
-    const routerMiddleware = makeRouterMiddleware(this.history)
+    const enhancer = makeRouterStoreEnhancer(this.history)
+
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? // eslint-disable-line
+      window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: `examples: ${props.example}` }) // eslint-disable-line
+      : compose
     this.store = createStore(reducer, undefined,
-      composeEnhancers(applyMiddleware(routerMiddleware)))
+      composeEnhancers(enhancer))
     makeRouter(connect, this.store)
   }
 

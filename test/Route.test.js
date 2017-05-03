@@ -2,9 +2,8 @@ import React from 'react'
 import Route, { fake } from '../src/Route'
 import Routes, { connectRoutes } from '../src/Routes'
 import * as actions from '../src/actions'
-import { setEnhancedRoutes } from '../src'
 import * as enhancers from '../src/enhancers'
-import { renderComponent, connect } from './test_helper'
+import { renderComponent, connect, sagaStore } from './test_helper'
 
 describe('Route', () => {
   const paramsFromState = state => ({
@@ -28,8 +27,8 @@ describe('Route', () => {
   }
   let component, store, log // eslint-disable-line
   connectRoutes(connect)
-  function make(props = {}, Comp = Routes, state = {}) {
-    const info = renderComponent(Comp, props, state, true)
+  function make(props = {}, Comp = Routes, state = {}, s = undefined) {
+    const info = renderComponent(Comp, props, state, true, s)
     component = info[0]
     store = info[1]
     log = info[2]
@@ -47,6 +46,11 @@ describe('Route', () => {
     </Routes>)
     make({}, R)
     expect(log).eqls([
+      actions.route({ pathname: '/',
+        search: '',
+        hash: '',
+        state: undefined,
+        key: undefined }),
       actions.batchRoutes([{
         name: 'ensembles',
         path: '/ensembles/:id',
@@ -61,12 +65,14 @@ describe('Route', () => {
     const R = () => <Routes>
       <Route name="test" parent="foo" path="mine/" />
     </Routes>
-    setEnhancedRoutes(enhancers.save({
-      name: 'foo',
-      path: '/testing/'
-    }, {}))
-    make({}, R, {
+    const mystore = sagaStore({
       routing: {
+        matchedRoutes: [],
+        location: {
+          pathname: '',
+          hash: '',
+          search: ''
+        },
         routes: {
           ids: ['foo'],
           routes: {
@@ -78,12 +84,26 @@ describe('Route', () => {
         }
       }
     })
-    expect(log).eqls([actions.batchRoutes([{ name: 'test',
-      path: '/testing/mine/',
-      parent: 'foo',
-      paramsFromState: fake,
-      stateFromParams: fake,
-      updateState: {} }])])
+    mystore.store.routerOptions.enhancedRoutes = enhancers.save({
+      name: 'foo',
+      path: '/testing/'
+    }, {})
+    make({}, R, undefined, mystore)
+    expect(log).eqls([
+      actions.route({ pathname: '/',
+        search: '',
+        hash: '',
+        state: undefined,
+        key: undefined
+      }),
+      actions.batchRoutes([{ name: 'test',
+        path: '/testing/mine/',
+        parent: 'foo',
+        paramsFromState: fake,
+        stateFromParams: fake,
+        updateState: {}
+      }])
+    ])
   })
   it('passes url down to children', () => {
     fake() // for coverage
@@ -108,6 +128,12 @@ describe('Route', () => {
     </Routes>
     make({}, R)
     expect(log).eqls([
+      actions.route({ pathname: '/',
+        search: '',
+        hash: '',
+        state: undefined,
+        key: undefined
+      }),
       actions.batchRoutes([{
         name: 'ensembles',
         path: '/ensembles/:id',

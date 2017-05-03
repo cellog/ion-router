@@ -1,0 +1,8 @@
+{
+  "name": "marky-loader",
+  "version": "0.5.0",
+  "description": "configuration-less markdown loader for webpack",
+  "main": "index.js",
+  "author": "Gregory Beaver",
+  "license": "MIT"
+}

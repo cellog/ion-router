@@ -6,7 +6,9 @@
   "dependencies": {
     "font-awesome": "^4.7.0",
     "history": "^4.6.1",
-    "ion-router": "^0.10.3",
+    "ion-router": "file:..",
+    "markdown-loader": "^2.0.0",
+    "marky-loader": "file:my-markdown-loader/",
     "prismjs-loader": "^0.0.4",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",

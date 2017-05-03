@@ -1,14 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
-import { Provider, connect } from 'react-redux'
-import makeRouter, { makeRouterMiddleware } from 'ion-router'
+import { createStore, combineReducers, compose } from 'redux'
+import { createProvider } from 'react-redux-custom-store'
+import * as ion from 'ion-router'
 import routing from 'ion-router/reducer'
 import examples from './redux/example'
 
 import App from './App'
 import './index.css'
 
+const Provider = createProvider('mainStore')
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose // eslint-disable-line
 const reducer = combineReducers({
   routing,
@@ -17,14 +18,13 @@ const reducer = combineReducers({
 
 
 // set up the router and create the store
-const routerMiddleware = makeRouterMiddleware()
+const enhancer = ion.makeRouterStoreEnhancer()
 const store = createStore(reducer, undefined,
-  composeEnhancers(applyMiddleware(routerMiddleware)))
-makeRouter(connect, store)
+  composeEnhancers(enhancer))
 
 ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
   document.getElementById('root')
-);
+)

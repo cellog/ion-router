@@ -1,6 +1,7 @@
 import createHistory from 'history/createMemoryHistory'
 
 import createMiddleware, { actionHandlers, ignoreKey } from '../src/middleware'
+import storeEnhancer from '../src/storeEnhancer'
 import { synchronousMakeRoutes } from '../src'
 import routerReducer from '../src/reducer'
 import * as actions from '../src/actions'
@@ -19,7 +20,13 @@ describe('middleware', () => {
       }
     }
     const store = {
-      dispatch: sinon.spy()
+      dispatch: sinon.spy(),
+      routerOptions: {
+        server: false,
+        enhancedRoutes: {},
+        pending: false,
+        resolve: false,
+      }
     }
     const mid = createMiddleware(spy)
     expect(mid(store)).is.instanceof(Function)
@@ -52,8 +59,7 @@ describe('middleware', () => {
   let history
   let opts
   function makeStuff(spies = actionHandlers, reducers = undefined, debug = false) {
-    const mid = createMiddleware(history, opts, spies, debug)
-    return sagaStore(undefined, reducers, [mid])
+    return sagaStore(undefined, reducers, [], storeEnhancer(history, spies, debug, opts))
   }
   it('throws on action with false route', () => {
     expect(() => {
@@ -98,6 +104,11 @@ describe('middleware', () => {
       info.store.dispatch(actions.route('/hi'))
       expect(spy.called).is.true
       expect(info.log).eqls([
+        actions.route({ pathname: '/',
+          search: '',
+          hash: '',
+          state: undefined,
+          key: undefined }),
         actions.route('/hi'),
         { type: 'foo' }
       ])
@@ -174,6 +185,11 @@ describe('middleware', () => {
       expect(spy.args[0][2]).equals(action)
       expect(spy.args.length).eqls(1)
       expect(info.log).eqls([
+        actions.route({ pathname: '/',
+          search: '',
+          hash: '',
+          state: undefined,
+          key: undefined }),
         { type: 'hithere' },
         { type: 'hithere' },
       ])
@@ -208,6 +224,11 @@ describe('middleware', () => {
       })
       expect(spy.args[0][2]).equals(action)
       expect(info.log).eqls([
+        actions.route({ pathname: '/',
+          search: '',
+          hash: '',
+          state: undefined,
+          key: undefined }),
         { type: 'hithere' },
       ])
     })
@@ -222,8 +243,13 @@ describe('middleware', () => {
       const info = makeStuff(duds)
       info.store.dispatch(actions.push('/foo'))
       expect(info.log).eqls([
+        actions.route({ pathname: '/',
+          search: '',
+          hash: '',
+          state: undefined,
+          key: undefined }),
         actions.push('/foo'),
-        actions.route(info.log[1].payload)
+        actions.route(info.log[2].payload)
       ])
     })
     it('state action handling passes new state to handler', () => {

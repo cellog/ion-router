@@ -98,12 +98,16 @@ export const Placeholder = () => {
     'initialize Link (see https://github.com/cellog/ion-router/issues/1)')
 }
 
+export function getConnectedLink(connect, storeKey = 'store') {
+  return connect(state => ({
+    '@@__routes': state.routing.routes
+  }), undefined, undefined, { storeKey })(Link)
+}
+
 let ConnectedLink = null
 
-export function connectLink(connect) {
-  ConnectedLink = connect(state => ({
-    '@@__routes': state.routing.routes
-  }))(Link)
+export function connectLink(connect, storeKey = 'store') {
+  ConnectedLink = getConnectedLink(connect, storeKey)
 }
 
 const ConnectLink = props => (ConnectedLink ? <ConnectedLink {...props} /> : <Placeholder />)

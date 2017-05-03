@@ -1,20 +1,23 @@
 import React, { Component, Children } from 'react'
 import PropTypes from 'prop-types'
 import * as actions from './actions'
-import { onServer } from '.'
 
-export class RawRoutes extends Component {
+export const RawRoutes = (storeKey = 'store') => class extends Component {
   static propTypes = {
     dispatch: PropTypes.func,
     children: PropTypes.any,
     '@@__routes': PropTypes.object,
   }
 
-  constructor(props) {
-    super(props)
+  static contextTypes = {
+    [storeKey]: PropTypes.object
+  }
+
+  constructor(props, context) {
+    super(props, context)
     this.addRoute = this.addRoute.bind(this)
     this.myRoutes = []
-    this.isServer = onServer()
+    this.isServer = this.context[storeKey].routerOptions.isServer
   }
 
   componentDidMount() {
@@ -48,10 +51,15 @@ export const Placeholder = () => {
     'initialize Routes (see https://github.com/cellog/ion-router/issues/1)')
 }
 
+export function getConnectedRoutes(connect, storeKey = 'store', Raw = RawRoutes(storeKey)) {
+  return connect(state => ({ '@@__routes': state.routing.routes.routes }),
+    undefined, undefined, { storeKey })(Raw)
+}
+
 let ConnectedRoutes = null
 
-export function connectRoutes(connect) {
-  ConnectedRoutes = connect(state => ({ '@@__routes': state.routing.routes.routes }))(RawRoutes)
+export function connectRoutes(connect, storeKey = 'store', Raw = RawRoutes(storeKey)) {
+  ConnectedRoutes = getConnectedRoutes(connect, storeKey, Raw)
 }
 
 const ConnectRoutes = props => (ConnectedRoutes ? <ConnectedRoutes {...props} /> : <Placeholder />)

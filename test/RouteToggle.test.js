@@ -20,6 +20,11 @@ describe('RouteToggle', () => {
       const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
         week: 1,
         routing: {
+          location: {
+            pathname: '',
+            hash: '',
+            search: ''
+          },
           routes: {
             test: {
               name: 'test',
@@ -37,6 +42,11 @@ describe('RouteToggle', () => {
       const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
         week: 1,
         routing: {
+          location: {
+            pathname: '',
+            hash: '',
+            search: ''
+          },
           routes: {
             test: {
               name: 'test',
@@ -54,6 +64,11 @@ describe('RouteToggle', () => {
       const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
         week: 1,
         routing: {
+          location: {
+            pathname: '',
+            hash: '',
+            search: ''
+          },
           routes: {
             test: {
               name: 'test',
@@ -72,6 +87,11 @@ describe('RouteToggle', () => {
       const container = renderComponent(R, { component: Component, foo: 'bar', week: 1 }, {
         week: 1,
         routing: {
+          location: {
+            pathname: '',
+            hash: '',
+            search: ''
+          },
           routes: {
             test: {
               name: 'test',
@@ -95,6 +115,11 @@ describe('RouteToggle', () => {
       const container = renderComponent(R, { component: Component, bobby: 'hi', frenzel: 'there', blah: 'oops' }, {
         week: 1,
         routing: {
+          location: {
+            pathname: '',
+            hash: '',
+            search: ''
+          },
           routes: {
             test: {
               name: 'test',

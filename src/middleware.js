@@ -5,7 +5,6 @@ import invariant from 'invariant'
 import * as types from './types'
 import * as actions from './actions'
 import * as helpers from './helpers'
-import { options, setEnhancedRoutes } from '.'
 
 function ignore(store, next, action) {
   return next(action)
@@ -54,7 +53,7 @@ export function processHandler(handler, routes, state, action) {
   return info
 }
 
-export default function createMiddleware(history = createBrowserHistory(), opts = options,
+export default function createMiddleware(history = createBrowserHistory(),
   handlers = actionHandlers, debug = false) {
   let lastLocation = createPath(history.location)
   let activeListener = listen // eslint-disable-line
@@ -62,6 +61,7 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
     ...handlers
   }
   function listen(store, next, action) {
+    const opts = store.routerOptions
     const handler = myHandlers[action.type] ?
       myHandlers[action.type] :
       myHandlers['*']
@@ -72,12 +72,12 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
         const info = processHandler(handler, opts.enhancedRoutes, state, action)
         const ret = next(action)
         info.toDispatch.forEach(act => store.dispatch(act))
-        setEnhancedRoutes(info.newEnhancedRoutes, opts)
+        opts.enhancedRoutes = info.newEnhancedRoutes
         return ret
       }
       const ret = next(action)
       const info = processHandler(handler, opts.enhancedRoutes, store.getState(), action)
-      setEnhancedRoutes(info.newEnhancedRoutes, opts)
+      opts.enhancedRoutes = info.newEnhancedRoutes
       if (debug && info.toDispatch.length) {
         console.info(`ion-router PROCESSING: ${action.type}`) // eslint-disable-line
         console.info(`dispatching: `, info.toDispatch) // eslint-disable-line
@@ -89,6 +89,8 @@ export default function createMiddleware(history = createBrowserHistory(), opts 
     }
   }
   return (store) => {
+    invariant(store.routerOptions, 'ion-router error: store has not been initialized.  Did you ' +
+      'use the store enhancer?')
     history.listen((location) => {
       const a = createPath(location)
       if (a === lastLocation) return

@@ -43,7 +43,7 @@ export const NullComponent = (Loading, Component, ElseComponent, debug, cons = c
   return Toggle
 }
 
-export default (isActive, loaded = () => true, componentLoadingMap = {}, debug = false) => {
+export default (isActive, loaded = () => true, componentLoadingMap = {}, debug = false, storeKey = 'store') => {
   const scaffold = (state, rProps) => {
     const loadedTest = !!loaded(state, rProps)
     return {
@@ -84,7 +84,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
       lastProps.else = ElseComponent
       lastProps.loadingComponent = Loading
       const Switcher = NullComponent(Loading, Component, ElseComponent, debug)
-      Toggle.HOC = connect(scaffold)(Switcher)
+      Toggle.HOC = connect(scaffold, undefined, undefined, { storeKey })(Switcher)
       const elseName = ElseComponent.displayName || ElseComponent.name || 'Component'
       const componentName = Component.displayName || Component.name || 'Component'
       const loadingName = Loading.displayName || Loading.name || 'Component'
