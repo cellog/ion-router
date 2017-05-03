@@ -22,6 +22,7 @@ export default function Examples() {
           </p>
           <ul>
             <li><Link route="examples" example="basic">Basic Example</Link></li>
+            <li><Link route="examples" example="loading">Asynchronous loading</Link></li>
           </ul>
         </div>
       )}
