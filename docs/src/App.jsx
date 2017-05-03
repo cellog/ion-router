@@ -22,15 +22,26 @@ Routes.displayName = 'FancyRoutes'
 Link.displayName = 'FancyLink'
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { open: false }
+  }
+
   render() {
     return (
       <div className="App">
-        <Menu pageWrapId="page-wrap" outerContainerId="outer-container">
-          <Link to="/" className="menu-item">Home</Link>
-          <Link route="examples" className="menu-item">Examples</Link>
+        <Menu pageWrapId="page-wrap" outerContainerId="outer-container" isOpen={this.state.open}>
+          <Link to="/" className="menu-item" onClick={() => this.setState({ open: false })}>Home</Link>
+          <Link route="examples" className="menu-item" onClick={() => this.setState({ open: false })}>Examples</Link>
           <ul>
             {Object.keys(examples).map(example => <li key={example}>
-              <Link route="examples" example={example} className="menu-item">{example}</Link>
+              <Link
+                route="examples"
+                example={example}
+                className="menu-item"
+                onClick={() => this.setState({ open: false })}>
+                {example}
+              </Link>
             </li>)}
           </ul>
         </Menu>

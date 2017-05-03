@@ -59,6 +59,26 @@
   flex-grow: 2;
 }
 
+.mobile-showsource {
+  display: none;
+}
+
+@media (max-width: 500px) {
+  .browser {
+    width: 99vw;
+  }
+  .browser article {
+    width: 95vw;
+  }
+  .mobile-showsource {
+    display: block;
+  }
+
+  .example .source-panel .mobile-showsource {
+    border: 1px solid black;
+  }
+}
+
 .example {
   display: flex;
   flex-direction: row;

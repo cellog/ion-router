@@ -7,13 +7,14 @@ import 'font-awesome/css/font-awesome.min.css'
 
 import '../App.css'
 
-const Browser = ({ url = '/', back, forward, reset, Content = () => <div>hi</div> }) => (
+const Browser = ({ url = '/', back, forward, reset, showSource, Content = () => <div>hi</div> }) => (
   <div className="browser">
     <header>
       <button onClick={back} className="back"><span className="fa fa-chevron-left" /></button>
       <button onClick={forward} className="forward"><span className="fa fa-chevron-right" /></button>
       <button onClick={reset} className="refresh"><span className="fa fa-refresh" /></button>
       <input type="text" value={url} readOnly />
+      <button onClick={showSource} className="mobile-showsource">View Source</button>
     </header>
     <article>
       <Content />
@@ -25,7 +26,9 @@ const Browser = ({ url = '/', back, forward, reset, Content = () => <div>hi</div
 Browser.propTypes = {
   url: PropTypes.string.isRequired,
   back: PropTypes.func.isRequired,
+  reset: PropTypes.func.isRequired,
   forward: PropTypes.func.isRequired,
+  showSource: PropTypes.func.isRequired,
   Content: PropTypes.any,
 }
 

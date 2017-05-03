@@ -35,6 +35,9 @@ class Example extends Component {
     this.store = createStore(reducer, undefined,
       composeEnhancers(enhancer))
     makeRouter(connect, this.store)
+    this.state = {
+      showBrowser: true
+    }
   }
 
   render() {
@@ -42,10 +45,15 @@ class Example extends Component {
       <div className="example">
         <div className="browser-panel">
           <Provider store={this.store}>
-            <Browser Content={examples[this.props.example].component} />
+            {this.state.showBrowser ?
+              <Browser
+                Content={examples[this.props.example].component}
+                showSource={() => this.setState({ showBrowser: false })}
+              /> : <div /> }
           </Provider>
         </div>
         <div className="source-panel">
+          <button className="mobile-showsource" onClick={() => this.setState({ showBrowser: true })}>Show Example</button>
           <ShowSource source={examples[this.props.example].source} />
         </div>
       </div>
