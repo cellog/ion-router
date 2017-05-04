@@ -28,6 +28,6 @@ export default function makeRouter(connect, store, routeDefinitions,
   connectToggle(connect, storeKey)
   store.routerOptions.isServer = isServer // eslint-disable-line
   if (routeDefinitions) {
-    store.dispatch(synchronousMakeRoutes(routeDefinitions, store.routerOptions.enhancedRoutes))
+    store.dispatch(synchronousMakeRoutes(routeDefinitions, store.routerOptions))
   }
 }

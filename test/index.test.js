@@ -86,6 +86,25 @@ describe('ion-router', () => {
       ]
       index.default(() => () => null, store, routes)
       expect(log).eqls([actions.batchRoutes(routes)])
+      expect(store.routerOptions).eqls({
+        enhancedRoutes: {
+          hi: {
+            ...enhancers.enhanceRoute({
+              name: 'hi',
+              path: '/hi',
+              parent: undefined,
+            })
+          },
+          there: {
+            ...enhancers.enhanceRoute({
+              name: 'there',
+              path: '/there',
+              parent: undefined,
+            })
+          }
+        },
+        isServer: false
+      })
     })
   })
 })
