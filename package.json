@@ -1,6 +1,6 @@
 {
   "name": "ion-router",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
   "homepage": "https://cellog.github.io/ion-router",

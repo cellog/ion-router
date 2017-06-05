@@ -1,5 +1,6 @@
 import React from 'react'
-import Toggle, { connectToggle, error, NullComponent } from '../src/Toggle'
+import Toggle, { connectToggle, error } from '../src/Toggle'
+import NullComponent from '../src/NullComponent'
 import DisplaysChildren from '../src/DisplaysChildren'
 import { renderComponent, connect } from './test_helper'
 
@@ -94,39 +95,52 @@ describe('Toggle', () => {
     })
     it('default displayName', () => {
       const R = Toggle(() => true, () => true)
-      expect(R({}).type.displayName).eqls('Toggle(component:DisplaysChildren,else:null,loading:null)')
+      const thing = renderComponent(R)
+      expect(thing.find(R).unwrap().HOC.displayName).eqls('Toggle(component:DisplaysChildren,else:null,loading:null)')
     })
     it('uses a displayName', () => {
       const Comp = () => <div>hi</div>
       const Load = () => <div>foo</div>
       const Else = () => <div>else</div>
       const R = Toggle(() => true, () => true)
-      const thing = R({ component: Comp, loadingComponent: Load, else: Else })
-      expect(thing.type.displayName).eqls('Toggle(component:Comp,else:Else,loading:Load)')
+      const thing = renderComponent(R, { component: Comp, loadingComponent: Load, else: Else })
+      expect(thing.find(R).unwrap().HOC.displayName).eqls('Toggle(component:Comp,else:Else,loading:Load)')
     })
     it('re-generates the HOC', () => {
       const Load = () => <div>foo</div>
       const R = Toggle(() => true, () => false)
+      console.log('before')
       const container = renderComponent(R)
-      const First = R.HOC
+      console.log('after')
+      const First = container.find(R).unwrap().HOC
       expect(container.text()).eqls('')
+      console.log('before')
       container.props({ loadingComponent: Load })
-      expect(R.HOC).is.not.equal(First)
+      console.log('after')
+      expect(container.find(R).unwrap().HOC).is.not.equal(First)
       expect(container.text()).eqls('foo')
     })
     it('does not regenerate the HOC if unnecessary', () => {
       const R = Toggle(() => true, () => true)
-      expect(R.HOC).is.undefined
       const container = renderComponent(R)
-      expect(R.HOC.displayName).eqls('Toggle(component:DisplaysChildren,else:null,loading:null)')
-      const First = R.HOC
+      expect(container.find(R).unwrap().HOC.displayName).eqls('Toggle(component:DisplaysChildren,else:null,loading:null)')
+      const First = container.find(R).unwrap().HOC
       expect(container.text()).eqls('')
+      console.log('before set')
       container.props({ children: 'hi' })
-      expect(R.HOC).equals(First)
+      console.log('after set')
+      expect(container.find(R).unwrap().HOC).equals(First)
       expect(container.text()).eqls('hi')
       container.props({ children: 'foo' })
-      expect(R.HOC).equals(First)
+      expect(container.find(R).unwrap().HOC).equals(First)
       expect(container.text()).eqls('foo')
+    })
+    it('does not re-render if props do not change', () => {
+      const R = Toggle(() => true, () => true)
+      const container = renderComponent(R, { foo: 'bar' })
+      expect(container.find(R).unwrap().rendered).eqls(1)
+      container.props({ foo: 'bar' })
+      expect(container.find(R).unwrap().rendered).eqls(1)
     })
   })
   describe('NullComponent', () => {
@@ -145,6 +159,16 @@ describe('Toggle', () => {
       it(`${type} displays else component if loaded and not active`, () => {
         const comp = renderComponent(tester(false), { '@@__loaded': true, '@@__isActive': false })
         expect(comp.text()).eqls('else')
+      })
+      it(`${type} does not re-render if props do not change`, () => {
+        const container = renderComponent(tester(false), { '@@__loaded': true, '@@__isActive': false })
+        expect(container.find('Toggle').unwrap().rendered).eqls(1)
+        container.props({ '@@__loaded': true, '@@__isActive': false })
+        expect(container.find('Toggle').unwrap().rendered).eqls(1)
+        container.props({ '@@__loaded': true, '@@__isActive': true })
+        expect(container.find('Toggle').unwrap().rendered).eqls(2)
+        container.props({ '@@__loaded': true, '@@__isActive': true })
+        expect(container.find('Toggle').unwrap().rendered).eqls(2)
       })
     }
     describe('production', () => {
