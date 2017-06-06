@@ -109,14 +109,10 @@ describe('Toggle', () => {
     it('re-generates the HOC', () => {
       const Load = () => <div>foo</div>
       const R = Toggle(() => true, () => false)
-      console.log('before')
       const container = renderComponent(R)
-      console.log('after')
       const First = container.find(R).unwrap().HOC
       expect(container.text()).eqls('')
-      console.log('before')
       container.props({ loadingComponent: Load })
-      console.log('after')
       expect(container.find(R).unwrap().HOC).is.not.equal(First)
       expect(container.text()).eqls('foo')
     })
@@ -126,9 +122,7 @@ describe('Toggle', () => {
       expect(container.find(R).unwrap().HOC.displayName).eqls('Toggle(component:DisplaysChildren,else:null,loading:null)')
       const First = container.find(R).unwrap().HOC
       expect(container.text()).eqls('')
-      console.log('before set')
       container.props({ children: 'hi' })
-      console.log('after set')
       expect(container.find(R).unwrap().HOC).equals(First)
       expect(container.text()).eqls('hi')
       container.props({ children: 'foo' })
