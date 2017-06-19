@@ -69,6 +69,9 @@ describe('ion-router', () => {
     it('sets up server routes', () => {
       const log = []
       const store = {
+        getState: () => ({
+          routing: { location: 'hi' }
+        }),
         dispatch: action => log.push(action),
         routerOptions: {
           enhancedRoutes: {}
@@ -85,7 +88,7 @@ describe('ion-router', () => {
         }
       ]
       index.default(() => () => null, store, routes)
-      expect(log).eqls([actions.batchRoutes(routes)])
+      expect(log).eqls([actions.batchRoutes(routes), actions.route('hi')])
       expect(store.routerOptions).eqls({
         enhancedRoutes: {
           hi: {

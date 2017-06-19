@@ -29,5 +29,7 @@ export default function makeRouter(connect, store, routeDefinitions,
   store.routerOptions.isServer = isServer // eslint-disable-line
   if (routeDefinitions) {
     store.dispatch(synchronousMakeRoutes(routeDefinitions, store.routerOptions))
+    // re-send now that routes exist
+    store.dispatch(actions.route(store.getState().routing.location))
   }
 }
