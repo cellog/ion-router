@@ -69,7 +69,8 @@ export function getStateUpdates(s, newState) {
   const oldState = s.state
   const changes = changed(oldState, newState)
   const update = s.updateState
-  return changes.map(key => (update[key] ? update[key](newState[key]) : false)).filter(t => t)
+  return changes.map(key => (update[key] ? update[key](newState[key], newState) : false))
+    .filter(t => t)
 }
 
 export function updateState(s, params, state) {

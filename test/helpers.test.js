@@ -159,7 +159,7 @@ describe('helper functions', () => {
         c: 3,
       },
       updateState: {
-        a: a => ({ type: 'a', a }),
+        a: (a, s) => ({ type: 'a', a, b: s.b }),
         b: b => ({ type: 'b', b }),
       }
     }, {
@@ -167,7 +167,7 @@ describe('helper functions', () => {
       b: 2,
       c: 5,
     })).eqls([
-      { type: 'a', a: 2 },
+      { type: 'a', a: 2, b: 2 },
     ])
   })
   it('exitRoute', () => {

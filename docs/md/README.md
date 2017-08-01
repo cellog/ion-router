@@ -766,7 +766,7 @@ const albumRouteMapping = {
   }),
   updateState: {
     id: id => actions.selectAlbum(id),
-    track: track => actions.playTrack(track)
+    track: (track, state) => state.id && actions.playTrack(track)
   }
 }
 
