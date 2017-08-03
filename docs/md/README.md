@@ -25,6 +25,7 @@ Table of Contents
     * [Code splitting and asynchronous loading of Routes](#code-splitting-and-asynchronous-loading-of-routes)
     * [Server-side Rendering](#server-side-rendering)
     * [Explicitly changing URL](#explicitly-changing-url)
+  * [Animating page changes](#animating-page-changes)
   * [Why a new router?](#why-a-new-router)
   * [Principles](#principles)
     * [URL state is just another asynchronous input to redux state](#url-state-is-just-another-asynchronous-input-to-redux-state)
@@ -722,6 +723,82 @@ import * as actions from 'ion-router/actions'
 dispatch(actions.push('/path/to/go/to/next'))
 dispatch(actions.goBack())
 // etc.
+```
+
+## Animating page changes
+
+ion-router makes animating page changes possible and is not opinionated about the
+animation library. To enable animations, pass in the animating component
+as a wrapper. For example, with ReactCSSTransitionGroup:
+
+```javascript
+import React, { PureComponent } from 'react'
+import PropTypes from 'prop-types'
+
+import Toggle from 'ion-router/Toggle'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+
+
+import Concert from './Concert'
+import ConcertList from './ConcertList'
+
+const ConcertToggle = Toggle(state => state.concerts.selected,
+  state => !state.concerts.selected || state.concerts.concerts[state.concerts.selected])
+
+const Loading = () => <div>Loading...</div>
+const wProps = {
+  transitionName: "concert",
+  transitionAppear: true,
+  transitionAppearTimeout: 500,
+  transitionEnterTimeout: 500,
+  transitionLeave: true,
+  transitionLeaveTimeout: 500,
+  transitionEnter: true
+}
+export class Tour extends PureComponent {
+  static propTypes = {
+    select: PropTypes.func.isRequired,
+    upcoming: PropTypes.array.isRequired
+  }
+
+  render() {
+    return (
+      <div className="Tour">
+        <div className="csq"/>
+        <h1 className="App-h1 shadow">Concerts</h1>
+        <ConcertToggle
+          wrapper={ReactCSSTransitionGroup}
+          wrapperProps={wProps}
+          component={Concert}
+          else={ConcertList}
+          loadingComponent={Loading}
+      </div>
+    )
+  }
+}
+```
+
+ion-router sets the key of your component to "component", of the
+else component to "else" and the loading component to "loading" to
+allow the animation wrapper to easily detect when your component is
+loaded or removed.
+
+The above code renders as:
+
+```javascript
+  const code = <ReactCSSTransitionGroup
+     transitionName="concert"
+     transititionAppear={true}
+     transitionAppearTimeout={500}
+     transitionEnterTimeout={500}
+     transitionLeave={true}
+     transitionLeaveTimeout={500}
+     transitionEnter={true}
+   >
+     <Concert key="component"/>
+     {/* or <ConcertList key="else"/>*/}
+     {/* or <Loading key="loading"/>*/}
+   </ReactCSSTransitionGroup>
 ```
 
 ## Why a new router?

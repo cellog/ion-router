@@ -135,13 +135,56 @@ describe('Toggle', () => {
       expect(container.find(R).unwrap().rendered).eqls(1)
       container.props({ foo: 'bar' })
       expect(container.find(R).unwrap().rendered).eqls(1)
+      container.props({ foo: 'baz' })
+      expect(container.find(R).unwrap().rendered).eqls(2)
+    })
+    it('uses wrapper component', () => {
+      const R = Toggle(() => true, () => true)
+      const Wrapper = ({ children, ...props }) => <div id="wrapper" {...props}>{children}</div> // eslint-disable-line
+      const container = renderComponent(R, { wrapper: Wrapper, wrapperProps: { className: 'foo' } })
+      expect(container.find(Wrapper)).has.length(1)
+      expect(container.find(Wrapper).props('className')).eqls('foo')
+      expect(container.find('div.foo')).has.length(1)
+      expect(container.find(R).unwrap().rendered).eqls(1)
+      container.props({ wrapper: Wrapper, wrapperProps: { className: 'foo' } })
+      expect(container.find(R).unwrap().rendered).eqls(1)
+      container.props({ wrapper: Wrapper, wrapperProps: { className: 'bar' } })
+      expect(container.find(R).unwrap().rendered).eqls(2)
+    })
+    it('uses else with wrapper', () => {
+      const R = Toggle(() => false, () => true)
+      const Else = () => <div id="else">else</div>
+      const Wrapper = ({ children, ...props }) => <div id="wrapper" {...props}>{children}</div> // eslint-disable-line
+      const container = renderComponent(R, { wrapper: Wrapper, wrapperProps: { className: 'foo' }, else: Else })
+      expect(container.find(Else)).has.length(1)
+    })
+    it('sets key for component inside wrapper', () => {
+      const R = Toggle(() => true, () => true)
+      const Wrapper = ({ children, ...props }) => <div id="wrapper" {...props}>{children}</div> // eslint-disable-line
+      const container = renderComponent(R,
+        { wrapper: Wrapper, wrapperProps: { className: 'foo' } })
+      expect(container.find(Wrapper).props('children').key).eqls('component')
+    })
+    it('sets key for else inside wrapper', () => {
+      const R = Toggle(() => false, () => true)
+      const Wrapper = ({ children, ...props }) => <div id="wrapper" {...props}>{children}</div> // eslint-disable-line
+      const container = renderComponent(R,
+        { wrapper: Wrapper, wrapperProps: { className: 'foo' } })
+      expect(container.find(Wrapper).props('children').key).eqls('else')
+    })
+    it('sets key for loading inside wrapper', () => {
+      const R = Toggle(() => false, () => false)
+      const Wrapper = ({ children, ...props }) => <div id="wrapper" {...props}>{children}</div> // eslint-disable-line
+      const container = renderComponent(R,
+        { wrapper: Wrapper, wrapperProps: { className: 'foo' } })
+      expect(container.find(Wrapper).props('children').key).eqls('loading')
     })
   })
   describe('NullComponent', () => {
     const tests = (type) => {
       const tester = (debug = false) =>
         NullComponent(() => <div>loading</div>, () => <div>component</div>,
-          () => <div>else</div>, debug, console)
+          () => <div>else</div>, DisplaysChildren, {}, debug, console)
       it(`${type} displays loading if not loaded`, () => {
         const comp = renderComponent(tester(false))
         expect(comp.text()).eqls('loading')
@@ -190,7 +233,7 @@ describe('Toggle', () => {
         const component = () => <div>component</div>
         const elsec = () => <div>else</div>
         const t = NullComponent(load, component,
-          elsec, true, spy)
+          elsec, DisplaysChildren, {}, true, spy)
         const comp = renderComponent(t, {
           '@@__loaded': false,
           '@@__isActive': true
@@ -201,6 +244,21 @@ describe('Toggle', () => {
           ['Toggle: loaded: false, active: true'],
           ['Loading component', load, 'Component', component, 'Else', elsec]
         ])
+      })
+    })
+    describe('wrapper', () => {
+      it('uses wrapper and props', () => {
+        const load = () => <div>loading</div>
+        const component = () => <div>component</div>
+        const elsec = () => <div>else</div>
+        const wrapper = ({ children, ...props }) => <div className="hi" {...props}>{children}</div> // eslint-disable-line
+        const t = NullComponent(load, component, elsec, wrapper, { id: 'poo' })
+        const comp = renderComponent(t, {
+          '@@__loaded': false,
+          '@@__isActive': true
+        })
+        expect(comp.find('.hi')).has.length(1)
+        expect(comp.find('.hi').props('id')).eqls('poo')
       })
     })
   })

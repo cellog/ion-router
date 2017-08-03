@@ -1,6 +1,6 @@
 {
   "name": "ion-router",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
   "homepage": "https://cellog.github.io/ion-router",
@@ -32,11 +32,12 @@
   "bugs": {
     "url": "https://github.com/cellog/ion-router/issues"
   },
-  "homepage": "https://github.com/cellog/ion-router#readme",
   "dependencies": {
     "history": "^4.5.1",
     "invariant": "^2.2.2",
-    "route-parser": "0.0.5"
+    "prop-types": "^15.5.10",
+    "route-parser": "0.0.5",
+    "shallowequal": "^1.0.2"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0",
