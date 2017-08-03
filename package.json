@@ -35,7 +35,6 @@
   "dependencies": {
     "history": "^4.5.1",
     "invariant": "^2.2.2",
-    "prop-types": "^15.5.10",
     "route-parser": "0.0.5",
     "shallowequal": "^1.0.2"
   },
@@ -87,10 +86,12 @@
     "lcov-result-merger": "^1.2.0",
     "lolex": "^1.5.2",
     "mocha": "^3.2.0",
+    "prop-types": "^15.5.10",
     "raw-loader": "^0.5.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.4",
+    "redux": "^3.7.2",
     "rimraf": "^2.5.4",
     "selenium-webdriver": "^3.0.1",
     "should": "^11.1.2",
