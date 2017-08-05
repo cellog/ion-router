@@ -1,6 +1,6 @@
 {
   "name": "ion-router",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
   "homepage": "https://cellog.github.io/ion-router",
@@ -50,6 +50,8 @@
     "babel-eslint": "^7.1.1",
     "babel-plugin-__coverage__": "^11.0.0",
     "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
     "babel-plugin-transform-es2015-spread": "^6.8.0",
     "babel-plugin-transform-object-assign": "^6.8.0",
     "babel-plugin-transform-runtime": "^6.15.0",
