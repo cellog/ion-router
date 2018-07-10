@@ -12,7 +12,7 @@
     "clean": "rimraf lib/",
     "local-test": "./local-test.env",
     "lint": "eslint --ext jsx --ext js src test",
-    "test": "./run-tests.sh",
+    "test": "npx jest",
     "release": "npm run build && npm publish"
   },
   "repository": {

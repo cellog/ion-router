@@ -33,7 +33,7 @@ describe('Route', () => {
     store = info[1]
     log = info[2]
   }
-  it('immediately dispatches a route creation action', () => {
+  test('immediately dispatches a route creation action', () => {
     // eslint-disable-next-line
     const R = () => (<Routes>
       <Route
@@ -61,7 +61,7 @@ describe('Route', () => {
       }])
     ])
   })
-  it('uses parent', () => {
+  test('uses parent', () => {
     const R = () => <Routes>
       <Route name="test" parent="foo" path="mine/" />
     </Routes>
@@ -105,7 +105,7 @@ describe('Route', () => {
       }])
     ])
   })
-  it('passes url down to children', () => {
+  test('passes url down to children', () => {
     fake() // for coverage
     const R = () => <Routes>
       <Route

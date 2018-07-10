@@ -5,49 +5,49 @@ import * as index from '../src'
 import reducer from '../src/reducer'
 
 describe('helper functions', () => {
-  it('filter', () => {
+  test('filter', () => {
     expect(helpers.filter({
       hi: enhancers.enhanceRoute({
         name: 'hi',
         path: '/hi(/:there)'
       })
-    }, '/hi/boo')('hi')).eqls({ there: 'boo' })
+    }, '/hi/boo')('hi')).toEqual({ there: 'boo' })
   })
-  it('diff', () => {
-    expect(helpers.diff([], [])).eqls([])
-    expect(helpers.diff(['hi'], ['hi'])).eqls([])
-    expect(helpers.diff(['hi'], [])).eqls(['hi'])
-    expect(helpers.diff([], ['hi'])).eqls([])
+  test('diff', () => {
+    expect(helpers.diff([], [])).toEqual([])
+    expect(helpers.diff(['hi'], ['hi'])).toEqual([])
+    expect(helpers.diff(['hi'], [])).toEqual(['hi'])
+    expect(helpers.diff([], ['hi'])).toEqual([])
   })
-  it('template', () => {
+  test('template', () => {
     expect(helpers.template({
       exitParams: {}
-    })).eqls({})
+    })).toEqual({})
     expect(helpers.template({
       exitParams: p => ({ ...p, hi: 'there' })
-    }, { foo: 'bar' })).eqls({
+    }, { foo: 'bar' })).toEqual({
       foo: 'bar',
       hi: 'there'
     })
   })
-  it('changed', () => {
+  test('changed', () => {
     expect(helpers.changed({
       hi: 'there'
     }, {
       hi: 'there'
-    })).eqls([])
+    })).toEqual([])
     expect(helpers.changed({
       hi: 'f',
       boo: 'boo'
     }, {
       hi: 'there',
-    })).eqls(['hi', 'boo'])
+    })).toEqual(['hi', 'boo'])
     expect(helpers.changed({
       hi: 'f',
     }, {
       hi: 'there',
       boo: 'boo'
-    })).eqls(['hi', 'boo'])
+    })).toEqual(['hi', 'boo'])
     expect(helpers.changed({
       composer: undefined,
       piece: undefined,
@@ -56,7 +56,7 @@ describe('helper functions', () => {
       composer: undefined,
       piece: undefined,
       filter: ''
-    })).eqls([])
+    })).toEqual([])
   })
   describe('urlFromState', () => {
     const options = {}
@@ -93,8 +93,8 @@ describe('helper functions', () => {
       bar: 'barb',
       threet: 't',
     }
-    it('normal', () => {
-      expect(helpers.urlFromState(options.enhancedRoutes, state)).eqls({
+    test('normal', () => {
+      expect(helpers.urlFromState(options.enhancedRoutes, state)).toEqual({
         newEnhancedRoutes: {
           ...options.enhancedRoutes,
           hi: {
@@ -117,7 +117,7 @@ describe('helper functions', () => {
         ]
       })
     })
-    it('urlFromState, no change to url', () => {
+    test('urlFromState, no change to url', () => {
       const newState = {
         ...state,
         routing: {
@@ -144,14 +144,14 @@ describe('helper functions', () => {
           }
         }
       }
-      expect(helpers.urlFromState(opts.enhancedRoutes, newState)).eqls({
+      expect(helpers.urlFromState(opts.enhancedRoutes, newState)).toEqual({
         newEnhancedRoutes: opts.enhancedRoutes,
         toDispatch: [
         ]
       })
     })
   })
-  it('getStateUpdates', () => {
+  test('getStateUpdates', () => {
     expect(helpers.getStateUpdates({
       state: {
         a: 1,
@@ -166,11 +166,11 @@ describe('helper functions', () => {
       a: 2,
       b: 2,
       c: 5,
-    })).eqls([
+    })).toEqual([
       { type: 'a', a: 2, b: 2 },
     ])
   })
-  it('exitRoute', () => {
+  test('exitRoute', () => {
     expect(helpers.exitRoute({
       routing: reducer(),
     }, {

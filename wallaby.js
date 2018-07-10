@@ -30,8 +30,8 @@ module.exports = function(wallaby) {
     env: {
       type: 'node'
     },
-    testFramework: 'mocha',
-    setup: function() {
+    testFramework: 'jest'
+/*    setup: function() {
       const jsdom = require('jsdom').jsdom
       const sinon = require('sinon')
       const chai = require('chai')
@@ -59,7 +59,7 @@ module.exports = function(wallaby) {
 
       propagateToGlobal(win)
       global.window.____isjsdom = true
-    },
+    },*/
     // debug: true
   }
 }

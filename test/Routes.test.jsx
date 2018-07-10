@@ -13,7 +13,7 @@ describe('Routes', () => {
     store = info[1]
     log = info[2]
   }
-  it('passes in routes from state', () => {
+  test('passes in routes from state', () => {
     const Thing = () => (
       <Context.Consumer>
         {info => <div {...info} />}
@@ -46,14 +46,14 @@ describe('Routes', () => {
       path: '/there'
     }, {})
     make({}, R, undefined, false, mystore)
-    expect(component.find(Thing).props('@@__routes')).eqls({
+    expect(component.find(Thing).props('@@__routes')).toBe({
       hi: {
         name: 'hi',
         path: '/there'
       }
     })
   })
-  it('multiple Route children', () => {
+  test('multiple Route children', () => {
     const Thing = (
       <ConnectedRoutes>
         <div className="hi">hi</div>
@@ -61,9 +61,9 @@ describe('Routes', () => {
       </ConnectedRoutes>
     )
     make(Thing)
-    expect(component.prop('props').children).has.length(2)
-    expect(component.prop('props').children[0].props.className).eqls('hi')
-    expect(component.prop('props').children[1].props.className).eqls('there')
+    expect(component.prop('props').children).toHaveLength(2)
+    expect(component.prop('props').children[0].props.className).toBe('hi')
+    expect(component.prop('props').children[1].props.className).toBe('there')
   })
   describe('server', () => {
   })

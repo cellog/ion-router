@@ -10,7 +10,7 @@ import * as enhancers from '../src/enhancers'
 import { sagaStore } from './test_helper'
 
 describe('middleware', () => {
-  it('subscribes to history', () => {
+  test('subscribes to history', () => {
     const spy = {
       listen: sinon.spy(),
       location: {
@@ -29,15 +29,15 @@ describe('middleware', () => {
       }
     }
     const mid = createMiddleware(spy)
-    expect(mid(store)).is.instanceof(Function)
-    expect(store.dispatch.called).is.true
+    expect(mid(store)).toBeInstanceOf(Function)
+    expect(store.dispatch.called).toBe(true)
     expect(store.dispatch.args[0]).eqls([actions.route({
       pathname: 'hi',
       search: '',
       hash: ''
     })])
     expect(spy.listen).called
-    expect(spy.listen.args[0][0]).is.instanceof(Function)
+    expect(spy.listen.args[0][0]).toBeInstanceOf(Function)
     spy.listen.args[0][0]({
       pathname: 'foo',
       search: '',
@@ -54,28 +54,28 @@ describe('middleware', () => {
       search: '',
       hash: ''
     })
-    expect(store.dispatch.called).is.false
+    expect(store.dispatch.called).toBe(false)
   })
   let history
   let opts
   function makeStuff(spies = actionHandlers, reducers = undefined, debug = false) {
     return sagaStore(undefined, reducers, [], storeEnhancer(history, spies, debug, opts))
   }
-  it('throws on action with false route', () => {
+  test('throws on action with false route', () => {
     expect(() => {
       const { store } = makeStuff()
       store.dispatch(actions.push(false))
     }).throws('ion-router action push must be a string or a location object')
   })
-  it('does not throw on goBack or goForward', () => {
+  test('does not throw on goBack or goForward', () => {
     expect(() => {
       const { store } = makeStuff()
       store.dispatch(actions.goBack())
-    }).to.not.throw()
+    }).not.toThrowError()
     expect(() => {
       const { store } = makeStuff()
       store.dispatch(actions.goForward())
-    }).to.not.throw()
+    }).not.toThrowError()
   })
   describe('normal functionality tests', () => {
     beforeEach(() => {
@@ -86,7 +86,7 @@ describe('middleware', () => {
         enhancedRoutes: {}
       }
     })
-    it('calls ignore when receiving an action in process', () => {
+    test('calls ignore when receiving an action in process', () => {
       const spy = sinon.spy()
       const spies = {
         '*': enhancedRoutes => ({
@@ -102,7 +102,7 @@ describe('middleware', () => {
       }
       const info = makeStuff(spies)
       info.store.dispatch(actions.route('/hi'))
-      expect(spy.called).is.true
+      expect(spy.called).toBe(true)
       expect(info.log).eqls([
         actions.route({ pathname: '/',
           search: '',
@@ -114,7 +114,7 @@ describe('middleware', () => {
       ])
       createMiddleware() // coverage of default options
     })
-    it('calls console.info when debug is true', () => {
+    test('calls console.info when debug is true', () => {
       const orig = console.info // eslint-disable-line
       try {
         console.info = sinon.spy() // eslint-disable-line
@@ -133,14 +133,14 @@ describe('middleware', () => {
         }
         const info = makeStuff(spies, undefined, true)
         info.store.dispatch(actions.route('/hi'))
-        expect(console.info.called).is.true // eslint-disable-line
+        expect(console.info.called).toBe(true) // eslint-disable-line
         expect(console.info.args[0]).eqls(['ion-router PROCESSING: @@ion-router/ROUTE']) // eslint-disable-line
         expect(console.info.args[1]).eqls(['dispatching: ', [{ type: 'foo' }]]) // eslint-disable-line
       } finally {
         console.info = orig // eslint-disable-line
       }
     })
-    it('calls an action handler', () => {
+    test('calls an action handler', () => {
       const spy = sinon.spy()
       const spies = {
         hithere: (enhancedRoutes, state, action) => {
@@ -154,12 +154,12 @@ describe('middleware', () => {
       const info = makeStuff(spies)
       const action = { type: 'hithere' }
       info.store.dispatch(action)
-      expect(spy.called).is.true
+      expect(spy.called).toBe(true)
       expect(spy.args[0][0]).equals(opts.enhancedRoutes)
       expect(spy.args[0][1]).equals(info.store.getState())
       expect(spy.args[0][2]).equals(action)
     })
-    it('ignores actions triggered in toDispatch', () => {
+    test('ignores actions triggered in toDispatch', () => {
       const spy = sinon.spy()
       const spies = {
         ...actionHandlers,
@@ -178,7 +178,7 @@ describe('middleware', () => {
       const oldState = info.store.getState()
       const action = { type: 'hithere' }
       info.store.dispatch(action)
-      expect(spy.called).is.true
+      expect(spy.called).toBe(true)
       expect(spy.args[0][0]).equals(opts.enhancedRoutes)
       // shows we pass old state
       expect(spy.args[0][1]).equals(oldState)
@@ -194,7 +194,7 @@ describe('middleware', () => {
         { type: 'hithere' },
       ])
     })
-    it('triggers * for unknown actions', () => {
+    test('triggers * for unknown actions', () => {
       const spy = sinon.spy()
       const spies = {
         '*': (enhancedRoutes, state, action) => {
@@ -212,7 +212,7 @@ describe('middleware', () => {
       })
       const action = { type: 'hithere' }
       info.store.dispatch(action)
-      expect(spy.called).is.true
+      expect(spy.called).toBe(true)
       expect(spy.args[0][0]).equals(opts.enhancedRoutes)
       // next line shows we pass the new state and not old state
       expect(spy.args[0][1]).eqls({
@@ -232,7 +232,7 @@ describe('middleware', () => {
         { type: 'hithere' },
       ])
     })
-    it('url action handling', () => {
+    test('url action handling', () => {
       const duds = {
         ...actionHandlers,
         [types.ROUTE]: newEnhancedRoutes => ({
@@ -252,12 +252,12 @@ describe('middleware', () => {
         actions.route(info.log[2].payload)
       ])
     })
-    it('state action handling passes new state to handler', () => {
+    test('state action handling passes new state to handler', () => {
 
     })
   })
   describe('action handlers', () => {
-    it('EDIT_ROUTE', () => {
+    test('EDIT_ROUTE', () => {
       const enhanced = {}
       const testenhanced = enhanced
       const state = {
@@ -286,7 +286,7 @@ describe('middleware', () => {
       expect(enhanced).equals(testenhanced)
       expect(state).equals(teststate)
     })
-    it('BATCH_ROUTES', () => {
+    test('BATCH_ROUTES', () => {
       const enhanced = {}
       const testenhanced = enhanced
       const state = {
@@ -317,7 +317,7 @@ describe('middleware', () => {
       expect(enhanced).equals(testenhanced)
       expect(state).equals(teststate)
     })
-    it('REMOVE_ROUTE', () => {
+    test('REMOVE_ROUTE', () => {
       const enhanced = {
         foo: {
           name: 'foo',
@@ -336,7 +336,7 @@ describe('middleware', () => {
       expect(enhanced).equals(testenhanced)
       expect(state).equals(teststate)
     })
-    it('BATCH_REMOVE_ROUTES', () => {
+    test('BATCH_REMOVE_ROUTES', () => {
       const enhanced = {
         foo: {
           name: 'foo',
@@ -428,7 +428,7 @@ describe('middleware', () => {
       }
       teststate = state
     })
-    it('ROUTE', () => {
+    test('ROUTE', () => {
       const action = actions.route({
         pathname: '/foo/hi',
         search: '',
@@ -462,14 +462,14 @@ describe('middleware', () => {
       expect(enhanced).equals(testenhanced)
       expect(state).equals(teststate)
     })
-    it('ACTION', () => {
+    test('ACTION', () => {
       const action = actions.push('/foo')
       expect(actionHandlers[types.ACTION](enhanced, state, action)).eqls({
         newEnhancedRoutes: enhanced,
         toDispatch: []
       })
     })
-    it('*', () => {
+    test('*', () => {
       expect(actionHandlers['*'](enhanced, {
         ...state,
         bar: {
