@@ -4,6 +4,7 @@ import RouteParser from 'route-parser'
 import invariant from 'invariant'
 
 import * as actions from './actions'
+import Context from './Context'
 
 const urlShape = PropTypes.oneOfType([
   PropTypes.string,
@@ -20,12 +21,11 @@ class Link extends Component {
   static propTypes = {
     to: urlShape,
     replace: urlShape,
-    dispatch: PropTypes.func.isRequired,
     onClick: PropTypes.func,
     href: PropTypes.string,
     children: PropTypes.any,
     route: PropTypes.string,
-    '@@__routes': PropTypes.object,
+    __routeInfo: PropTypes.object,
   }
 
   constructor(props) {
@@ -39,8 +39,8 @@ class Link extends Component {
   }
 
   setupRoute(props) {
-    if (props.route && props['@@__routes'] && props['@@__routes'].routes[props.route]) {
-      this.route = new RouteParser(props['@@__routes'].routes[props.route].path)
+    if (props.route && props.__routeInfo.routes[props.route]) {
+      this.route = new RouteParser(props.__routeInfo.routes[props.route].path)
     }
   }
 
@@ -55,7 +55,7 @@ class Link extends Component {
     } else {
       url = this.props.to
     }
-    this.props.dispatch(actions[action](url))
+    this.props.__routeInfo.dispatch(actions[action](url))
     if (this.props.onClick) {
       this.props.onClick(e)
     }
@@ -63,19 +63,8 @@ class Link extends Component {
 
   render() {
     const {
-      '@@__routes': unused, dispatch, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
+      __routeInfo: unused, children, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
     } = this.props
-    const validProps = [
-      'download', 'hrefLang', 'referrerPolicy', 'rel', 'target', 'type',
-      'id', 'accessKey', 'className', 'contentEditable', 'contextMenu', 'dir', 'draggable',
-      'hidden', 'itemID', 'itemProp', 'itemRef', 'itemScope', 'itemType', 'lang',
-      'spellCheck', 'style', 'tabIndex', 'title'
-    ]
-    const aProps = Object.keys(props).reduce((newProps, key) => {
-      if (validProps.includes(key)) newProps[key] = props[key] // eslint-disable-line
-      if (key.slice(0, 5) === 'data-') newProps[key] = props[key] // eslint-disable-line
-      return newProps
-    }, {})
     invariant(!href, 'href should not be passed to Link, use "to," "replace" or "route" (passed "%s")', href)
     let landing = replace || to || ''
     if (this.route) {
@@ -84,7 +73,7 @@ class Link extends Component {
       landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
     return (
-      <a href={landing} onClick={this.click} {...aProps}>
+      <a href={landing} onClick={this.click} {...props}>
         {this.props.children}
       </a>
     )
@@ -93,23 +82,8 @@ class Link extends Component {
 
 export { Link }
 
-export const Placeholder = () => {
-  throw new Error('call connectLink with the connect function from react-redux to ' +
-    'initialize Link (see https://github.com/cellog/ion-router/issues/1)')
-}
-
-export function getConnectedLink(connect, storeKey = 'store') {
-  return connect(state => ({
-    '@@__routes': state.routing.routes
-  }), undefined, undefined, { storeKey })(Link)
-}
-
-let ConnectedLink = null
-
-export function connectLink(connect, storeKey = 'store') {
-  ConnectedLink = getConnectedLink(connect, storeKey)
-}
-
-const ConnectLink = props => (ConnectedLink ? <ConnectedLink {...props} /> : <Placeholder />)
-
-export default ConnectLink
+export default props => (
+  <Context.Consumer>
+    {info => (<Link {...props} __routeInfo={info}>{props.children}</Link>)}
+  </Context.Consumer>
+)
