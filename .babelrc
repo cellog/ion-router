@@ -9,9 +9,4 @@
     useBuiltIns: "usage"
   }]],
   "plugins": ["@babel/plugin-proposal-class-properties", "@babel/plugin-proposal-export-default-from"],
-  "env" : {
-    "test": {
-      "plugins": [ [ "__coverage__", { "only": "src/!(lolex-src.js)" } ] ]
-    }
-  }
 }

@@ -25,10 +25,11 @@ class Route extends Component {
   }
   constructor(props) {
     super(props)
-    const info = props.__routeInfo
     const {
       parent,
       parentUrl,
+      __routeInfo: info,
+      children: unused, // eslint-disable-line
       ...params
     } = props
     let url = parentUrl
@@ -52,8 +53,10 @@ class Route extends Component {
   }
 }
 
-export default props => (
+const ContextRoute = props => (
   <Context.Consumer>
     {info => <Route {...props} __routeInfo={info} />}
   </Context.Consumer>
 )
+
+export default ContextRoute

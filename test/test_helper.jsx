@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import teaspoon from 'teaspoon'
-import * as enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import * as enzyme from 'enzyme'
+import Adapter from 'enzyme-adapter-react-16'
 
 import { Provider, connect } from 'react-redux'
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
@@ -10,7 +9,7 @@ import createHistory from 'history/createMemoryHistory'
 import reducer from '../src/reducer'
 import storeEnhancer from '../src/storeEnhancer'
 
-enzyme.configure({ adapter: new Adapter() });
+enzyme.configure({ adapter: new Adapter() })
 
 const fakeWeekReducer = (state = 1) => state
 
@@ -39,9 +38,9 @@ function renderComponent(ComponentClass, props = {}, state = undefined, returnSt
       super(props)
       this.state = props
     }
-    componentWillReceiveProps(props) {
+    componentDidUpdate(props) {
       if (props !== this.props) {
-        this.setState(props)
+        this.setState(this.props)
       }
     }
     render() {
@@ -61,5 +60,6 @@ function renderComponent(ComponentClass, props = {}, state = undefined, returnSt
   }
   return ret
 }
+
 
 export { renderComponent, connect, sagaStore } // eslint-disable-line

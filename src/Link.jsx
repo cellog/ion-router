@@ -18,6 +18,7 @@ const urlShape = PropTypes.oneOfType([
 ])
 
 class Link extends Component {
+  displayName = 'Link'
   static propTypes = {
     to: urlShape,
     replace: urlShape,
@@ -31,16 +32,25 @@ class Link extends Component {
   constructor(props) {
     super(props)
     this.click = this.click.bind(this)
-    this.setupRoute(props)
+    this.state = this.setupRoute(props, true)
   }
 
-  componentWillReceiveProps(props) {
-    this.setupRoute(props)
+  componentDidUpdate(props) {
+    if (props.route !== this.props.route || props.__routeInfo !== this.props.__routeInfo) {
+      this.setupRoute(props)
+    }
   }
 
-  setupRoute(props) {
+  setupRoute(props, set = false) {
     if (props.route && props.__routeInfo.routes[props.route]) {
-      this.route = new RouteParser(props.__routeInfo.routes[props.route].path)
+      if (set) {
+        return { route: new RouteParser(props.__routeInfo.routes[props.route].path) }
+      }
+      this.setState({ route: new RouteParser(this.props.__routeInfo.routes[this.props.route].path) })
+    } else {
+      if (set) {
+        return {}
+      }
     }
   }
 
@@ -49,7 +59,7 @@ class Link extends Component {
     let url
     const action = this.props.replace ? 'replace' : 'push'
     if (this.props.route) {
-      url = this.route.reverse(this.props)
+      url = this.state.route.reverse(this.props)
     } else if (this.props.replace) {
       url = this.props.replace
     } else {
@@ -65,15 +75,26 @@ class Link extends Component {
     const {
       __routeInfo: unused, children, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
     } = this.props
+    const validProps = [
+      'download', 'hrefLang', 'referrerPolicy', 'rel', 'target', 'type',
+      'id', 'accessKey', 'className', 'contentEditable', 'contextMenu', 'dir', 'draggable',
+      'hidden', 'itemID', 'itemProp', 'itemRef', 'itemScope', 'itemType', 'lang',
+      'spellCheck', 'style', 'tabIndex', 'title'
+    ]
+    const aProps = Object.keys(props).reduce((newProps, key) => {
+      if (validProps.includes(key)) newProps[key] = props[key] // eslint-disable-line
+      if (key.slice(0, 5) === 'data-') newProps[key] = props[key] // eslint-disable-line
+      return newProps
+    }, {})
     invariant(!href, 'href should not be passed to Link, use "to," "replace" or "route" (passed "%s")', href)
     let landing = replace || to || ''
-    if (this.route) {
-      landing = this.route.reverse(props)
+    if (this.state.route) {
+      landing = this.state.route.reverse(props)
     } else if (landing.pathname) {
       landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
     return (
-      <a href={landing} onClick={this.click} {...props}>
+      <a href={landing} onClick={this.click} {...aProps}>
         {this.props.children}
       </a>
     )
@@ -82,8 +103,14 @@ class Link extends Component {
 
 export { Link }
 
-export default props => (
+const ContextLink = props => (
   <Context.Consumer>
     {info => (<Link {...props} __routeInfo={info}>{props.children}</Link>)}
   </Context.Consumer>
 )
+
+ContextLink.propTypes = {
+  children: PropTypes.any
+}
+
+export default ContextLink

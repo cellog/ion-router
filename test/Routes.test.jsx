@@ -1,9 +1,10 @@
-import React, { Component } from 'react'
-import ConnectedRoutes, { RawRoutes } from '../src/Routes'
+import React from 'react'
+import ConnectedRoutes from '../src/Routes'
 import Context from '../src/Context'
-import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
-import { renderComponent, connect, sagaStore } from './test_helper'
+import { renderComponent, sagaStore } from './test_helper'
+
+jest.mock('../src/Context')
 
 describe('Routes', () => {
   let component, store, log // eslint-disable-line
@@ -14,14 +15,6 @@ describe('Routes', () => {
     log = info[2]
   }
   test('passes in routes from state', () => {
-    const Thing = () => (
-      <Context.Consumer>
-        {info => <div {...info} />}
-      </Context.Consumer>
-    )
-    const R = () => <ConnectedRoutes>
-      <Thing />
-    </ConnectedRoutes>
     const mystore = sagaStore({
       routing: {
         matchedRoutes: [],
@@ -45,13 +38,22 @@ describe('Routes', () => {
       name: 'hi',
       path: '/there'
     }, {})
+    const Checker = () => <div />
+    const Thing = () => (
+      <Context.Consumer>
+        {info => <Checker {...info} />}
+      </Context.Consumer>
+    )
+    const R = () => <ConnectedRoutes store={mystore.store}>
+      <Thing />
+    </ConnectedRoutes>
     make({}, R, undefined, false, mystore)
-    expect(component.find(Thing).props('@@__routes')).toBe({
-      hi: {
-        name: 'hi',
-        path: '/there'
-      }
-    })
+    expect(Object.keys(component.find(Checker).props())).toEqual([
+      'dispatch', 'routes', 'addRoute', 'store'
+    ])
+    expect(component.find(Checker).prop('dispatch')).toBe(mystore.store.dispatch)
+    expect(component.find(Checker).prop('routes')).toEqual(mystore.store.getState().routing.routes.routes)
+    expect(component.find(Checker).prop('store')).toBe(mystore.store)
   })
   test('multiple Route children', () => {
     const Thing = (

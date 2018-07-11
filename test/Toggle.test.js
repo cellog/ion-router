@@ -64,7 +64,7 @@ describe('Toggle', () => {
     test('renders loading element if state is still loading', () => {
       const R = Toggle(() => true, () => false)
       const container = renderComponent(R,
-        { component: Component, loadingComponent: () => <div>Loading...</div> })
+        { component: Component, loadingComponent: () => <div>Loading...</div> }) // eslint-disable-line react/display-name
       expect(container.find(Component)).toHaveLength(0)
       expect(container.text()).toBe('Loading...')
     })

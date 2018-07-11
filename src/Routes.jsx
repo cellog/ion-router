@@ -81,4 +81,9 @@ function ChooseRoutes({ store, children }) {
   return <Routes store={store}>{children}</Routes>
 }
 
+ChooseRoutes.propTypes = {
+  store: PropTypes.object,
+  children: PropTypes.any
+}
+
 export default ChooseRoutes
