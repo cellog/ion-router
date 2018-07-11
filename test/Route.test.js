@@ -1,9 +1,11 @@
 import React from 'react'
 import Route, { fake } from '../src/Route'
-import Routes, { connectRoutes } from '../src/Routes'
+import Routes from '../src/Routes'
 import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
-import { renderComponent, connect, sagaStore } from './test_helper'
+import { renderComponent, sagaStore } from './test_helper'
+
+jest.mock('../src/Context')
 
 describe('Route', () => {
   const paramsFromState = state => ({
@@ -26,16 +28,15 @@ describe('Route', () => {
     }
   }
   let component, store, log // eslint-disable-line
-  connectRoutes(connect)
   function make(props = {}, Comp = Routes, state = {}, s = undefined) {
     const info = renderComponent(Comp, props, state, true, s)
     component = info[0]
     store = info[1]
     log = info[2]
   }
-  it('immediately dispatches a route creation action', () => {
-    // eslint-disable-next-line
-    const R = () => (<Routes>
+  test('immediately dispatches a route creation action', () => {
+    store = sagaStore({})
+    const R = () => (<Routes store={store.store}>
       <Route
         name="ensembles"
         path="/ensembles/:id"
@@ -44,8 +45,8 @@ describe('Route', () => {
         updateState={updateState}
       />
     </Routes>)
-    make({}, R)
-    expect(log).eqls([
+    make({}, R, {}, store)
+    expect(log).toEqual([
       actions.route({ pathname: '/',
         search: '',
         hash: '',
@@ -61,10 +62,7 @@ describe('Route', () => {
       }])
     ])
   })
-  it('uses parent', () => {
-    const R = () => <Routes>
-      <Route name="test" parent="foo" path="mine/" />
-    </Routes>
+  test('uses parent', () => {
     const mystore = sagaStore({
       routing: {
         matchedRoutes: [],
@@ -88,8 +86,11 @@ describe('Route', () => {
       name: 'foo',
       path: '/testing/'
     }, {})
+    const R = () => <Routes store={mystore.store}>
+      <Route name="test" parent="foo" path="mine/" />
+    </Routes>
     make({}, R, undefined, mystore)
-    expect(log).eqls([
+    expect(log).toEqual([
       actions.route({ pathname: '/',
         search: '',
         hash: '',
@@ -105,9 +106,10 @@ describe('Route', () => {
       }])
     ])
   })
-  it('passes url down to children', () => {
+  test('passes url down to children', () => {
     fake() // for coverage
-    const R = () => <Routes>
+    store = sagaStore({})
+    const R = () => <Routes store={store.store}>
       <Route
         name="ensembles"
         path="/ensembles/:id"
@@ -126,8 +128,8 @@ describe('Route', () => {
         </Route>
       </Route>
     </Routes>
-    make({}, R)
-    expect(log).eqls([
+    make({}, R, {}, store)
+    expect(log).toEqual([
       actions.route({ pathname: '/',
         search: '',
         hash: '',

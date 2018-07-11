@@ -14,20 +14,29 @@ module.exports = function(wallaby) {
     ],
     compilers: {
       '**/*.js?(x)': wallaby.compilers.babel({
-        babel: require('babel-core'),
-        presets: ['es2015', 'stage-0', 'react']
+        babel: require('@babel/core'),
+        presets: ["@babel/preset-react", ["@babel/env", {
+          targets: {
+            edge: "17",
+            firefox: "60",
+            chrome: "67",
+            safari: "11.1"
+          },
+          useBuiltIns: "usage"
+        }]],
+        plugins: ["@babel/plugin-proposal-class-properties", "@babel/plugin-proposal-export-default-from"],
       }),
     },
     env: {
       type: 'node'
     },
-    testFramework: 'mocha',
-    setup: function() {
+    testFramework: 'jest'
+/*    setup: function() {
       const jsdom = require('jsdom').jsdom
       const sinon = require('sinon')
       const chai = require('chai')
       const expect = chai.expect
-      require('babel-polyfill')
+      require('@babel/polyfill')
 
 // from mocha-jsdom https://github.com/rstacruz/mocha-jsdom/blob/master/index.js#L80
       const propagateToGlobal = (window) => {
@@ -50,7 +59,7 @@ module.exports = function(wallaby) {
 
       propagateToGlobal(win)
       global.window.____isjsdom = true
-    },
+    },*/
     // debug: true
   }
 }

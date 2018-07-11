@@ -41,3 +41,4 @@ jspm_packages
 local-test.env
 lib
 .DS_Store
+test/lcov

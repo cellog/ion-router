@@ -3,7 +3,7 @@ import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
 
 describe('ion-router', () => {
-  it('synchronousMakeRoutes', () => {
+  test('synchronousMakeRoutes', () => {
     const routes = [{
       name: 'campers',
       path: '/campers/:year(/:id)',
@@ -37,8 +37,8 @@ describe('ion-router', () => {
       path: '/my/:fancy/path(/:wow/*supercomplicated(/:thing))',
     }]
     const opts = {}
-    expect(index.synchronousMakeRoutes(routes, opts)).eqls(actions.batchRoutes(routes))
-    expect(opts.enhancedRoutes).eqls({
+    expect(index.synchronousMakeRoutes(routes, opts)).toEqual(actions.batchRoutes(routes))
+    expect(opts.enhancedRoutes).toEqual({
       campers: {
         ...enhancers.enhanceRoute(routes[0]),
         parent: undefined,
@@ -54,19 +54,12 @@ describe('ion-router', () => {
     })
   })
   describe('main', () => {
-    it('calls the 3 connect functions', () => {
-      const spy = sinon.spy()
-      const store = { routerOptions: {} }
-      index.default(() => spy, store)
-      expect(spy.called).is.true
-      expect(spy.args).has.length(2)
-    })
-    it('sets options server', () => {
+    test('sets options server', () => {
       const store = { routerOptions: {} }
       index.default(() => () => null, store, undefined, true)
-      expect(store.routerOptions.isServer).is.true
+      expect(store.routerOptions.isServer).toBe(true)
     })
-    it('sets up server routes', () => {
+    test('sets up server routes', () => {
       const log = []
       const store = {
         getState: () => ({
@@ -88,8 +81,8 @@ describe('ion-router', () => {
         }
       ]
       index.default(() => () => null, store, routes)
-      expect(log).eqls([actions.batchRoutes(routes), actions.route('hi')])
-      expect(store.routerOptions).eqls({
+      expect(log).toEqual([actions.batchRoutes(routes), actions.route('hi')])
+      expect(store.routerOptions).toEqual({
         enhancedRoutes: {
           hi: {
             ...enhancers.enhanceRoute({

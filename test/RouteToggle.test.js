@@ -16,7 +16,7 @@ describe('RouteToggle', () => {
       connectToggle(connect)
       Route = RouteToggle('test')
     })
-    it('renders the component if the route matches', () => {
+    test('renders the component if the route matches', () => {
       const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
         week: 1,
         routing: {
@@ -34,11 +34,11 @@ describe('RouteToggle', () => {
           matchedRoutes: ['test']
         }
       })
-      expect(container.find(Component)).has.length(1)
-      expect(container.find('.foo')).has.length(1)
-      expect(container.find('.foo').text()).eqls('bar')
+      expect(container.find(Component)).toHaveLength(1)
+      expect(container.find('.foo')).toHaveLength(1)
+      expect(container.find('.foo').text()).toEqual('bar')
     })
-    it('does not render the component if the route matches', () => {
+    test('does not render the component if the route matches', () => {
       const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
         week: 1,
         routing: {
@@ -56,33 +56,38 @@ describe('RouteToggle', () => {
           matchedRoutes: ['no']
         }
       })
-      expect(container.find(Component)).has.length(0)
+      expect(container.find(Component)).toHaveLength(0)
     })
-    it('does not render the component if the route matches, but other does not', () => {
-      const Route = RouteToggle('test', () => false)
+    test(
+      'does not render the component if the route matches, but other does not',
+      () => {
+        const Route = RouteToggle('test', () => false)
 
-      const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
-        week: 1,
-        routing: {
-          location: {
-            pathname: '',
-            hash: '',
-            search: ''
-          },
-          routes: {
-            test: {
-              name: 'test',
-              path: '/test'
-            }
-          },
-          matchedRoutes: ['test']
-        }
-      })
-      expect(container.find(Component)).has.length(0)
-    })
-    it('does not call state if loaded returns false', () => {
-      const spy = sinon.spy(() => true)
-      const loaded = sinon.spy(() => false)
+        const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
+          week: 1,
+          routing: {
+            location: {
+              pathname: '',
+              hash: '',
+              search: ''
+            },
+            routes: {
+              test: {
+                name: 'test',
+                path: '/test'
+              }
+            },
+            matchedRoutes: ['test']
+          }
+        })
+        expect(container.find(Component)).toHaveLength(0)
+      }
+    )
+    test('does not call state if loaded returns false', () => {
+      const spy = jest.fn()
+      spy.mockReturnValue(true)
+      const loaded = jest.fn()
+      spy.mockReturnValue(false)
       const R = RouteToggle('test', spy, loaded)
       const container = renderComponent(R, { component: Component, foo: 'bar', week: 1 }, {
         week: 1,
@@ -102,11 +107,11 @@ describe('RouteToggle', () => {
         }
       })
 
-      expect(spy.called).is.false
-      expect(loaded.called).is.true
-      expect(container.find(Component)).has.length(0)
+      expect(spy.mock.calls.length).toBe(0)
+      expect(loaded.mock.calls.length).toBe(1)
+      expect(container.find(Component)).toHaveLength(0)
     })
-    it('componentLoadingMap', () => {
+    test('componentLoadingMap', () => {
       const R = RouteToggle('test', () => true, () => true, {
         component: 'bobby',
         loadingComponent: 'frenzel',
@@ -129,13 +134,13 @@ describe('RouteToggle', () => {
           matchedRoutes: ['test']
         }
       })
-      expect(container.find(Component)).has.length(1)
-      expect(container.find(Component).props('component')).eqls('hi')
-      expect(container.find(Component).props('bobby')).eqls(undefined)
-      expect(container.find(Component).props('loadingComponent')).eqls('there')
-      expect(container.find(Component).props('frenzel')).eqls(undefined)
-      expect(container.find(Component).props('else')).eqls('oops')
-      expect(container.find(Component).props('blah')).eqls(undefined)
+      expect(container.find(Component)).toHaveLength(1)
+      expect(container.find(Component).prop('component')).toEqual('hi')
+      expect(container.find(Component).prop('bobby')).toEqual(undefined)
+      expect(container.find(Component).prop('loadingComponent')).toEqual('there')
+      expect(container.find(Component).prop('frenzel')).toEqual(undefined)
+      expect(container.find(Component).prop('else')).toEqual('oops')
+      expect(container.find(Component).prop('blah')).toEqual(undefined)
     })
   })
 })

@@ -2,18 +2,18 @@ import reducer from '../src/reducer'
 import * as actions from '../src/actions'
 
 describe('reducer', () => {
-  it('ROUTE', () => {
+  test('ROUTE', () => {
     const state = { ...reducer() }
     expect(reducer(state, actions.route({
       pathname: '',
       search: '',
       hash: ''
-    }))).equals(state)
+    }))).toBe(state)
     expect(reducer(state, actions.route({
       pathname: '/foo',
       search: '',
       hash: ''
-    }))).eqls({
+    }))).toEqual({
       ...state,
       location: {
         pathname: '/foo',
@@ -22,14 +22,14 @@ describe('reducer', () => {
       }
     })
   })
-  it('MATCH_ROUTES', () => {
+  test('MATCH_ROUTES', () => {
     const state = { ...reducer() }
-    expect(reducer(state, actions.matchRoutes(['foo']))).eqls({
+    expect(reducer(state, actions.matchRoutes(['foo']))).toEqual({
       ...state,
       matchedRoutes: ['foo']
     })
   })
-  it('SET_PARAMS', () => {
+  test('SET_PARAMS', () => {
     const state = { ...reducer() }
     state.routes = {
       ids: ['foo', 'bar'],
@@ -58,7 +58,7 @@ describe('reducer', () => {
       foo: 'bar'
     }, {
       bar: 'bar'
-    }))).eqls({
+    }))).toEqual({
       ...state,
       routes: {
         ...state.routes,
@@ -77,7 +77,7 @@ describe('reducer', () => {
       }
     })
   })
-  it('EDIT_ROUTE', () => {
+  test('EDIT_ROUTE', () => {
     const state = { ...reducer() }
     state.routes = {
       ids: ['foo', 'bar'],
@@ -106,7 +106,7 @@ describe('reducer', () => {
       name: 'hi',
       path: '/hi/:there',
       stateFromParams: hi => hi
-    }))).eqls({
+    }))).toEqual({
       ...state,
       routes: {
         ids: ['foo', 'bar', 'hi'],
@@ -123,7 +123,7 @@ describe('reducer', () => {
       }
     })
   })
-  it('BATCH_ROUTE', () => {
+  test('BATCH_ROUTE', () => {
     const state = { ...reducer() }
     state.routes = {
       ids: ['foo', 'bar'],
@@ -187,14 +187,14 @@ describe('reducer', () => {
         }
       }
     }
-    expect(reducer(state, action)).eqls(newstate)
+    expect(reducer(state, action)).toEqual(newstate)
   })
-  it('REMOVE_ROUTE', () => {
+  test('REMOVE_ROUTE', () => {
     const start = { ...reducer() }
     const state = reducer(start, actions.addRoute({ name: 'hi', path: '/hi/:there' }))
-    expect(reducer(state, actions.removeRoute('hi'))).eqls(start)
+    expect(reducer(state, actions.removeRoute('hi'))).toEqual(start)
   })
-  it('BATCH_REMOVE_ROUTES', () => {
+  test('BATCH_REMOVE_ROUTES', () => {
     const fstate = { ...reducer(undefined, actions.batchRoutes([
       {
         name: 'fer',
@@ -216,7 +216,7 @@ describe('reducer', () => {
         params: {},
         state: {}
       }
-    ]))).eqls({
+    ]))).toEqual({
       ...fstate,
       routes: {
         ids: ['far'],
@@ -226,8 +226,8 @@ describe('reducer', () => {
       }
     })
   })
-  it('unknown type', () => {
+  test('unknown type', () => {
     const state = reducer()
-    expect(reducer(state, { type: '@#%Y@#$*(##$' })).equals(state)
+    expect(reducer(state, { type: '@#%Y@#$*(##$' })).toBe(state)
   })
 })

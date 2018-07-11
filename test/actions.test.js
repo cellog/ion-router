@@ -3,8 +3,8 @@ import * as types from '../src/types'
 
 
 describe('actions', () => {
-  it('push', () => {
-    expect(actions.push('/hi')).eqls({
+  test('push', () => {
+    expect(actions.push('/hi')).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'push',
@@ -12,7 +12,7 @@ describe('actions', () => {
         state: {}
       }
     })
-    expect(actions.push('/hi', { some: 'state' })).eqls({
+    expect(actions.push('/hi', { some: 'state' })).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'push',
@@ -21,8 +21,8 @@ describe('actions', () => {
       }
     })
   })
-  it('replace', () => {
-    expect(actions.replace('/hi')).eqls({
+  test('replace', () => {
+    expect(actions.replace('/hi')).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'replace',
@@ -30,7 +30,7 @@ describe('actions', () => {
         state: {}
       }
     })
-    expect(actions.replace('/hi', { some: 'state' })).eqls({
+    expect(actions.replace('/hi', { some: 'state' })).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'replace',
@@ -39,8 +39,8 @@ describe('actions', () => {
       }
     })
   })
-  it('go', () => {
-    expect(actions.go('/hi')).eqls({
+  test('go', () => {
+    expect(actions.go('/hi')).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'go',
@@ -48,28 +48,28 @@ describe('actions', () => {
       }
     })
   })
-  it('goBack', () => {
-    expect(actions.goBack()).eqls({
+  test('goBack', () => {
+    expect(actions.goBack()).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'goBack',
       }
     })
   })
-  it('goForward', () => {
-    expect(actions.goForward()).eqls({
+  test('goForward', () => {
+    expect(actions.goForward()).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'goForward',
       }
     })
   })
-  it('route', () => {
+  test('route', () => {
     expect(actions.route({
       pathname: '/hi',
       search: '',
       hash: ''
-    })).eqls({
+    })).toEqual({
       type: types.ROUTE,
       payload: {
         pathname: '/hi',
@@ -78,14 +78,14 @@ describe('actions', () => {
       }
     })
   })
-  it('matchRoutes', () => {
-    expect(actions.matchRoutes(['route1', 'route2'])).eqls({
+  test('matchRoutes', () => {
+    expect(actions.matchRoutes(['route1', 'route2'])).toEqual({
       type: types.MATCH_ROUTES,
       payload: ['route1', 'route2']
     })
   })
-  it('addRoute', () => {
-    expect(actions.addRoute({ name: 'foo', path: '/hi/:there' })).eqls({
+  test('addRoute', () => {
+    expect(actions.addRoute({ name: 'foo', path: '/hi/:there' })).toEqual({
       type: types.EDIT_ROUTE,
       payload: {
         name: 'foo',
@@ -96,7 +96,7 @@ describe('actions', () => {
       }
     })
   })
-  it('batchRoutes', () => {
+  test('batchRoutes', () => {
     expect(actions.batchRoutes([{
       name: 'foo',
       path: '/hi/there',
@@ -104,7 +104,7 @@ describe('actions', () => {
       name: 'bar',
       path: '/bar/ber',
       parent: 'foo'
-    }])).eqls({
+    }])).toEqual({
       type: types.BATCH_ROUTES,
       payload: {
         ids: ['foo', 'bar'],
@@ -128,7 +128,7 @@ describe('actions', () => {
     })
   })
 
-  it('batchRemoveRoutes', () => {
+  test('batchRemoveRoutes', () => {
     expect(actions.batchRemoveRoutes([{
       name: 'foo',
       path: '/hi/there',
@@ -136,7 +136,7 @@ describe('actions', () => {
       name: 'bar',
       path: '/bar/ber',
       parent: 'foo'
-    }])).eqls({
+    }])).toEqual({
       type: types.BATCH_REMOVE_ROUTES,
       payload: {
         ids: ['foo', 'bar'],
@@ -159,18 +159,18 @@ describe('actions', () => {
       }
     })
   })
-  it('removeRoute', () => {
-    expect(actions.removeRoute('foo')).eqls({
+  test('removeRoute', () => {
+    expect(actions.removeRoute('foo')).toEqual({
       type: types.REMOVE_ROUTE,
       payload: 'foo'
     })
   })
-  it('setParamsAndState', () => {
+  test('setParamsAndState', () => {
     expect(actions.setParamsAndState('route', {
       foo: 'bar'
     }, {
       bar: 'bar'
-    })).eqls({
+    })).toEqual({
       type: types.SET_PARAMS,
       payload: {
         route: 'route',
@@ -183,26 +183,26 @@ describe('actions', () => {
       }
     })
   })
-  it('enterRoutes', () => {
-    expect(actions.enterRoutes(['hi'])).eqls({
+  test('enterRoutes', () => {
+    expect(actions.enterRoutes(['hi'])).toEqual({
       type: types.ENTER_ROUTES,
       payload: ['hi']
     })
   })
-  it('exitRoutes', () => {
-    expect(actions.exitRoutes(['hi'])).eqls({
+  test('exitRoutes', () => {
+    expect(actions.exitRoutes(['hi'])).toEqual({
       type: types.EXIT_ROUTES,
       payload: ['hi']
     })
   })
-  it('pending', () => {
-    expect(actions.pending()).eqls({
+  test('pending', () => {
+    expect(actions.pending()).toEqual({
       type: types.PENDING_UPDATES,
       payload: null
     })
   })
-  it('committed', () => {
-    expect(actions.commit()).eqls({
+  test('committed', () => {
+    expect(actions.commit()).toEqual({
       type: types.COMMITTED_UPDATES,
       payload: null
     })

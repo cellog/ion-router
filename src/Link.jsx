@@ -4,6 +4,7 @@ import RouteParser from 'route-parser'
 import invariant from 'invariant'
 
 import * as actions from './actions'
+import Context from './Context'
 
 const urlShape = PropTypes.oneOfType([
   PropTypes.string,
@@ -17,30 +18,39 @@ const urlShape = PropTypes.oneOfType([
 ])
 
 class Link extends Component {
+  displayName = 'Link'
   static propTypes = {
     to: urlShape,
     replace: urlShape,
-    dispatch: PropTypes.func.isRequired,
     onClick: PropTypes.func,
     href: PropTypes.string,
     children: PropTypes.any,
     route: PropTypes.string,
-    '@@__routes': PropTypes.object,
+    __routeInfo: PropTypes.object,
   }
 
   constructor(props) {
     super(props)
     this.click = this.click.bind(this)
-    this.setupRoute(props)
+    this.state = this.setupRoute(props, true)
   }
 
-  componentWillReceiveProps(props) {
-    this.setupRoute(props)
+  componentDidUpdate(props) {
+    if (props.route !== this.props.route || props.__routeInfo !== this.props.__routeInfo) {
+      this.setupRoute(props)
+    }
   }
 
-  setupRoute(props) {
-    if (props.route && props['@@__routes'] && props['@@__routes'].routes[props.route]) {
-      this.route = new RouteParser(props['@@__routes'].routes[props.route].path)
+  setupRoute(props, set = false) {
+    if (props.route && props.__routeInfo.routes[props.route]) {
+      if (set) {
+        return { route: new RouteParser(props.__routeInfo.routes[props.route].path) }
+      }
+      this.setState({ route: new RouteParser(this.props.__routeInfo.routes[this.props.route].path) })
+    } else {
+      if (set) {
+        return {}
+      }
     }
   }
 
@@ -49,13 +59,13 @@ class Link extends Component {
     let url
     const action = this.props.replace ? 'replace' : 'push'
     if (this.props.route) {
-      url = this.route.reverse(this.props)
+      url = this.state.route.reverse(this.props)
     } else if (this.props.replace) {
       url = this.props.replace
     } else {
       url = this.props.to
     }
-    this.props.dispatch(actions[action](url))
+    this.props.__routeInfo.dispatch(actions[action](url))
     if (this.props.onClick) {
       this.props.onClick(e)
     }
@@ -63,7 +73,7 @@ class Link extends Component {
 
   render() {
     const {
-      '@@__routes': unused, dispatch, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
+      __routeInfo: unused, children, href, replace, to, route, onClick, ...props // eslint-disable-line no-unused-vars
     } = this.props
     const validProps = [
       'download', 'hrefLang', 'referrerPolicy', 'rel', 'target', 'type',
@@ -78,8 +88,8 @@ class Link extends Component {
     }, {})
     invariant(!href, 'href should not be passed to Link, use "to," "replace" or "route" (passed "%s")', href)
     let landing = replace || to || ''
-    if (this.route) {
-      landing = this.route.reverse(props)
+    if (this.state.route) {
+      landing = this.state.route.reverse(props)
     } else if (landing.pathname) {
       landing = `${landing.pathname}${'' + landing.search}${'' + landing.hash}` // eslint-disable-line prefer-template
     }
@@ -93,23 +103,14 @@ class Link extends Component {
 
 export { Link }
 
-export const Placeholder = () => {
-  throw new Error('call connectLink with the connect function from react-redux to ' +
-    'initialize Link (see https://github.com/cellog/ion-router/issues/1)')
+const ContextLink = props => (
+  <Context.Consumer>
+    {info => (<Link {...props} __routeInfo={info}>{props.children}</Link>)}
+  </Context.Consumer>
+)
+
+ContextLink.propTypes = {
+  children: PropTypes.any
 }
 
-export function getConnectedLink(connect, storeKey = 'store') {
-  return connect(state => ({
-    '@@__routes': state.routing.routes
-  }), undefined, undefined, { storeKey })(Link)
-}
-
-let ConnectedLink = null
-
-export function connectLink(connect, storeKey = 'store') {
-  ConnectedLink = getConnectedLink(connect, storeKey)
-}
-
-const ConnectLink = props => (ConnectedLink ? <ConnectedLink {...props} /> : <Placeholder />)
-
-export default ConnectLink
+export default ContextLink

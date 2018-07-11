@@ -10,9 +10,9 @@ import * as enhancers from '../src/enhancers'
 import { sagaStore } from './test_helper'
 
 describe('middleware', () => {
-  it('subscribes to history', () => {
+  test('subscribes to history', () => {
     const spy = {
-      listen: sinon.spy(),
+      listen: jest.fn(),
       location: {
         pathname: 'hi',
         search: '',
@@ -20,7 +20,7 @@ describe('middleware', () => {
       }
     }
     const store = {
-      dispatch: sinon.spy(),
+      dispatch: jest.fn(),
       routerOptions: {
         server: false,
         enhancedRoutes: {},
@@ -29,53 +29,53 @@ describe('middleware', () => {
       }
     }
     const mid = createMiddleware(spy)
-    expect(mid(store)).is.instanceof(Function)
-    expect(store.dispatch.called).is.true
-    expect(store.dispatch.args[0]).eqls([actions.route({
+    expect(mid(store)).toBeInstanceOf(Function)
+    expect(store.dispatch).toBeCalled()
+    expect(store.dispatch).toBeCalledWith(actions.route({
       pathname: 'hi',
       search: '',
       hash: ''
-    })])
-    expect(spy.listen).called
-    expect(spy.listen.args[0][0]).is.instanceof(Function)
-    spy.listen.args[0][0]({
+    }))
+    expect(spy.listen).toBeCalled()
+    expect(spy.listen.mock.calls[0][0]).toBeInstanceOf(Function)
+    spy.listen.mock.calls[0][0]({
       pathname: 'foo',
       search: '',
       hash: ''
     })
-    expect(store.dispatch.args[1]).eqls([actions.route({
+    expect(store.dispatch.mock.calls[1]).toEqual([actions.route({
       pathname: 'foo',
       search: '',
       hash: ''
     })])
-    store.dispatch = sinon.spy()
-    spy.listen.args[0][0]({
+    store.dispatch = jest.fn()
+    spy.listen.mock.calls[0][0]({
       pathname: 'foo',
       search: '',
       hash: ''
     })
-    expect(store.dispatch.called).is.false
+    expect(store.dispatch.mock.calls.length).toBe(0)
   })
   let history
   let opts
   function makeStuff(spies = actionHandlers, reducers = undefined, debug = false) {
     return sagaStore(undefined, reducers, [], storeEnhancer(history, spies, debug, opts))
   }
-  it('throws on action with false route', () => {
+  test('throws on action with false route', () => {
     expect(() => {
       const { store } = makeStuff()
       store.dispatch(actions.push(false))
-    }).throws('ion-router action push must be a string or a location object')
+    }).toThrow('ion-router action push must be a string or a location object')
   })
-  it('does not throw on goBack or goForward', () => {
+  test('does not throw on goBack or goForward', () => {
     expect(() => {
       const { store } = makeStuff()
       store.dispatch(actions.goBack())
-    }).to.not.throw()
+    }).not.toThrowError()
     expect(() => {
       const { store } = makeStuff()
       store.dispatch(actions.goForward())
-    }).to.not.throw()
+    }).not.toThrowError()
   })
   describe('normal functionality tests', () => {
     beforeEach(() => {
@@ -86,8 +86,8 @@ describe('middleware', () => {
         enhancedRoutes: {}
       }
     })
-    it('calls ignore when receiving an action in process', () => {
-      const spy = sinon.spy()
+    test('calls ignore when receiving an action in process', () => {
+      const spy = jest.fn()
       const spies = {
         '*': enhancedRoutes => ({
           newEnhancedRoutes: enhancedRoutes,
@@ -102,8 +102,8 @@ describe('middleware', () => {
       }
       const info = makeStuff(spies)
       info.store.dispatch(actions.route('/hi'))
-      expect(spy.called).is.true
-      expect(info.log).eqls([
+      expect(spy).toBeCalled()
+      expect(info.log).toEqual([
         actions.route({ pathname: '/',
           search: '',
           hash: '',
@@ -114,11 +114,11 @@ describe('middleware', () => {
       ])
       createMiddleware() // coverage of default options
     })
-    it('calls console.info when debug is true', () => {
+    test('calls console.info when debug is true', () => {
       const orig = console.info // eslint-disable-line
       try {
-        console.info = sinon.spy() // eslint-disable-line
-        const spy = sinon.spy()
+        console.info = jest.fn() // eslint-disable-line
+        const spy = jest.fn()
         const spies = {
           '*': enhancedRoutes => ({
             newEnhancedRoutes: enhancedRoutes,
@@ -133,15 +133,15 @@ describe('middleware', () => {
         }
         const info = makeStuff(spies, undefined, true)
         info.store.dispatch(actions.route('/hi'))
-        expect(console.info.called).is.true // eslint-disable-line
-        expect(console.info.args[0]).eqls(['ion-router PROCESSING: @@ion-router/ROUTE']) // eslint-disable-line
-        expect(console.info.args[1]).eqls(['dispatching: ', [{ type: 'foo' }]]) // eslint-disable-line
+        expect(console.info).toBeCalled() // eslint-disable-line
+        expect(console.info.mock.calls[0]).toEqual(['ion-router PROCESSING: @@ion-router/ROUTE']) // eslint-disable-line
+        expect(console.info.mock.calls[1]).toEqual(['dispatching: ', [{ type: 'foo' }]]) // eslint-disable-line
       } finally {
         console.info = orig // eslint-disable-line
       }
     })
-    it('calls an action handler', () => {
-      const spy = sinon.spy()
+    test('calls an action handler', () => {
+      const spy = jest.fn()
       const spies = {
         hithere: (enhancedRoutes, state, action) => {
           spy(enhancedRoutes, state, action)
@@ -154,13 +154,13 @@ describe('middleware', () => {
       const info = makeStuff(spies)
       const action = { type: 'hithere' }
       info.store.dispatch(action)
-      expect(spy.called).is.true
-      expect(spy.args[0][0]).equals(opts.enhancedRoutes)
-      expect(spy.args[0][1]).equals(info.store.getState())
-      expect(spy.args[0][2]).equals(action)
+      expect(spy).toBeCalled()
+      expect(spy.mock.calls[0][0]).toBe(opts.enhancedRoutes)
+      expect(spy.mock.calls[0][1]).toBe(info.store.getState())
+      expect(spy.mock.calls[0][2]).toBe(action)
     })
-    it('ignores actions triggered in toDispatch', () => {
-      const spy = sinon.spy()
+    test('ignores actions triggered in toDispatch', () => {
+      const spy = jest.fn()
       const spies = {
         ...actionHandlers,
         hithere: (enhancedRoutes, state, action) => {
@@ -173,18 +173,18 @@ describe('middleware', () => {
       }
       const info = makeStuff(spies, {
         routing: routerReducer,
-        bar: (state = '', action) => (action.type === 'hithere' ? 'wow' : '')
+        bar: (state = '', action) => (action.type === 'hithere' ? 'wow' : '') // eslint-disable-line
       })
       const oldState = info.store.getState()
       const action = { type: 'hithere' }
       info.store.dispatch(action)
-      expect(spy.called).is.true
-      expect(spy.args[0][0]).equals(opts.enhancedRoutes)
+      expect(spy).toBeCalled()
+      expect(spy.mock.calls[0][0]).toBe(opts.enhancedRoutes)
       // shows we pass old state
-      expect(spy.args[0][1]).equals(oldState)
-      expect(spy.args[0][2]).equals(action)
-      expect(spy.args.length).eqls(1)
-      expect(info.log).eqls([
+      expect(spy.mock.calls[0][1]).toBe(oldState)
+      expect(spy.mock.calls[0][2]).toBe(action)
+      expect(spy.mock.calls.length).toEqual(1)
+      expect(info.log).toEqual([
         actions.route({ pathname: '/',
           search: '',
           hash: '',
@@ -194,8 +194,8 @@ describe('middleware', () => {
         { type: 'hithere' },
       ])
     })
-    it('triggers * for unknown actions', () => {
-      const spy = sinon.spy()
+    test('triggers * for unknown actions', () => {
+      const spy = jest.fn()
       const spies = {
         '*': (enhancedRoutes, state, action) => {
           spy(enhancedRoutes, state, action)
@@ -208,22 +208,22 @@ describe('middleware', () => {
 
       const info = makeStuff(spies, {
         routing: routerReducer,
-        bar: (state = '', action) => (action.type === 'hithere' ? 'wow' : '')
+        bar: (state = '', action) => (action.type === 'hithere' ? 'wow' : '') // eslint-disable-line
       })
       const action = { type: 'hithere' }
       info.store.dispatch(action)
-      expect(spy.called).is.true
-      expect(spy.args[0][0]).equals(opts.enhancedRoutes)
+      expect(spy).toBeCalled()
+      expect(spy.mock.calls[0][0]).toBe(opts.enhancedRoutes)
       // next line shows we pass the new state and not old state
-      expect(spy.args[0][1]).eqls({
+      expect(spy.mock.calls[0][1]).toEqual({
         routing: {
           ...routerReducer(),
           location: history.location
         },
         bar: 'wow'
       })
-      expect(spy.args[0][2]).equals(action)
-      expect(info.log).eqls([
+      expect(spy.mock.calls[0][2]).toBe(action)
+      expect(info.log).toEqual([
         actions.route({ pathname: '/',
           search: '',
           hash: '',
@@ -232,7 +232,7 @@ describe('middleware', () => {
         { type: 'hithere' },
       ])
     })
-    it('url action handling', () => {
+    test('url action handling', () => {
       const duds = {
         ...actionHandlers,
         [types.ROUTE]: newEnhancedRoutes => ({
@@ -242,7 +242,7 @@ describe('middleware', () => {
       }
       const info = makeStuff(duds)
       info.store.dispatch(actions.push('/foo'))
-      expect(info.log).eqls([
+      expect(info.log).toEqual([
         actions.route({ pathname: '/',
           search: '',
           hash: '',
@@ -252,12 +252,12 @@ describe('middleware', () => {
         actions.route(info.log[2].payload)
       ])
     })
-    it('state action handling passes new state to handler', () => {
+    test('state action handling passes new state to handler', () => {
 
     })
   })
   describe('action handlers', () => {
-    it('EDIT_ROUTE', () => {
+    test('EDIT_ROUTE', () => {
       const enhanced = {}
       const testenhanced = enhanced
       const state = {
@@ -272,7 +272,7 @@ describe('middleware', () => {
       expect(actionHandlers[types.EDIT_ROUTE](enhanced, state, actions.addRoute({
         name: 'foo',
         path: '/hi'
-      }))).eqls({
+      }))).toEqual({
         newEnhancedRoutes: enhancers.save(actions.addRoute({
           name: 'foo',
           path: '/hi'
@@ -283,10 +283,10 @@ describe('middleware', () => {
         ]
       })
       // verify purity of the function
-      expect(enhanced).equals(testenhanced)
-      expect(state).equals(teststate)
+      expect(enhanced).toBe(testenhanced)
+      expect(state).toBe(teststate)
     })
-    it('BATCH_ROUTES', () => {
+    test('BATCH_ROUTES', () => {
       const enhanced = {}
       const testenhanced = enhanced
       const state = {
@@ -305,7 +305,7 @@ describe('middleware', () => {
         name: 'bar',
         path: '/there'
       }])
-      expect(actionHandlers[types.BATCH_ROUTES](enhanced, state, action)).eqls({
+      expect(actionHandlers[types.BATCH_ROUTES](enhanced, state, action)).toEqual({
         newEnhancedRoutes: enhancers.save(action.payload.routes.bar,
           enhancers.save(action.payload.routes.foo, enhanced)),
         toDispatch: [
@@ -314,10 +314,10 @@ describe('middleware', () => {
         ]
       })
       // verify purity of the function
-      expect(enhanced).equals(testenhanced)
-      expect(state).equals(teststate)
+      expect(enhanced).toBe(testenhanced)
+      expect(state).toBe(teststate)
     })
-    it('REMOVE_ROUTE', () => {
+    test('REMOVE_ROUTE', () => {
       const enhanced = {
         foo: {
           name: 'foo',
@@ -328,15 +328,15 @@ describe('middleware', () => {
       const state = {}
       const teststate = state
       const action = actions.removeRoute('foo')
-      expect(actionHandlers[types.REMOVE_ROUTE](enhanced, state, action)).eqls({
+      expect(actionHandlers[types.REMOVE_ROUTE](enhanced, state, action)).toEqual({
         newEnhancedRoutes: {},
         toDispatch: []
       })
       // verify purity of the function
-      expect(enhanced).equals(testenhanced)
-      expect(state).equals(teststate)
+      expect(enhanced).toBe(testenhanced)
+      expect(state).toBe(teststate)
     })
-    it('BATCH_REMOVE_ROUTES', () => {
+    test('BATCH_REMOVE_ROUTES', () => {
       const enhanced = {
         foo: {
           name: 'foo',
@@ -351,13 +351,13 @@ describe('middleware', () => {
       const state = {}
       const teststate = state
       const action = actions.batchRemoveRoutes([enhanced.foo, enhanced.bar])
-      expect(actionHandlers[types.BATCH_REMOVE_ROUTES](enhanced, state, action)).eqls({
+      expect(actionHandlers[types.BATCH_REMOVE_ROUTES](enhanced, state, action)).toEqual({
         newEnhancedRoutes: {},
         toDispatch: []
       })
       // verify purity of the function
-      expect(enhanced).equals(testenhanced)
-      expect(state).equals(teststate)
+      expect(enhanced).toBe(testenhanced)
+      expect(state).toBe(teststate)
     })
   })
   describe('routing handlers', () => {
@@ -428,13 +428,13 @@ describe('middleware', () => {
       }
       teststate = state
     })
-    it('ROUTE', () => {
+    test('ROUTE', () => {
       const action = actions.route({
         pathname: '/foo/hi',
         search: '',
         hash: ''
       })
-      expect(actionHandlers[types.ROUTE](enhanced, state, action)).eqls({
+      expect(actionHandlers[types.ROUTE](enhanced, state, action)).toEqual({
         newEnhancedRoutes: {
           ...enhanced,
           bar: {
@@ -459,23 +459,23 @@ describe('middleware', () => {
         ]
       })
       // verify purity of the function
-      expect(enhanced).equals(testenhanced)
-      expect(state).equals(teststate)
+      expect(enhanced).toBe(testenhanced)
+      expect(state).toBe(teststate)
     })
-    it('ACTION', () => {
+    test('ACTION', () => {
       const action = actions.push('/foo')
-      expect(actionHandlers[types.ACTION](enhanced, state, action)).eqls({
+      expect(actionHandlers[types.ACTION](enhanced, state, action)).toEqual({
         newEnhancedRoutes: enhanced,
         toDispatch: []
       })
     })
-    it('*', () => {
+    test('*', () => {
       expect(actionHandlers['*'](enhanced, {
         ...state,
         bar: {
           hi: 'bye'
         },
-      })).eqls({
+      })).toEqual({
         newEnhancedRoutes: {
           ...enhanced,
           bar: {
@@ -490,8 +490,8 @@ describe('middleware', () => {
         ],
       })
       // verify purity of the function
-      expect(enhanced).equals(testenhanced)
-      expect(state).equals(teststate)
+      expect(enhanced).toBe(testenhanced)
+      expect(state).toBe(teststate)
     })
   })
 })

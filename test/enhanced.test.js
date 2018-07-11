@@ -2,14 +2,14 @@ import RouteParser from 'route-parser'
 import * as enhance from '../src/enhancers'
 
 describe('enhanced route store', () => {
-  it('fake', () => {
-    expect(enhance.fake('hi')).eqls({})
+  test('fake', () => {
+    expect(enhance.fake('hi')).toEqual({})
   })
-  it('save', () => {
+  test('save', () => {
     expect(enhance.save({
       name: 'thing',
       path: '/another'
-    }, {})).eqls({
+    }, {})).toEqual({
       thing: {
         ...enhance.enhanceRoute({
           name: 'thing',
@@ -18,11 +18,11 @@ describe('enhanced route store', () => {
       }
     })
   })
-  it('enhanceRoute', () => {
+  test('enhanceRoute', () => {
     expect(enhance.enhanceRoute({
       name: 'thing',
       path: '/another'
-    })).eqls({
+    })).toEqual({
       stateFromParams: enhance.fake,
       paramsFromState: enhance.fake,
       updateState: {},
@@ -36,7 +36,7 @@ describe('enhanced route store', () => {
     expect(enhance.enhanceRoute({
       name: 'thing',
       path: '/:another'
-    })).eqls({
+    })).toEqual({
       stateFromParams: enhance.fake,
       paramsFromState: enhance.fake,
       updateState: {},

@@ -1,9 +1,16 @@
 language: node_js
 node_js:
 - node
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
 - npm run lint
 - npm test
+after_script:
+  - ./cc-test-reporter upload-coverage test/lcov/lcov.info
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 addons:
   code_climate:
     repo_token: 397a76c7a85f125871038a8628f6db16f4ce916e74c2dcfeea3f21364f946f7a

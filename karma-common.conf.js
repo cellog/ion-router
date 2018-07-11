@@ -1,5 +1,5 @@
 /* eslint no-var: 0, babel/object-shorthand: 0, vars-on-top: 0 */
-require('babel-register') // eslint-disable-line
+require('@babel/register') // eslint-disable-line
 
 var isCI = process.env.CONTINUOUS_INTEGRATION === 'true'
 var reporters = ['mocha', 'BrowserStack', 'coverage']
@@ -55,7 +55,7 @@ module.exports = function (config, extraoptions) {
     frameworks,
 
     files: [
-      '../../node_modules/babel-polyfill/dist/polyfill.js',
+      '../../node_modules/@babel/polyfill/dist/polyfill.js',
       '../**/*.test.js'
     ],
 

@@ -1,7 +1,7 @@
 import * as selectors from '../src/selectors'
 
 describe('selectors', () => {
-  it('matchedRoute', () => {
+  test('matchedRoute', () => {
     const state = {
       routing: {
         matchedRoutes: [
@@ -9,14 +9,14 @@ describe('selectors', () => {
         ]
       }
     }
-    expect(selectors.matchedRoute(state, 'foo')).eqls(true)
-    expect(selectors.matchedRoute(state, 'bar')).eqls(false)
-    expect(selectors.matchedRoute(state, ['foo'])).eqls(true)
-    expect(selectors.matchedRoute(state, ['foo', 'bar'])).eqls(true)
-    expect(selectors.matchedRoute(state, ['foo', 'bar'], true)).eqls(false)
-    expect(selectors.matchedRoute(state, ['bar'])).eqls(false)
-    expect(selectors.matchedRoute(state, ['foo', 'gronk'])).eqls(true)
-    expect(selectors.matchedRoute(state, ['foo', 'gronk'], true)).eqls(true)
+    expect(selectors.matchedRoute(state, 'foo')).toEqual(true)
+    expect(selectors.matchedRoute(state, 'bar')).toEqual(false)
+    expect(selectors.matchedRoute(state, ['foo'])).toEqual(true)
+    expect(selectors.matchedRoute(state, ['foo', 'bar'])).toEqual(true)
+    expect(selectors.matchedRoute(state, ['foo', 'bar'], true)).toEqual(false)
+    expect(selectors.matchedRoute(state, ['bar'])).toEqual(false)
+    expect(selectors.matchedRoute(state, ['foo', 'gronk'])).toEqual(true)
+    expect(selectors.matchedRoute(state, ['foo', 'gronk'], true)).toEqual(true)
   })
   const mystate = {
     routing: {
@@ -36,19 +36,19 @@ describe('selectors', () => {
       }
     }
   }
-  it('oldState', () => {
-    expect(selectors.oldState(mystate, 'foo')).eqls({
+  test('oldState', () => {
+    expect(selectors.oldState(mystate, 'foo')).toEqual({
       hi: 'hi'
     })
   })
-  it('oldState', () => {
-    expect(selectors.oldParams(mystate, 'foo')).eqls({
+  test('oldState', () => {
+    expect(selectors.oldParams(mystate, 'foo')).toEqual({
       hi: 'there'
     })
   })
-  it('stateExists', () => {
-    expect(selectors.stateExists({}, { hi: false })).eqls(false)
-    expect(selectors.stateExists({ hi: 'there' }, { hi: '' })).eqls(true)
+  test('stateExists', () => {
+    expect(selectors.stateExists({}, { hi: false })).toEqual(false)
+    expect(selectors.stateExists({ hi: 'there' }, { hi: '' })).toEqual(true)
     expect(selectors.stateExists({
       hi: {
         subthing: 'there'
@@ -57,7 +57,7 @@ describe('selectors', () => {
       hi: {
         subthing: ''
       }
-    })).eqls(true)
+    })).toEqual(true)
     expect(selectors.stateExists({
       hi: {
         subthing: {
@@ -69,7 +69,7 @@ describe('selectors', () => {
           another: false
         }
       }
-    })).eqls(false)
+    })).toEqual(false)
     expect(selectors.stateExists({
       hi: {
         ids: [],
@@ -81,7 +81,7 @@ describe('selectors', () => {
         ids: [],
         things: {},
       }
-    })).eqls(true)
+    })).toEqual(true)
     expect(selectors.stateExists({
       hi: {
         ids: [],
@@ -94,7 +94,7 @@ describe('selectors', () => {
         things: {},
         selectedThing: false
       }
-    })).eqls(false)
+    })).toEqual(false)
     expect(selectors.stateExists({
       hi: {
         ids: [],
@@ -108,7 +108,7 @@ describe('selectors', () => {
         selectedThing: (thing, state) =>
           state.hi.ids.indexOf(thing) !== -1 && state.hi.things[thing]
       }
-    })).eqls(false)
+    })).toEqual(false)
     expect(selectors.stateExists({
       hi: {
         ids: ['whatever'],
@@ -126,7 +126,7 @@ describe('selectors', () => {
         selectedThing: (thing, state) =>
           state.hi.ids.indexOf(thing) !== -1 && !!state.hi.things[thing]
       }
-    })).eqls(true)
+    })).toEqual(true)
     expect(selectors.stateExists({
       hi: {
         ids: false,
@@ -137,7 +137,7 @@ describe('selectors', () => {
         ids: [],
         sin: null
       }
-    })).eqls(false)
+    })).toEqual(false)
     expect(selectors.stateExists({}, {
       rep: {
         composers: {
@@ -151,16 +151,16 @@ describe('selectors', () => {
           selectedPiece: false
         }
       }
-    })).eqls(false)
+    })).toEqual(false)
   })
-  it('matchedRoutes', () => {
+  test('matchedRoutes', () => {
     expect(selectors.matchedRoutes({
       routing: {
         matchedRoutes: ['hi']
       }
-    })).eqls(['hi'])
+    })).toEqual(['hi'])
   })
-  it('location', () => {
+  test('location', () => {
     expect(selectors.location({
       routing: {
         location: {
@@ -169,22 +169,22 @@ describe('selectors', () => {
           hash: ''
         }
       }
-    })).eqls({
+    })).toEqual({
       pathname: 'hi',
       search: '',
       hash: ''
     })
   })
-  it('noMatches', () => {
+  test('noMatches', () => {
     expect(selectors.noMatches({
       routing: {
         matchedRoutes: []
       }
-    })).eqls(true)
+    })).toEqual(true)
     expect(selectors.noMatches({
       routing: {
         matchedRoutes: ['hi']
       }
-    })).eqls(false)
+    })).toEqual(false)
   })
 })

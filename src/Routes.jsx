@@ -1,67 +1,89 @@
-import React, { Component, Children } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+
 import * as actions from './actions'
+import Context from './Context'
 
-export const RawRoutes = (storeKey = 'store') => class extends Component {
+class Routes extends Component {
   static propTypes = {
-    dispatch: PropTypes.func,
+    store: PropTypes.object.isRequired,
     children: PropTypes.any,
-    '@@__routes': PropTypes.object,
-  }
-
-  static contextTypes = {
-    [storeKey]: PropTypes.object
   }
 
   constructor(props, context) {
     super(props, context)
     this.addRoute = this.addRoute.bind(this)
     this.myRoutes = []
-    this.isServer = this.context[storeKey].routerOptions.isServer
+    this.isServer = this.props.store.routerOptions.isServer
+    this.state = {
+      store: props.store,
+      routes: props.store.getState().routing.routes.routes
+    }
+    this.subscribe = this.subscribe.bind(this)
+    this.unsubscribe = props.store.subscribe(this.subscribe)
   }
 
+  componentDidUpdate(props) {
+    if (props.store !== this.state.store) {
+      this.setState({
+        store: props.store,
+        routes: props.store.getState().routing.routes.routes
+      })
+    }
+  }
   componentDidMount() {
-    this.props.dispatch(actions.batchRoutes(this.myRoutes))
+    this.state.store.dispatch(actions.batchRoutes(this.myRoutes))
   }
 
   componentWillUnmount() {
-    this.props.dispatch(actions.batchRemoveRoutes(this.myRoutes))
+    this.unsubscribe()
+    this.state.store.dispatch(actions.batchRemoveRoutes(this.myRoutes))
+  }
+
+  subscribe() {
+    const newRoutes = this.state.store.getState().routing.routes.routes
+    if (newRoutes !== this.state.routes) {
+      this.setState({
+        routes: newRoutes
+      })
+    }
   }
 
   addRoute(route) {
     this.myRoutes.push(route)
     if (this.isServer) {
-      this.props.dispatch(actions.addRoute(route))
+      this.state.store.dispatch(actions.addRoute(route))
     }
   }
 
   render() {
-    const { dispatch, '@@__routes': routes, children } = this.props // eslint-disable-line
-    return (<div style={{ display: 'none' }}>
-      {children && Children.map(children, child => React.cloneElement(child, {
-        '@@__routes': routes,
-        '@@AddRoute': this.addRoute,
-      }))}
-    </div>)
+    const { store, children } = this.props
+    const value = {
+      dispatch: store.dispatch,
+      routes: this.state.routes,
+      addRoute: this.addRoute,
+      store: this.state.store,
+    }
+    return (<Context.Provider value={value}>
+      {children}
+    </Context.Provider>)
   }
 }
 
-export const Placeholder = () => {
-  throw new Error('call connectRoutes with the connect function from react-redux to ' +
-    'initialize Routes (see https://github.com/cellog/ion-router/issues/1)')
+function ChooseRoutes({ store, children }) {
+  if (!store) {
+    return (
+      <>
+        {children}
+      </>
+    )
+  }
+  return <Routes store={store}>{children}</Routes>
 }
 
-export function getConnectedRoutes(connect, storeKey = 'store', Raw = RawRoutes(storeKey)) {
-  return connect(state => ({ '@@__routes': state.routing.routes.routes }),
-    undefined, undefined, { storeKey })(Raw)
+ChooseRoutes.propTypes = {
+  store: PropTypes.object,
+  children: PropTypes.any
 }
 
-let ConnectedRoutes = null
-
-export function connectRoutes(connect, storeKey = 'store', Raw = RawRoutes(storeKey)) {
-  ConnectedRoutes = getConnectedRoutes(connect, storeKey, Raw)
-}
-
-const ConnectRoutes = props => (ConnectedRoutes ? <ConnectedRoutes {...props} /> : <Placeholder />)
-
-export default ConnectRoutes
+export default ChooseRoutes
