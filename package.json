@@ -10,13 +10,13 @@
   "scripts": {
     "build": "npm run clean && babel src --out-dir lib",
     "clean": "rimraf lib/",
-    "local-test": "./local-test.env",
+    "local-test": "npx jest --watch --coverage ./test/*.test.*",
     "lint": "eslint --ext jsx --ext js src test",
     "test": "npx jest --coverage ./test/*.test.*",
     "release": "npm run build && npm publish"
   },
   "jest": {
-    "coverageDirectory": "./test/lcov"
+    "coverageDirectory": "./coverage"
   },
   "repository": {
     "type": "git",

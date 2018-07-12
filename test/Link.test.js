@@ -1,11 +1,32 @@
-import React from 'react'
+import React, { SyntheticEvent }  from 'react'
 
 import ConnectLink, { Link } from '../src/Link'
 import { push, replace } from '../src/actions'
 import { renderComponent } from './test_helper'
+import RouteParser from "route-parser";
 
 
 describe('Link', () => {
+  test('outside proper context', () => {
+    const component = renderComponent(Link, {
+      route: 'hi',
+      there: 'baby',
+      __routeInfo: {
+        dispatch: () => null,
+        routes: {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          }
+        }
+      },
+    })
+    expect(component.find(Link).instance().state.route).toEqual(new RouteParser('/hi/:there'))
+    const nowState = component.find(Link).instance().state.route
+    component.props({})
+    component.update()
+    expect(component.find(Link).instance().state.route).toBe(nowState)
+  })
   test('dispatches replace', () => {
     const dispatch = jest.fn()
     const component = renderComponent(Link, { __routeInfo: { dispatch }, replace: '/hi' })
@@ -22,6 +43,28 @@ describe('Link', () => {
     expect(dispatch.mock.calls.length).toBe(1)
     expect(dispatch.mock.calls[0]).toEqual([push({ pathname: '/hi', search: '?foo', hash: '#ar', state: { foo: 'bar' } })])
   })
+  test('calls original onClick', () => {
+    const dispatch = jest.fn()
+    const onClick = jest.fn()
+    const component = renderComponent(Link, {
+      __routeInfo: { dispatch },
+      to: {
+        pathname: '/hi',
+        search: '?foo',
+        hash: '#ar',
+        state: { foo: 'bar' }
+      },
+      onClick
+    })
+    component.find('a').simulate('click', { target: 'hi' })
+    expect(component.find('a').prop('href')).toEqual('/hi?foo#ar')
+    expect(dispatch.mock.calls.length).toBe(1)
+    expect(dispatch.mock.calls[0]).toEqual([push({ pathname: '/hi', search: '?foo', hash: '#ar', state: { foo: 'bar' } })])
+    expect(onClick).toBeCalled()
+    expect(onClick).toBeCalledWith(expect.objectContaining({
+      target: 'hi'
+    }))
+  })
   test('renders children', () => {
     const dispatch = jest.fn()
     const Far = () => <Link to="/hi" dispatch={() => null}><div>foo</div></Link> // eslint-disable-line
@@ -30,9 +73,19 @@ describe('Link', () => {
   })
   test('dispatches actions when initialized', () => {
   })
-  test('errors (in dev) on href passed in', () => {
-    expect(() => renderComponent(ConnectLink, { __routeInfo: { dispatch: () => null }, href: '/hi' }, {}, true))
-      .toThrow('href should not be passed to Link, use "to," "replace" or "route" (passed "/hi")')
+  describe('errors', () => {
+    let c
+    beforeEach(() => {
+      c = console.error
+      console.error = () => null
+    })
+    afterEach(() => {
+      console.error = c
+    })
+    test('errors (in dev) on href passed in', () => {
+      expect(() => renderComponent(ConnectLink, { __routeInfo: { dispatch: () => null }, href: '/hi' }, {}, true))
+        .toThrow('href should not be passed to Link, use "to," "replace" or "route" (passed "/hi")')
+    })
   })
   describe('generates the correct path when route option is used', () => {
     test('push', () => {

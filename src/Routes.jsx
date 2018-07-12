@@ -24,20 +24,24 @@ class Routes extends Component {
   }
 
   componentDidUpdate(props) {
-    if (props.store !== this.state.store) {
+    if (this.props.store !== props.store) {
       this.setState({
-        store: props.store,
-        routes: props.store.getState().routing.routes.routes
+        store: this.props.store,
+        routes: this.props.store.getState().routing.routes.routes
       })
     }
   }
   componentDidMount() {
-    this.state.store.dispatch(actions.batchRoutes(this.myRoutes))
+    if (this.myRoutes.length) {
+      this.state.store.dispatch(actions.batchRoutes(this.myRoutes))
+    }
   }
 
   componentWillUnmount() {
     this.unsubscribe()
-    this.state.store.dispatch(actions.batchRemoveRoutes(this.myRoutes))
+    if (this.myRoutes.length) {
+      this.state.store.dispatch(actions.batchRemoveRoutes(this.myRoutes))
+    }
   }
 
   subscribe() {
