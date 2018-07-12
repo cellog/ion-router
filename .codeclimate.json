@@ -36,6 +36,7 @@
     ".storybook/",
     "test/",
     "examples/",
-    "wallaby.js"
+    "wallaby.js",
+    "docs/"
   ]
 }
