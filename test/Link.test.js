@@ -1,9 +1,9 @@
-import React, { SyntheticEvent }  from 'react'
+import React  from 'react'
 
 import ConnectLink, { Link } from '../src/Link'
 import { push, replace } from '../src/actions'
 import { renderComponent } from './test_helper'
-import RouteParser from "route-parser";
+import RouteParser from "route-parser"
 
 
 describe('Link', () => {
@@ -76,11 +76,11 @@ describe('Link', () => {
   describe('errors', () => {
     let c
     beforeEach(() => {
-      c = console.error
-      console.error = () => null
+      c = console.error // eslint-disable-line
+      console.error = () => null // eslint-disable-line
     })
     afterEach(() => {
-      console.error = c
+      console.error = c // eslint-disable-line
     })
     test('errors (in dev) on href passed in', () => {
       expect(() => renderComponent(ConnectLink, { __routeInfo: { dispatch: () => null }, href: '/hi' }, {}, true))

@@ -4,7 +4,7 @@ import Route, {fake} from '../src/Route'
 import Context from '../src/Context'
 import * as enhancers from '../src/enhancers'
 import { renderComponent, sagaStore } from './test_helper'
-import * as actions from "../src/actions";
+import * as actions from "../src/actions"
 
 jest.mock('../src/Context')
 
