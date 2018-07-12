@@ -1,0 +1,41 @@
+{
+  "version": "2",
+  "plugins": {
+    "eslint": {
+      "enabled": true,
+      "channel": "eslint-4",
+      "config": {
+        "extensions": [
+          ".js",
+          ".jsx"
+        ]
+      },
+      "checks": {
+        "complexity": {
+          "enabled": true
+        },
+        "react/require-extensions": {
+          "enabled": false
+        }
+      },
+      "exclude_fingerprints": [
+        "71e4a5cf3764ccc996875dd8c72112db",
+        "c6734c0621047f7dd7f475259f61d063",
+        "7061fe03cece5d4a19066647c5acd738",
+        "2128d3b42dfe30300804ee4ad774bffc",
+        "f47b36ac9d4590110806f10eb8a9ebff",
+        "3bb9ef7dcc79b677447a671cb1adbec1",
+        "a0112bc6945138500fb4b2e083aa0980",
+        "8e126c9a4c86caafbc412615135e8751"
+      ]
+    }
+  },
+  "exclude_patterns": [
+    "build/",
+    "node_modules/",
+    ".storybook/",
+    "test/",
+    "examples/",
+    "wallaby.js"
+  ]
+}

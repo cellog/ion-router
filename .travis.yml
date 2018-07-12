@@ -9,7 +9,7 @@ script:
 - npm run lint
 - npm test
 after_script:
-  - ./cc-test-reporter upload-coverage test/lcov/lcov.info
+  - ./cc-test-reporter upload-coverage coverage/lcov.info
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 addons:
   code_climate:
