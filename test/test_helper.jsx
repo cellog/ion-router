@@ -51,10 +51,9 @@ function renderComponent(ComponentClass, props = {}, state = undefined, returnSt
       )
     }
   }
-  const componentInstance = enzyme.mount(
+  const ret = enzyme.mount(
     <Tester {...props} />, intoDocument ? { attachTo: intoDocument } : undefined
   )
-  const ret = componentInstance
   if (returnStore) {
     return [ret, mySagaStore.store, mySagaStore.log]
   }
