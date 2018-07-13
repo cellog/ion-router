@@ -3,6 +3,8 @@ import shallowEqual from 'shallowequal'
 
 import DisplaysChildren from './DisplaysChildren'
 import NullComponent from './NullComponent'
+import Context from './Context'
+import { connect as testconnect } from 'react-redux'
 
 export const error = () => {
   throw new Error('call connectToggle with the connect function from react-redux to ' +
@@ -67,7 +69,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
       }
       const Switcher = NullComponent(Loading,
         Component, ElseComponent, Wrapper, wrapperProps, debug)
-      const HOC = connect(scaffold, undefined, undefined, { storeKey })(Switcher)
+      const HOC = testconnect(scaffold, undefined, undefined, { storeKey })(Switcher)
       const elseName = ElseComponent.displayName || ElseComponent.name || 'Component'
       const componentName = Component.displayName || Component.name || 'Component'
       const loadingName = Loading.displayName || Loading.name || 'Component'
@@ -129,9 +131,11 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
       })
 
       const HOC = this.HOC
-      return (<HOC {...useProps}>
-        {children}
-      </HOC>)
+      return (<Context.Consumer>
+        {info => <HOC {...useProps} ____store={info.store}>
+          {children}
+        </HOC>}
+      </Context.Consumer>)
     }
   }
 

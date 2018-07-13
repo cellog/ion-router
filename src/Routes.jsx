@@ -16,8 +16,12 @@ class Routes extends Component {
     this.myRoutes = []
     this.isServer = this.props.store.routerOptions.isServer
     this.state = {
-      store: props.store,
-      routes: props.store.getState().routing.routes.routes
+      value: {
+        dispatch: props.store.dispatch,
+        routes: props.store.getState().routing.routes.routes,
+        addRoute: this.addRoute,
+        store: props.store,
+      }
     }
     this.subscribe = this.subscribe.bind(this)
     this.unsubscribe = props.store.subscribe(this.subscribe)
@@ -25,51 +29,59 @@ class Routes extends Component {
 
   componentDidUpdate(props) {
     if (this.props.store !== props.store) {
+      this.unsubscribe()
+      this.unsubscribe = this.props.store.subscribe(this.subscribe)
       this.setState({
-        store: this.props.store,
-        routes: this.props.store.getState().routing.routes.routes
+        value: {
+          dispatch: this.props.store.dispatch,
+          routes: this.props.store.getState().routing.routes.routes,
+          addRoute: this.addRoute,
+          store: this.props.store,
+        }
       })
+      this.queued = false
     }
   }
   componentDidMount() {
     if (this.myRoutes.length) {
-      this.state.store.dispatch(actions.batchRoutes(this.myRoutes))
+      this.state.value.store.dispatch(actions.batchRoutes(this.myRoutes))
     }
   }
 
   componentWillUnmount() {
     this.unsubscribe()
     if (this.myRoutes.length) {
-      this.state.store.dispatch(actions.batchRemoveRoutes(this.myRoutes))
+      this.state.value.store.dispatch(actions.batchRemoveRoutes(this.myRoutes))
     }
   }
 
   subscribe() {
-    const newRoutes = this.state.store.getState().routing.routes.routes
-    if (newRoutes !== this.state.routes) {
-      this.setState({
-        routes: newRoutes
-      })
+    const newRoutes = this.state.value.store.getState().routing.routes.routes
+    if (newRoutes !== this.state.value.routes) {
+      if (this.queued !== newRoutes) {
+        this.queued = newRoutes
+        this.setState({
+          value: {
+            dispatch: this.state.value.store.dispatch,
+            routes: newRoutes,
+            addRoute: this.addRoute,
+            store: this.state.value.store,
+          }
+        }, () => this.queued = false)
+      }
     }
   }
 
   addRoute(route) {
     this.myRoutes.push(route)
     if (this.isServer) {
-      this.state.store.dispatch(actions.addRoute(route))
+      this.state.value.store.dispatch(actions.addRoute(route))
     }
   }
 
   render() {
-    const { store, children } = this.props
-    const value = {
-      dispatch: store.dispatch,
-      routes: this.state.routes,
-      addRoute: this.addRoute,
-      store: this.state.store,
-    }
-    return (<Context.Provider value={value}>
-      {children}
+    return (<Context.Provider value={this.state.value}>
+      {this.props.children}
     </Context.Provider>)
   }
 }

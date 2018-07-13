@@ -4,6 +4,7 @@ import createHistory from 'history/createMemoryHistory'
 import { createStore, combineReducers, compose } from 'redux'
 import { connect, Provider } from 'react-redux'
 import makeRouter, { makeRouterStoreEnhancer } from 'ion-router'
+import Routes from 'ion-router/Routes'
 import routing from 'ion-router/reducer'
 
 import Browser from './Browser'
@@ -43,19 +44,22 @@ class Example extends Component {
   render() {
     return (
       <div className="example">
-        <div className="browser-panel">
-          <Provider store={this.store}>
-            {this.state.showBrowser ?
-              <Browser
-                Content={examples[this.props.example].component}
-                showSource={() => this.setState({ showBrowser: false })}
-              /> : <div /> }
-          </Provider>
-        </div>
-        <div className="source-panel">
-          <button className="mobile-showsource" onClick={() => this.setState({ showBrowser: true })}>Show Example</button>
-          <ShowSource source={examples[this.props.example].source} />
-        </div>
+          <div className="browser-panel">
+            <Provider store={this.store}>
+              <Routes store={this.store}>
+              {this.state.showBrowser ?
+                <Browser
+                  store={this.store}
+                  Content={examples[this.props.example].component}
+                  showSource={() => this.setState({ showBrowser: false })}
+                /> : <div /> }
+              </Routes>
+            </Provider>
+          </div>
+          <div className="source-panel">
+            <button className="mobile-showsource" onClick={() => this.setState({ showBrowser: true })}>Show Example</button>
+            <ShowSource source={examples[this.props.example].source} />
+          </div>
       </div>
     )
   }

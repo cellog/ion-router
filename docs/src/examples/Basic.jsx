@@ -19,6 +19,7 @@ export const reducer = {
 }
 
 function Basic(props) {
+  console.log('Basic props', props)
   return (
     <div>
       <p>
@@ -74,6 +75,11 @@ Basic.propTypes = {
   there: PropTypes.string
 }
 
-export default connect(state => state, dispatch => ({
+export default connect(state => {
+  console.log(state)
+  return ({
+  there: state.there,
+  fuckoff: true
+})}, dispatch => ({
   change: there => dispatch({ type: 'UPDATE_THERE', payload: there })
 }))(Basic)

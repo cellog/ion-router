@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { getConnectedRoutes } from 'ion-router/Routes'
+import Routes from 'ion-router/Routes'
 import { connect } from 'react-redux'
 import Route from 'ion-router/Route'
-import { getConnectedLink } from 'ion-router/Link'
+import Link from 'ion-router/Link'
 import { connectToggle } from 'ion-router/Toggle'
 import Menu from 'react-burger-menu/lib/menus/scaleRotate'
 
@@ -15,8 +15,6 @@ import examples from './examples'
 
 import test from '!!marky!../md/README.md' // eslint-disable-line
 
-const Routes = getConnectedRoutes(connect, 'mainStore')
-const Link = getConnectedLink(connect, 'mainStore')
 connectToggle(connect)
 Routes.displayName = 'FancyRoutes'
 Link.displayName = 'FancyLink'

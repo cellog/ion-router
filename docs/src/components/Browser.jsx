@@ -7,7 +7,9 @@ import 'font-awesome/css/font-awesome.min.css'
 
 import '../App.css'
 
-const Browser = ({ url = '/', back, forward, reset, showSource, Content = () => <div>hi</div> }) => (
+const Browser = ({ url = '/', back, forward, reset, showSource, Content = () => <div>hi</div>, store }) => {
+  console.log('url', url)
+  return (
   <div className="browser">
     <header>
       <button onClick={back} className="back"><span className="fa fa-chevron-left" /></button>
@@ -17,10 +19,10 @@ const Browser = ({ url = '/', back, forward, reset, showSource, Content = () => 
       <button onClick={showSource} className="mobile-showsource">View Source</button>
     </header>
     <article>
-      <Content />
+      <Content store={store} />
     </article>
   </div>
-)
+)}
 
 
 Browser.propTypes = {
@@ -32,7 +34,7 @@ Browser.propTypes = {
   Content: PropTypes.any,
 }
 
-export default connect(state => ({
+export default connect((state) => ({
   url: createPath(state.routing.location),
 }), dispatch => ({
   back: () => dispatch(actions.goBack()),

@@ -6,7 +6,7 @@
   "dependencies": {
     "font-awesome": "^4.7.0",
     "history": "^4.6.1",
-    "ion-router": "file:..",
+    "ion-router": "file:../ion-router-0.20.0.tgz",
     "markdown-loader": "^2.0.0",
     "marky-loader": "file:my-markdown-loader/",
     "prismjs-loader": "^0.0.4",
@@ -14,7 +14,7 @@
     "react": "^16.4.1",
     "react-burger-menu": "^2.0.1",
     "react-dom": "^16.4.1",
-    "react-redux": "^5.0.4",
+    "react-redux": "^5.1.0-test.1",
     "react-redux-custom-store": "^1.0.0",
     "redux": "^3.6.0"
   },

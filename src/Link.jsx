@@ -36,8 +36,8 @@ class Link extends Component {
   }
 
   componentDidUpdate(props) {
-    if (props.route !== this.props.route || props.__routeInfo !== this.props.__routeInfo) {
-      this.setupRoute(props)
+    if (props.route !== this.props.route || props.__routeInfo.routes !== this.props.__routeInfo.routes) {
+      this.setupRoute(this.props)
     }
   }
 
@@ -46,7 +46,7 @@ class Link extends Component {
       if (set) {
         return { route: new RouteParser(props.__routeInfo.routes[props.route].path) }
       }
-      this.setState({ route: new RouteParser(this.props.__routeInfo.routes[this.props.route].path) })
+      this.setState({ route: new RouteParser(props.__routeInfo.routes[props.route].path) })
     } else {
       if (set) {
         return {}

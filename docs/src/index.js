@@ -1,7 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, combineReducers, compose } from 'redux'
-import { createProvider } from 'react-redux-custom-store'
+import { createProvider } from 'react-redux'
+import Routes from 'ion-router/Routes'
 import * as ion from 'ion-router'
 import routing from 'ion-router/reducer'
 import examples from './redux/example'
@@ -24,7 +25,9 @@ const store = createStore(reducer, undefined,
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <Routes store={store}>
+      <App />
+    </Routes>
   </Provider>,
   document.getElementById('root')
 )
