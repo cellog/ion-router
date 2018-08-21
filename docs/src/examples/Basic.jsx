@@ -6,6 +6,8 @@ import Route from 'ion-router/Route'
 import Toggle from 'ion-router/Toggle'
 import RouteToggle from 'ion-router/RouteToggle'
 import Link from 'ion-router/Link'
+import { If, Else } from 'ion-router'
+import { matchedRoute } from 'ion-router/selectors'
 
 const HiThereToggle = RouteToggle('hithere')
 const ThereToggle = Toggle(state => state.there === 'Greg')
@@ -24,7 +26,7 @@ function Basic(props) {
     <div>
       <p>
         This simple example demonstrates using <code>Link</code>,
-        <code>Routes</code>, <code>Route</code>, and two toggles,
+        <code>Routes</code>, <code>Route</code>, and ReduxMatch,
         <code>RouteToggle</code> and <code>Toggle</code>.
       </p>
       <ul>
@@ -38,6 +40,14 @@ function Basic(props) {
           <input value={props.there} onChange={e => props.change(e.target.value)} />
         </li>
       </ul>
+      <If selector={state => matchedRoute(state, 'hithere')}>
+        <div>
+          Hi {props.there}!
+          <If selector={state => state.there === 'Greg'}>
+            <div>It&apos;s Greg!!</div>
+          </If>
+        </div>
+      </If>
       <HiThereToggle
         component={() => (
           <div>

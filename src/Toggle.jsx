@@ -5,6 +5,19 @@ import DisplaysChildren from './DisplaysChildren'
 import NullComponent from './NullComponent'
 import Context from './Context'
 import { connect as testconnect } from 'react-redux'
+import { Context as ReduxContext } from 'react-redux'
+import { If, Else } from './If'
+
+export default function({ selector, loading = () => true, componentLoadingMap = {} }) {
+  const map = {
+    component: 'component',
+
+    ...componentLoadingMap
+  }
+  return function Toggle({ }) {
+
+  }
+}
 
 export const error = () => {
   throw new Error('call connectToggle with the connect function from react-redux to ' +
@@ -27,7 +40,7 @@ const defaults = {
 defaults.else.displayName = 'null'
 defaults.loadingComponent.displayName = 'null'
 
-export default (isActive, loaded = () => true, componentLoadingMap = {}, debug = false, storeKey = 'store') => {
+const old = (isActive, loaded = () => true, componentLoadingMap = {}, debug = false, consumer = ReduxContext.Consumer) => {
   const scaffold = (state, rProps) => {
     const loadedTest = !!loaded(state, rProps)
     return {
@@ -69,7 +82,7 @@ export default (isActive, loaded = () => true, componentLoadingMap = {}, debug =
       }
       const Switcher = NullComponent(Loading,
         Component, ElseComponent, Wrapper, wrapperProps, debug)
-      const HOC = testconnect(scaffold, undefined, undefined, { storeKey })(Switcher)
+      const HOC = testconnect(scaffold, undefined, undefined, { consumer })(Switcher)
       const elseName = ElseComponent.displayName || ElseComponent.name || 'Component'
       const componentName = Component.displayName || Component.name || 'Component'
       const loadingName = Loading.displayName || Loading.name || 'Component'

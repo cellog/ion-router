@@ -3,14 +3,17 @@ import Toggle, { connectToggle, error } from '../src/Toggle'
 import NullComponent from '../src/NullComponent'
 import DisplaysChildren from '../src/DisplaysChildren'
 import { renderComponent, connect } from './test_helper'
+import * as rtl from 'react-testing-library'
 
 describe('Toggle', () => {
+  beforeEach(() => rtl.cleanup())
   const Component = props => ( // eslint-disable-next-line
     <div>
       hi {Object.keys(props).map(prop => <div key={prop} className={prop}>{props[prop]}</div>)}
     </div>
   )
   let Route, state // eslint-disable-line
+  afterEach(() => rtl.cleanup())
   test('should freak out if we don\'t initialize', () => {
     connectToggle(error)
     const R = Toggle(() => true)
