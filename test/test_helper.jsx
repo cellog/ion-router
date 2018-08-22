@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import * as rtl from 'react-testing-library'
-import 'jest-dom'
+import 'jest-dom/extend-expect'
 
 import { Provider, connect } from 'react-redux'
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
