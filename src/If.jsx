@@ -19,18 +19,23 @@ export class IfOuter extends Component {
       timeout: () => {},
       value: {
         selector: props.selector,
-        loadedSelector: props.loadedSelector
+        loadedSelector: props.loadedSelector,
+        selectorProps: props.selectorProps
       }
     }
     this.filterKids = type => Children.toArray(this.props.children.props.children).filter(el => el.type === type)
   }
 
   componentDidUpdate(lastProps) {
-    if (lastProps.selector !== this.props.selector || lastProps.loadedSelector !== this.props.loadedSelector) {
+    if (lastProps.selector !== this.props.selector
+      || lastProps.loadedSelector !== this.props.loadedSelector
+      || lastProps.selectorProps !== this.props.selectorProps
+    ) {
       this.setState({
         value: {
           selector: this.props.selector,
-          loadedSelector: this.props.loadedSelector
+          loadedSelector: this.props.loadedSelector,
+          selectorProps: this.props.selectorProps
         }
       })
     }
@@ -41,7 +46,6 @@ export class IfOuter extends Component {
       let loading = false
       if (error.loading) {
         if (error.timeout) {
-          console.log(error)
           this.setState({
             timeout: setTimeout(() => this.setState({ loading: true, timeout: () => {} }), error.timeout)
           })
@@ -112,29 +116,17 @@ export class ReduxSelect extends Component {
   constructor(props) {
     super(props)
     this.renderChildren = this.renderChildren.bind(this)
-    this.state = {
-      selector: props.selector,
-      loadedSelector: props.loadedSelector
-    }
-  }
-
-  componentDidUpdate(lastProps) {
-    if (lastProps.selector !== this.props.selector || lastProps.loadedSelector !== this.props.loadedSelector) {
-      this.setState({
-        selector: this.props.selector,
-        loadedSelector: this.props.loadedSelector
-      })
-    }
   }
 
   renderChildren({ state, store }) {
-    const { selector, loadedSelector, loadingDelayMs } = this.props
-    const loaded = loadedSelector(state)
-    if (!loaded || !selector(state)) {
+    const { selector, loadedSelector, loadingDelayMs, selectorProps } = this.props
+    const loaded = loadedSelector(state, selectorProps)
+    console.log(loaded, state.week, selectorProps)
+    if (!loaded || !selector(state, selectorProps)) {
       if (!loaded) {
         const promise = new Promise((resolve) => {
           const unsubscribe = store.subscribe(() => {
-            if (loadedSelector(store.getState())) {
+            if (loadedSelector(store.getState(), selectorProps)) {
               resolve()
               unsubscribe()
             }
@@ -143,7 +135,7 @@ export class ReduxSelect extends Component {
         promise.redux = true
         promise.loading = true
         if (loadingDelayMs) {
-          promise.timeout = this.props.loadingDelayMs
+          promise.timeout = loadingDelayMs
         }
         promise.suppressReactErrorLogging = true
         throw promise
@@ -156,7 +148,6 @@ export class ReduxSelect extends Component {
           }
         })
       })
-      console.log(this.props.name)
       promise.redux = true
       promise.suppressReactErrorLogging = true
       throw promise
@@ -173,10 +164,10 @@ export class ReduxSelect extends Component {
   }
 }
 
-export function If({ children, selector, loadedSelector = () => true, loadingDelayMs = 0 }) {
+export function If({ children, selector, loadedSelector = () => true, loadingDelayMs = 0, selectorProps = {} }) {
   return (
-    <IfOuter name="If" selector={selector} loadedSelector={loadedSelector}>
-      <ReduxSelect selector={selector} loadedSelector={loadedSelector} loadingDelayMs={loadingDelayMs} name="If">
+    <IfOuter name="If" selector={selector} loadedSelector={loadedSelector} selectorProps={selectorProps}>
+      <ReduxSelect selector={selector} loadedSelector={loadedSelector} loadingDelayMs={loadingDelayMs} selectorProps={selectorProps} name="If">
         {children}
       </ReduxSelect>
     </IfOuter>
@@ -186,10 +177,10 @@ export function If({ children, selector, loadedSelector = () => true, loadingDel
 export function Else({ children }) {
   return (
     <SubContext.Consumer>
-      {({ selector, loadedSelector }) => {
+      {({ selector, loadedSelector, selectorProps }) => {
         console.log(selector, loadedSelector)
         return <IfOuter name="Else" selector={selector} loadedSelector={loadedSelector}>
-          <ReduxSelect selector={state => !selector(state)} loadedSelector={loadedSelector} name="Else">
+          <ReduxSelect selector={(state, props) => !selector(state, props)} loadedSelector={loadedSelector} name="Else" selectorProps={selectorProps}>
             {children}
           </ReduxSelect>
         </IfOuter>}}
@@ -200,10 +191,10 @@ export function Else({ children }) {
 export function Loading({ children }) {
   return (
     <SubContext.Consumer>
-      {({ loadedSelector }) => {
-        const loading = state => !loadedSelector(state)
+      {({ loadedSelector, selectorProps }) => {
+        const loading = state => !loadedSelector(state, selectorProps)
         return <IfOuter name="Loading" selector={loading} loadedSelector={() => true}>
-          <ReduxSelect selector={loading} loadedSelector={() => true} name="Loading">
+          <ReduxSelect selector={loading} loadedSelector={() => true} selectorProps={selectorProps} name="Loading">
             {children}
           </ReduxSelect>
         </IfOuter>}}
