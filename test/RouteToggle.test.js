@@ -1,19 +1,19 @@
 import React from 'react'
-import { connectToggle } from '../src/Toggle'
 
 import RouteToggle from '../src/RouteToggle'
 import { renderComponent, connect } from './test_helper'
+import * as rtl from 'react-testing-library'
 
 describe('RouteToggle', () => {
+  afterEach(() => rtl.cleanup())
   const Component = props => ( // eslint-disable-next-line
     <div>
-      hi {Object.keys(props).map(prop => <div key={prop} className={prop}>{props[prop]}</div>)}
+      hi {Object.keys(props).map(prop => <div key={prop} data-testid={prop}>{props[prop]}</div>)}
     </div>
   )
   let Route, state // eslint-disable-line
   describe('initialized', () => {
     beforeEach(() => {
-      connectToggle(connect)
       Route = RouteToggle('test')
     })
     test('renders the component if the route matches', () => {
@@ -34,9 +34,7 @@ describe('RouteToggle', () => {
           matchedRoutes: ['test']
         }
       })
-      expect(container.find(Component)).toHaveLength(1)
-      expect(container.find('.foo')).toHaveLength(1)
-      expect(container.find('.foo').text()).toEqual('bar')
+      expect(container.getByTestId('foo')).toHaveTextContent('bar')
     })
     test('does not render the component if the route matches', () => {
       const container = renderComponent(Route, { component: Component, foo: 'bar' }, {
@@ -56,7 +54,7 @@ describe('RouteToggle', () => {
           matchedRoutes: ['no']
         }
       })
-      expect(container.find(Component)).toHaveLength(0)
+      expect(container.queryByTestId('foo')).toBe(null)
     })
     test(
       'does not render the component if the route matches, but other does not',
@@ -80,7 +78,7 @@ describe('RouteToggle', () => {
             matchedRoutes: ['test']
           }
         })
-        expect(container.find(Component)).toHaveLength(0)
+        expect(container.queryByTestId('foo')).toBe(null)
       }
     )
     test('does not call state if loaded returns false', () => {
@@ -109,7 +107,7 @@ describe('RouteToggle', () => {
 
       expect(spy.mock.calls.length).toBe(0)
       expect(loaded.mock.calls.length).toBe(1)
-      expect(container.find(Component)).toHaveLength(0)
+      expect(container.queryByTestId('foo')).toBe(null)
     })
     test('componentLoadingMap', () => {
       const R = RouteToggle('test', () => true, () => true, {
@@ -117,7 +115,12 @@ describe('RouteToggle', () => {
         loadingComponent: 'frenzel',
         else: 'blah'
       })
-      const container = renderComponent(R, { component: Component, bobby: 'hi', frenzel: 'there', blah: 'oops' }, {
+      const Show = (props) => (
+        <ul>
+          {Object.keys(props).map(prop => <li key={prop} data-testid={prop}>{JSON.stringify(props[prop])}</li>)}
+        </ul>
+      )
+      const container = renderComponent(R, { component: Show, bobby: 'hi', frenzel: 'there', blah: 'oops' }, {
         week: 1,
         routing: {
           location: {
@@ -134,13 +137,12 @@ describe('RouteToggle', () => {
           matchedRoutes: ['test']
         }
       })
-      expect(container.find(Component)).toHaveLength(1)
-      expect(container.find(Component).prop('component')).toEqual('hi')
-      expect(container.find(Component).prop('bobby')).toEqual(undefined)
-      expect(container.find(Component).prop('loadingComponent')).toEqual('there')
-      expect(container.find(Component).prop('frenzel')).toEqual(undefined)
-      expect(container.find(Component).prop('else')).toEqual('oops')
-      expect(container.find(Component).prop('blah')).toEqual(undefined)
+      expect(container.getByTestId('component')).toHaveTextContent('"hi"')
+      expect(container.getByTestId('bobby')).toHaveTextContent('')
+      expect(container.getByTestId('loadingComponent')).toHaveTextContent('"there"')
+      expect(container.getByTestId('frenzel')).toHaveTextContent('')
+      expect(container.getByTestId('else')).toHaveTextContent('"oops"')
+      expect(container.getByTestId('blah')).toHaveTextContent('')
     })
   })
 })
