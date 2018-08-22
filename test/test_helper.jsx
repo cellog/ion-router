@@ -33,15 +33,6 @@ function sagaStore(state, reducers = { routing: reducer, week: fakeWeekReducer }
 function renderComponent(ComponentClass, props = {}, state = undefined, returnStore = false,
   mySagaStore = sagaStore(state), intoDocument = false) {
   class Tester extends Component {
-    constructor(props) {
-      super(props)
-      this.state = props
-    }
-    componentDidUpdate(props) {
-      if (props !== this.props) {
-        this.setState(this.props)
-      }
-    }
     render() {
       return (
         <Provider store={mySagaStore.store}>
@@ -54,10 +45,9 @@ function renderComponent(ComponentClass, props = {}, state = undefined, returnSt
     <Tester {...props} />, intoDocument ? { container: intoDocument } : undefined
   )
   if (returnStore) {
-    return [ret, mySagaStore.store, mySagaStore.log]
+    return [ret, mySagaStore.store, mySagaStore.log, Tester]
   }
   return ret
 }
-
 
 export { renderComponent, connect, sagaStore } // eslint-disable-line

@@ -1,26 +1,33 @@
 import React from 'react'
+import { Provider } from 'react-redux'
 import ConnectedRoutes from '../src/Routes'
 import Route, {fake} from '../src/Route'
 import Context from '../src/Context'
 import * as enhancers from '../src/enhancers'
 import { renderComponent, sagaStore } from './test_helper'
 import * as actions from "../src/actions"
-
-jest.mock('../src/Context')
+import * as rtl from 'react-testing-library'
+import 'react-testing-library/cleanup-after-each'
 
 describe('Routes', () => {
-  let component, store, log // eslint-disable-line
+  let component, store, log, CompClass // eslint-disable-line
   function make(props = {}, Comp = ConnectedRoutes, state = {}, mount = false, s = undefined) {
-    const info = renderComponent(Comp, props, state, true, s, mount)
+    const things = sagaStore(state)
+    store = (s && s.store) || things.store
+    log = s ? log : things.log
+    const My = props => (
+      <Provider store={store}>
+        <Comp {...props} />
+      </Provider>
+    )
+
+    const info = renderComponent(My, props, state, true, s, mount)
     component = info[0]
     store = info[1]
     log = info[2]
+    CompClass = info[3]
   }
-  test('does not set up context if no store passed', () => {
-    make()
-    expect(component.find(Context.Provider).length).toBe(0)
-  })
-  test('updates store when props change', () => {
+  test('correct prop dispersion', () => {
     const mystore = sagaStore({
       routing: {
         matchedRoutes: [],
@@ -67,7 +74,14 @@ describe('Routes', () => {
       name: 'wow',
       path: '/wow'
     }, {})
-    const Checker = () => <div />
+    const Checker = props => (
+      <div>
+        <button onClick={() => props.dispatch({type: 'hi'})}>click</button>
+        <ul>
+          {Object.keys(props).map(prop => <li key={prop} data-testid="prop">{prop}</li>)}
+        </ul>
+      </div>
+    )
     const Thing = () => (
       <Context.Consumer>
         {info => <Checker {...info} />}
@@ -77,17 +91,15 @@ describe('Routes', () => {
       <Thing />
     </ConnectedRoutes>
     make({ s: mystore.store }, R, {}, false, mystore)
-    expect(Object.keys(component.find(Checker).props())).toEqual([
-      'dispatch', 'routes', 'addRoute', 'store'
-    ])
-    expect(component.find(Context.Provider).length).toBe(1)
-    expect(component.find(Checker).prop('dispatch')).toBe(mystore.store.dispatch)
-    expect(component.find(Checker).prop('routes')).toEqual(mystore.store.getState().routing.routes.routes)
-    expect(component.find(Checker).prop('store')).toBe(mystore.store)
-
-    component.setProps({ s: newstore.store })
-    component.update()
-    expect(component.find(Checker).prop('dispatch')).toBe(newstore.store.dispatch)
+    expect(component.getAllByTestId('prop')).toHaveLength(4)
+    expect(component.queryByText('dispatch')).not.toBe(null)
+    expect(component.queryByText('routes')).not.toBe(null)
+    expect(component.queryByText('addRoute')).not.toBe(null)
+    expect(component.queryByText('store')).not.toBe(null)
+    rtl.fireEvent.click(component.getByText('click'))
+    expect(mystore.log[1]).toEqual(
+      {type: 'hi'}
+    )
   })
   test('passes in routes from state', () => {
     const mystore = sagaStore({
@@ -113,7 +125,13 @@ describe('Routes', () => {
       name: 'hi',
       path: '/there'
     }, {})
-    const Checker = () => <div />
+    const Checker = props => (
+      <div>
+        <ul>
+          {Object.keys(props).map(prop => <li key={prop} data-testid={prop}>{JSON.stringify(props[prop])}</li>)}
+        </ul>
+      </div>
+    )
     const Thing = () => (
       <Context.Consumer>
         {info => <Checker {...info} />}
@@ -123,12 +141,7 @@ describe('Routes', () => {
       <Thing />
     </ConnectedRoutes>
     make({}, R, undefined, false, mystore)
-    expect(Object.keys(component.find(Checker).props())).toEqual([
-      'dispatch', 'routes', 'addRoute', 'store'
-    ])
-    expect(component.find(Checker).prop('dispatch')).toBe(mystore.store.dispatch)
-    expect(component.find(Checker).prop('routes')).toEqual(mystore.store.getState().routing.routes.routes)
-    expect(component.find(Checker).prop('store')).toBe(mystore.store)
+    expect(component.getByTestId('routes')).toHaveTextContent(JSON.stringify(mystore.store.getState().routing.routes.routes))
   })
   test('multiple Route children', () => {
     const Thing = () => (
@@ -138,9 +151,8 @@ describe('Routes', () => {
       </ConnectedRoutes>
     )
     make({}, Thing)
-    expect(component.find(ConnectedRoutes).prop('children')).toHaveLength(2)
-    expect(component.find(ConnectedRoutes).prop('children')[0].props.className).toBe('hi')
-    expect(component.find(ConnectedRoutes).prop('children')[1].props.className).toBe('there')
+    expect(component.queryByText('hi')).not.toBe(null)
+    expect(component.queryByText('there')).not.toBe(null)
   })
   test('unmount', () => {
     const unsubscribe = jest.fn()
@@ -168,52 +180,7 @@ describe('Routes', () => {
     )
     make({ s }, Thing)
     component.unmount()
-    expect(unsubscribe).toBeCalled()
     expect(s.dispatch).toHaveBeenCalledTimes(0)
-  })
-  test('unmount with existing routes', () => {
-    const unsubscribe = jest.fn()
-    const s = {
-      routerOptions: {
-        isServer: false
-      },
-      dispatch: jest.fn(),
-      getState: jest.fn(() => ({
-        routing: {
-          routes: {
-            routes: {
-            }
-          }
-        }
-      })),
-      subscribe: () => unsubscribe
-    }
-    const Thing = ({ s }) => (
-      <ConnectedRoutes store={s}>
-        <Route
-          name="test"
-          path="hi/"
-        />
-      </ConnectedRoutes>
-    )
-    make({ s }, Thing)
-    component.unmount()
-    expect(unsubscribe).toBeCalled()
-    expect(s.dispatch).toHaveBeenCalledTimes(2)
-    expect(s.dispatch).toHaveBeenNthCalledWith(1, actions.batchRoutes([{
-      name: 'test',
-      path: 'hi/',
-      paramsFromState: fake,
-      stateFromParams: fake,
-      updateState: {}
-    }]))
-    expect(s.dispatch).toHaveBeenNthCalledWith(2, actions.batchRemoveRoutes([{
-      name: 'test',
-      path: 'hi/',
-      paramsFromState: fake,
-      stateFromParams: fake,
-      updateState: {}
-    }]))
   })
   describe('server', () => {
     test('route setup', () => {
@@ -242,7 +209,7 @@ describe('Routes', () => {
         </ConnectedRoutes>
       )
       mystore.store.dispatch = jest.fn(mystore.store.dispatch)
-      make({ s: mystore.store }, Thing)
+      make({ s: mystore.store }, Thing, {}, false, mystore)
       expect(mystore.store.dispatch.mock.calls).toEqual([[
         actions.addRoute({
           name: 'test',
