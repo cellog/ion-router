@@ -5,7 +5,6 @@ import { push, replace } from '../src/actions'
 import { renderComponent } from './test_helper'
 import * as rtl from 'react-testing-library'
 import 'react-testing-library/cleanup-after-each'
-import * as dom from 'dom-testing-library'
 
 describe('Link', () => {
   const Show = (props) => (
@@ -61,7 +60,7 @@ describe('Link', () => {
     rtl.fireEvent.click(component.getByText('hi'))
     expect(dispatch.mock.calls.length).toBe(1)
     expect(dispatch.mock.calls[0]).toEqual([push({ pathname: '/hi', search: '?foo', hash: '#ar', state: { foo: 'bar' } })])
-    expect(onClick).toBeCalledWith(expect.objectContaining({ target: null }))
+    expect(onClick).toBeCalled()
   })
   test('renders children', () => {
     const dispatch = jest.fn()

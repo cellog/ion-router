@@ -1,7 +1,7 @@
 import React from 'react'
 
 import RouteToggle from '../src/RouteToggle'
-import { renderComponent, connect } from './test_helper'
+import { renderComponent } from './test_helper'
 import * as rtl from 'react-testing-library'
 
 describe('RouteToggle', () => {

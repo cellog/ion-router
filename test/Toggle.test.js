@@ -1,10 +1,7 @@
 import React from 'react'
-import Toggle, { connectToggle, error } from '../src/Toggle'
-import NullComponent from '../src/NullComponent'
-import DisplaysChildren from '../src/DisplaysChildren'
+import Toggle from '../src/Toggle'
 import { renderComponent, sagaStore } from './test_helper'
 import * as rtl from 'react-testing-library'
-import * as dom from 'dom-testing-library'
 
 describe('Toggle', () => {
   beforeEach(() => rtl.cleanup())
@@ -26,7 +23,6 @@ describe('Toggle', () => {
     beforeEach(() => {
       store = sagaStore(state)
       Route = Toggle((s, p) => {
-        console.log(s.week, p.week)
         return s.week || p.week
       })
     })
@@ -60,7 +56,7 @@ describe('Toggle', () => {
       const loaded = jest.fn()
       loaded.mockReturnValue(false)
       const R = Toggle(spy, loaded)
-      const container = renderComponent(R, { component: Component, foo: 'bar', week: 1 }, { week: 0 })
+      renderComponent(R, { component: Component, foo: 'bar', week: 1 }, { week: 0 })
 
       expect(spy.mock.calls.length).toBe(0)
       expect(loaded.mock.calls.length).toBe(1)

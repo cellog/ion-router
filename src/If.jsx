@@ -5,9 +5,17 @@ import PropTypes from 'prop-types'
 const SubContext = React.createContext()
 
 export class IfOuter extends Component {
+  static propTypes = {
+    selector: PropTypes.func.isRequired,
+    loadedSelector: PropTypes.func.isRequired,
+    selectorProps: PropTypes.object.isRequired,
+    children: PropTypes.any,
+    loadingDelayMs: PropTypes.number
+  }
+
   static defaultProps = {
     loadedSelector: () => true,
-    delayMs: 0
+    loadingDelayMs: 0
   }
 
   constructor(props) {
@@ -26,11 +34,20 @@ export class IfOuter extends Component {
     this.filterKids = type => Children.toArray(this.props.children.props.children).filter(el => el.type === type)
   }
 
+  componentWillUnmount() {
+    this.mounted = false
+  }
+
+  componentDidMount() {
+    this.mounted = true
+  }
+
   componentDidUpdate(lastProps) {
     if (lastProps.selector !== this.props.selector
       || lastProps.loadedSelector !== this.props.loadedSelector
       || lastProps.selectorProps !== this.props.selectorProps
     ) {
+      if (!this.mounted) return
       this.setState({
         value: {
           selector: this.props.selector,
@@ -55,6 +72,7 @@ export class IfOuter extends Component {
       }
       error.then(() => {
         info.resolved = true
+        if (!this.mounted) return
         this.setState(state => {
           if (state.waiting.indexOf(error) === -1) return
           const waiting = [...state.waiting]
@@ -67,6 +85,7 @@ export class IfOuter extends Component {
         })
       })
       .catch(error => {
+        if (!this.mounted) return
         this.setState({ error })
       })
       // selector did not match
@@ -113,6 +132,14 @@ export class IfOuter extends Component {
 }
 
 export class ReduxSelect extends Component {
+  static propTypes = {
+    selector: PropTypes.func.isRequired,
+    loadedSelector: PropTypes.func.isRequired,
+    selectorProps: PropTypes.object.isRequired,
+    children: PropTypes.any,
+    loadingDelayMs: PropTypes.number
+  }
+
   constructor(props) {
     super(props)
     this.renderChildren = this.renderChildren.bind(this)
@@ -121,7 +148,6 @@ export class ReduxSelect extends Component {
   renderChildren({ state, store }) {
     const { selector, loadedSelector, loadingDelayMs, selectorProps } = this.props
     const loaded = loadedSelector(state, selectorProps)
-    console.log(loaded, state.week, selectorProps)
     if (!loaded || !selector(state, selectorProps)) {
       if (!loaded) {
         const promise = new Promise((resolve) => {
@@ -174,11 +200,18 @@ export function If({ children, selector, loadedSelector = () => true, loadingDel
   )
 }
 
+If.propTypes = {
+  selector: PropTypes.func.isRequired,
+  loadedSelector: PropTypes.func.isRequired,
+  selectorProps: PropTypes.object.isRequired,
+  children: PropTypes.any,
+  loadingDelayMs: PropTypes.number
+}
+
 export function Else({ children }) {
   return (
     <SubContext.Consumer>
       {({ selector, loadedSelector, selectorProps }) => {
-        console.log(selector, loadedSelector)
         return <IfOuter name="Else" selector={selector} loadedSelector={loadedSelector}>
           <ReduxSelect selector={(state, props) => !selector(state, props)} loadedSelector={loadedSelector} name="Else" selectorProps={selectorProps}>
             {children}
@@ -186,6 +219,10 @@ export function Else({ children }) {
         </IfOuter>}}
     </SubContext.Consumer>
   )
+}
+
+Else.propTypes = Loading.propTypes = {
+  children: PropTypes.any,
 }
 
 export function Loading({ children }) {
@@ -202,11 +239,6 @@ export function Loading({ children }) {
   )
 }
 
-If.propTypes = {
-  selector: PropTypes.func.isRequired,
-  children: PropTypes.any
-}
-
-Else.propTypes = {
-  children: PropTypes.any
+Else.propTypes = Loading.propTypes = {
+  children: PropTypes.any,
 }
