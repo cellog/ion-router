@@ -1,11 +1,16 @@
 {
-  "main.css": "static/css/main.5f9fbfb7.css",
-  "main.css.map": "static/css/main.5f9fbfb7.css.map",
-  "main.js": "static/js/main.51b8b122.js",
-  "main.js.map": "static/js/main.51b8b122.js.map",
-  "static/media/fontawesome-webfont.eot?v=4.7.0": "static/media/fontawesome-webfont.674f50d2.eot",
-  "static/media/fontawesome-webfont.svg?v=4.7.0": "static/media/fontawesome-webfont.912ec66d.svg",
-  "static/media/fontawesome-webfont.ttf?v=4.7.0": "static/media/fontawesome-webfont.b06871f2.ttf",
-  "static/media/fontawesome-webfont.woff2?v=4.7.0": "static/media/fontawesome-webfont.af7ae505.woff2",
-  "static/media/fontawesome-webfont.woff?v=4.7.0": "static/media/fontawesome-webfont.fee66e71.woff"
+  "main.css": "/ion-router/static/css/main.15a26fdd.chunk.css",
+  "main.js": "/ion-router/static/js/main.2c139de2.chunk.js",
+  "main.js.map": "/ion-router/static/js/main.2c139de2.chunk.js.map",
+  "runtime~main.js": "/ion-router/static/js/runtime~main.180ca269.js",
+  "runtime~main.js.map": "/ion-router/static/js/runtime~main.180ca269.js.map",
+  "static/css/2.edd87d61.chunk.css": "/ion-router/static/css/2.edd87d61.chunk.css",
+  "static/js/2.508b38e4.chunk.js": "/ion-router/static/js/2.508b38e4.chunk.js",
+  "static/js/2.508b38e4.chunk.js.map": "/ion-router/static/js/2.508b38e4.chunk.js.map",
+  "index.html": "/ion-router/index.html",
+  "precache-manifest.1cd94788738222646d755996642b43ce.js": "/ion-router/precache-manifest.1cd94788738222646d755996642b43ce.js",
+  "service-worker.js": "/ion-router/service-worker.js",
+  "static/css/2.edd87d61.chunk.css.map": "/ion-router/static/css/2.edd87d61.chunk.css.map",
+  "static/css/main.15a26fdd.chunk.css.map": "/ion-router/static/css/main.15a26fdd.chunk.css.map",
+  "static/media/font-awesome.min.css": "/ion-router/static/media/fontawesome-webfont.fee66e71.woff"
 }
