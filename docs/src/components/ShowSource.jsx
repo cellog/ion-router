@@ -1,16 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import 'prismjs/themes/prism-coy.css'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 function ShowSource({ source }) {
   return (
-    <pre>
-      <code
-        dangerouslySetInnerHTML={{
-          __html: source
-        }}
-      />
-    </pre>
+    <SyntaxHighlighter language="jsx" style={dark}>
+      {source}
+    </SyntaxHighlighter>
   )
 }
 

@@ -1,11 +1,13 @@
-import BasicSource from '!!prismjs?lang=jsx!./Basic.jsx' // eslint-disable-line
+import raw from 'raw.macro'
 import Basic, { reducer } from './Basic'
-import LoadingSource from '!!prismjs?lang=jsx!./Loading.jsx' // eslint-disable-line
 import Loading, { reducer as loadingReducer } from './Loading'
-import SubRoutesSource from '!!prismjs?lang=jsx!./SubRoutes.jsx' // eslint-disable-line
 import SubRoutes, { reducer as subroutesReducer } from './SubRoutes'
-import StateChangesSource from '!!prismjs?lang=jsx!./StateChanges.jsx' // eslint-disable-line
 import StateChanges, { reducer as statechangesReducer } from './StateChanges'
+
+const BasicSource = raw('./Basic.jsx')
+const LoadingSource = raw('./Loading.jsx')
+const SubRoutesSource = raw('./SubRoutes.jsx')
+const StateChangesSource = raw('./StateChanges.jsx')
 
 export default {
   basic: {

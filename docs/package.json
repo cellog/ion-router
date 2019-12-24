@@ -7,14 +7,15 @@
     "font-awesome": "^4.7.0",
     "history": "^4.6.1",
     "ion-router": "file:../",
-    "markdown-loader": "^2.0.0",
-    "marky-loader": "file:my-markdown-loader/",
-    "prismjs-loader": "^0.0.4",
+    "marked": "^0.8.0",
     "prop-types": "^15.7.2",
-    "react-burger-menu": "^2.6.13"
+    "raw.macro": "^0.3.0",
+    "react-burger-menu": "^2.6.13",
+    "react-syntax-highlighter": "^12.2.1",
+    "styled-jsx": "^3.2.4"
   },
   "devDependencies": {
-    "react-scripts": "0.9.5"
+    "react-scripts": "^2.1.8"
   },
   "peerDependencies": {
     "react": "^16.12.0",
@@ -23,13 +24,19 @@
     "redux": "^4.0.4"
   },
   "scripts": {
-    "start": "PORT=3005 react-scripts start",
-    "build": "react-scripts build",
+    "start": "SKIP_PREFLIGHT_CHECK=true PORT=3005 react-scripts start",
+    "build": "SKIP_PREFLIGHT_CHECK=true react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "predeploy": "yarn run build",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

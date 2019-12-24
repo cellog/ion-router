@@ -3,6 +3,8 @@ import Routes from 'ion-router/Routes'
 import Route from 'ion-router/Route'
 import Link from 'ion-router/Link'
 import { scaleRotate as Menu } from 'react-burger-menu'
+import marked from 'marked'
+import raw from 'raw.macro'
 
 import './App.css'
 import Examples from './components/Examples'
@@ -11,7 +13,7 @@ import ExamplesToggle from './toggles/ExamplesToggle'
 import * as actions from './redux/actions'
 import examples from './examples'
 
-import test from '!!marky!../md/README.md' // eslint-disable-line
+const test = marked(raw('../md/README.md'))
 
 Routes.displayName = 'FancyRoutes'
 Link.displayName = 'FancyLink'
