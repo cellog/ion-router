@@ -5,7 +5,9 @@ import Routes from 'ion-router/Routes'
 import Route from 'ion-router/Route'
 import Toggle from 'ion-router/Toggle'
 
-const AsyncToggle = Toggle(() => true, state => !state.async.loading)
+const AsyncToggle = Toggle(() => true, state => {
+  return !state.async.loading
+})
 
 export const reducer = {
   async: (state = { loading: false, thing: '' }, action) => {

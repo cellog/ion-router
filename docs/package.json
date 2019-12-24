@@ -6,20 +6,21 @@
   "dependencies": {
     "font-awesome": "^4.7.0",
     "history": "^4.6.1",
-    "ion-router": "file:..",
+    "ion-router": "file:../",
     "markdown-loader": "^2.0.0",
     "marky-loader": "file:my-markdown-loader/",
     "prismjs-loader": "^0.0.4",
-    "prop-types": "^15.5.8",
-    "react": "^16.4.1",
-    "react-burger-menu": "^2.0.1",
-    "react-dom": "^16.4.1",
-    "react-redux": "^5.0.4",
-    "react-redux-custom-store": "^1.0.0",
-    "redux": "^3.6.0"
+    "prop-types": "^15.7.2",
+    "react-burger-menu": "^2.6.13"
   },
   "devDependencies": {
     "react-scripts": "0.9.5"
+  },
+  "peerDependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-redux": "^7.1.3",
+    "redux": "^4.0.4"
   },
   "scripts": {
     "start": "PORT=3005 react-scripts start",

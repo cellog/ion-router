@@ -1,64 +1,67 @@
-import React, { Component } from 'react'
+import React, { useRef, useState } from 'react'
 import PropTypes from 'prop-types'
-import createHistory from 'history/createMemoryHistory'
+import { createMemoryHistory } from 'history'
 import { createStore, combineReducers, compose } from 'redux'
 import { connect, Provider } from 'react-redux'
 import makeRouter, { makeRouterStoreEnhancer } from 'ion-router'
+import Routes from 'ion-router/Routes'
 import routing from 'ion-router/reducer'
 
 import Browser from './Browser'
 import ShowSource from './ShowSource'
 import examples from '../examples'
+import Window from './Window'
 
-class Example extends Component {
-  static propTypes = {
-    example: PropTypes.string.isRequired
-  }
-
-  constructor(props) {
-    super(props)
-    this.history = createHistory({
+function Example({ example }) {
+  const init = () => {
+    const history = createMemoryHistory({
       initialEntries: ['/']
     })
     const reducer = combineReducers({
-      ...examples[props.example].reducer,
+      ...examples[example].reducer,
       routing
     })
 
-
     // set up the router and create the store
-    const enhancer = makeRouterStoreEnhancer(this.history)
+    const enhancer = makeRouterStoreEnhancer(history)
 
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? // eslint-disable-line
-      window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: `examples: ${props.example}` }) // eslint-disable-line
+      window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: `examples: ${example}` }) // eslint-disable-line
       : compose
-    this.store = createStore(reducer, undefined,
+    const newStore = createStore(reducer, undefined,
       composeEnhancers(enhancer))
-    makeRouter(connect, this.store)
-    this.state = {
-      showBrowser: true
-    }
+    makeRouter(connect, newStore)
+    return newStore
   }
+  const store = useRef(init())
+  store.current = init()
+  const [showBrowser, setShowBrowser] = useState(true)
 
-  render() {
-    return (
-      <div className="example">
-        <div className="browser-panel">
-          <Provider store={this.store}>
-            {this.state.showBrowser ?
-              <Browser
-                Content={examples[this.props.example].component}
-                showSource={() => this.setState({ showBrowser: false })}
-              /> : <div /> }
-          </Provider>
-        </div>
-        <div className="source-panel">
-          <button className="mobile-showsource" onClick={() => this.setState({ showBrowser: true })}>Show Example</button>
-          <ShowSource source={examples[this.props.example].source} />
-        </div>
+  console.log(store.current.getState())
+  return <Window element={
+    <div className="example">
+      <div className="browser-panel">
+        <Provider store={store.current}>
+          <Routes store={store.current}>
+          {showBrowser ?
+            <Browser
+              store={store.current}
+              Content={examples[example].component}
+              showSource={() => setShowBrowser(false)}
+            /> : <div /> }
+          </Routes>
+        </Provider>
       </div>
-    )
-  }
+      <div className="source-panel">
+        <button className="mobile-showsource" onClick={() => setShowBrowser(true)}>Show Example</button>
+        <ShowSource source={examples[example].source} />
+      </div>
+    </div>
+  } />
+}
+
+Example.propTypes = {
+  example: PropTypes.string
 }
 
 export default Example

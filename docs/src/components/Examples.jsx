@@ -2,18 +2,17 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import ExampleToggle from '../toggles/ExampleToggle'
-import { getConnectedLink } from 'ion-router/Link'
-import thing from './Example'
+import Link from 'ion-router/Link'
+import Example from './Example'
 
-const Link = getConnectedLink(connect, 'mainStore')
-const Example = connect(state => ({
+const ConnectedExample = connect(state => ({
   example: state.examples.example
-}), undefined, undefined, { storeKey: 'mainStore' })(thing)
+}))(Example)
 
 export default function Examples() {
   return (
     <div>
-      <ExampleToggle component={Example} else={() => (
+      <ExampleToggle component={ConnectedExample} else={() => (
         <div>
           <h1>Examples of ion-router&apos;s power</h1>
           <p>
