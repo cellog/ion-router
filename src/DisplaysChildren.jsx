@@ -1,18 +1,10 @@
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
-export default class DisplaysChildren extends Component {
-  static propTypes = {
-    children: PropTypes.any,
-    dispatch: PropTypes.func,
-  }
+export default function DisplaysChildren({ children }) {
+  return <React.Fragment>{children}</React.Fragment>
+}
 
-  render() {
-    const { children, dispatch, ...props } = this.props // eslint-disable-line no-unused-vars
-    return (
-      <div>
-        {children}
-      </div>
-    )
-  }
+DisplaysChildren.propTypes = {
+  children: PropTypes.any,
 }

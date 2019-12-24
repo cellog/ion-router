@@ -1,93 +1,59 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import * as actions from './actions'
+import { useStore, useDispatch, useSelector } from 'react-redux'
 import Context from './Context'
 
-class Routes extends Component {
-  static propTypes = {
-    store: PropTypes.object.isRequired,
-    children: PropTypes.any,
-  }
+function Routes({ children }) {
+  const myRoutes = useRef([])
+  const store = useStore()
+  const dispatch = useDispatch()
+  const routes = useSelector(state => state.routing.routes.routes)
 
-  constructor(props, context) {
-    super(props, context)
-    this.addRoute = this.addRoute.bind(this)
-    this.myRoutes = []
-    this.isServer = this.props.store.routerOptions.isServer
-    this.state = {
-      store: props.store,
-      routes: props.store.getState().routing.routes.routes
+  const addRoute = useCallback((route) => {
+    myRoutes.current.push(route)
+    if (store.routerOptions.isServer) {
+      dispatch(actions.addRoute(route))
     }
-    this.subscribe = this.subscribe.bind(this)
-    this.unsubscribe = props.store.subscribe(this.subscribe)
-  }
+  }, [dispatch, store])
 
-  componentDidUpdate(props) {
-    if (this.props.store !== props.store) {
-      this.setState({
-        store: this.props.store,
-        routes: this.props.store.getState().routing.routes.routes
-      })
-    }
-  }
-  componentDidMount() {
-    if (this.myRoutes.length) {
-      this.state.store.dispatch(actions.batchRoutes(this.myRoutes))
-    }
-  }
+  const [value, setValue] = useState({
+    dispatch,
+    routes,
+    addRoute,
+    store,
+  })
 
-  componentWillUnmount() {
-    this.unsubscribe()
-    if (this.myRoutes.length) {
-      this.state.store.dispatch(actions.batchRemoveRoutes(this.myRoutes))
-    }
-  }
+  useEffect(() => {
+    setValue({
+      dispatch,
+      routes,
+      addRoute,
+      store,
+    })
+  }, [dispatch, routes, store, addRoute])
 
-  subscribe() {
-    const newRoutes = this.state.store.getState().routing.routes.routes
-    if (newRoutes !== this.state.routes) {
-      this.setState({
-        routes: newRoutes
-      })
+  useEffect(() => {
+    if (myRoutes.current.length) {
+      dispatch(actions.batchRoutes(myRoutes.current))
     }
-  }
+    return () => {
+      if (myRoutes.current.length) {
+        dispatch(actions.batchRemoveRoutes((myRoutes.current)))
+      }
+    }
+  }, [myRoutes])
 
-  addRoute(route) {
-    this.myRoutes.push(route)
-    if (this.isServer) {
-      this.state.store.dispatch(actions.addRoute(route))
-    }
-  }
-
-  render() {
-    const { store, children } = this.props
-    const value = {
-      dispatch: store.dispatch,
-      routes: this.state.routes,
-      addRoute: this.addRoute,
-      store: this.state.store,
-    }
-    return (<Context.Provider value={value}>
+  return (
+    <Context.Provider value={value}>
       {children}
-    </Context.Provider>)
-  }
+    </Context.Provider>
+  )
 }
 
-function ChooseRoutes({ store, children }) {
-  if (!store) {
-    return (
-      <>
-        {children}
-      </>
-    )
-  }
-  return <Routes store={store}>{children}</Routes>
+Routes.propTypes = {
+  children: PropTypes.any,
 }
 
-ChooseRoutes.propTypes = {
-  store: PropTypes.object,
-  children: PropTypes.any
-}
-
-export default ChooseRoutes
+export default Routes

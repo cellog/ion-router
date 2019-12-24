@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import * as enzyme from 'enzyme'
-import Adapter from 'enzyme-adapter-react-16'
+import * as rtl from 'react-testing-library'
+import 'jest-dom/extend-expect'
 
 import { Provider, connect } from 'react-redux'
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
@@ -9,7 +9,6 @@ import createHistory from 'history/createMemoryHistory'
 import reducer from '../src/reducer'
 import storeEnhancer from '../src/storeEnhancer'
 
-enzyme.configure({ adapter: new Adapter() })
 
 const fakeWeekReducer = (state = 1) => state
 
@@ -51,14 +50,22 @@ function renderComponent(ComponentClass, props = {}, state = undefined, returnSt
       )
     }
   }
-  const ret = enzyme.mount(
-    <Tester {...props} />, intoDocument ? { attachTo: intoDocument } : undefined
-  )
+  let ret
+  rtl.act(() => {
+    ret = rtl.render(
+      <Tester {...props} />, intoDocument ? { container: intoDocument } : undefined
+    )
+  })
+  const { rerender } = ret
+  ret.rerender = (newProps) => {
+    rtl.act(() => {
+      rerender(<Tester {...newProps} />, intoDocument ? { container: intoDocument } : undefined)
+    })
+  }
   if (returnStore) {
     return [ret, mySagaStore.store, mySagaStore.log]
   }
   return ret
 }
-
 
 export { renderComponent, connect, sagaStore } // eslint-disable-line

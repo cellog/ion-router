@@ -1,6 +1,5 @@
 import * as actions from './actions'
 import * as enhancers from './enhancers'
-import { connectToggle } from './Toggle'
 import middleware from './middleware'
 
 import makeRouterStoreEnhancer from './storeEnhancer'
@@ -20,8 +19,7 @@ export function synchronousMakeRoutes(routes, opts) {
 }
 
 export default function makeRouter(connect, store, routeDefinitions,
-  isServer = false, storeKey = 'store') {
-  connectToggle(connect, storeKey)
+  isServer = false) {
   store.routerOptions.isServer = isServer // eslint-disable-line
   if (routeDefinitions) {
     store.dispatch(synchronousMakeRoutes(routeDefinitions, store.routerOptions))

@@ -1,4 +1,4 @@
-import createBrowserHistory from 'history/createBrowserHistory'
+import { createBrowserHistory } from 'history'
 import { compose } from 'redux'
 
 import middleware, { actionHandlers } from './middleware'
