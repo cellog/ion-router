@@ -1,20 +1,46 @@
 import * as types from './types'
-import { stateRouteShape } from './actions'
+import {
+  stateRouteShape,
+  IonRouterActions,
+  RouteParams,
+  RouteState,
+} from './actions'
 
-const defaultState = {
+export interface IonRouterState {
+  location: {
+    pathname: string
+    search: string
+    hash: string
+  }
+  matchedRoutes: string[]
+  routes: {
+    ids: string[]
+    routes: {
+      [id: string]: {
+        name: string
+        path: string
+        parent: string
+        params: RouteParams
+        state: RouteState
+      }
+    }
+  }
+}
+
+const defaultState: IonRouterState = {
   location: {
     pathname: '',
     search: '',
-    hash: ''
+    hash: '',
   },
   matchedRoutes: [],
   routes: {
     ids: [],
     routes: {},
-  }
+  },
 }
 
-export default (state = defaultState, action) => {
+export default (state = defaultState, action: IonRouterActions) => {
   if (!action || !action.type) return state
   let route
   let name
@@ -22,9 +48,12 @@ export default (state = defaultState, action) => {
   let routes
   switch (action.type) {
     case types.ROUTE:
-      if (action.payload.pathname === state.location.pathname
-        && action.payload.search === state.location.search
-        && action.payload.hash === state.location.hash) return state
+      if (
+        action.payload.pathname === state.location.pathname &&
+        action.payload.search === state.location.search &&
+        action.payload.hash === state.location.hash
+      )
+        return state
       return {
         ...state,
         location: { ...action.payload },
@@ -39,15 +68,15 @@ export default (state = defaultState, action) => {
             [action.payload.route]: {
               ...state.routes.routes[action.payload.route],
               params: action.payload.params,
-              state: action.payload.state
-            }
-          }
-        }
+              state: action.payload.state,
+            },
+          },
+        },
       }
     case types.MATCH_ROUTES:
       return {
         ...state,
-        matchedRoutes: action.payload
+        matchedRoutes: action.payload,
       }
     case types.BATCH_ROUTES:
       return {
@@ -56,16 +85,15 @@ export default (state = defaultState, action) => {
           ids: [...state.routes.ids, ...action.payload.ids],
           routes: {
             ...state.routes.routes,
-            ...action.payload.ids.reduce(
-              (defs, n) => {
-                const r = action.payload.routes[n]
-                return {
-                  ...defs,
-                  [r.name]: stateRouteShape(r)
-                }
-              }, {})
-          }
-        }
+            ...action.payload.ids.reduce((defs, n) => {
+              const r = action.payload.routes[n]
+              return {
+                ...defs,
+                [r.name]: stateRouteShape(r),
+              }
+            }, {}),
+          },
+        },
       }
     case types.EDIT_ROUTE:
       route = action.payload
@@ -80,10 +108,10 @@ export default (state = defaultState, action) => {
               path: route.path,
               parent: route.parent,
               params: route.params,
-              state: route.state
-            }
-          }
-        }
+              state: route.state,
+            },
+          },
+        },
       }
     case types.REMOVE_ROUTE:
       name = action.payload
@@ -96,17 +124,20 @@ export default (state = defaultState, action) => {
         routes: {
           ids,
           routes,
-        }
+        },
       }
     case types.BATCH_REMOVE_ROUTES:
       ids = state.routes.ids.filter(id => !action.payload.ids.includes(id))
-      routes = ids.reduce((newroutes, id) => ({ ...newroutes, [id]: state.routes.routes[id] }), {})
+      routes = ids.reduce(
+        (newroutes, id) => ({ ...newroutes, [id]: state.routes.routes[id] }),
+        {}
+      )
       return {
         ...state,
         routes: {
           ids,
-          routes
-        }
+          routes,
+        },
       }
     default:
       return state

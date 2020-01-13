@@ -11,3 +11,6 @@ export const SET_PARAMS = '@@ion-router/SET_PARAMS'
 
 export const ENTER_ROUTES = '@@ion-router/ENTER_ROUTES'
 export const EXIT_ROUTES = '@@ion-router/EXIT_ROUTES'
+
+export const PENDING_UPDATES = '@@ion-router/PENDING_UPDATES'
+export const COMMITTED_UPDATES = '@@ion-router/COMMITTED_UPDATES'
