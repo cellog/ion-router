@@ -1,5 +1,5 @@
 import RouteParser from 'route-parser'
-import { IonRouterRoute, RouteParams } from './actions'
+import { IonRouterRoute } from './actions'
 
 export interface DeclareRoute<
   State,
@@ -32,12 +32,6 @@ interface EnhancedRoute<
   '@parser': RouteParser<Params>
 }
 
-type EnhancedRoutes<
-  State,
-  Params extends { [P in keyof State]: string },
-  Action extends { type: string }
-> = EnhancedRoute<State, Params, Action>[]
-
 export const fake = () => ({})
 
 export function enhanceRoute<
@@ -69,13 +63,13 @@ export function save<
   State,
   Params extends { [P in keyof State]: string },
   Action extends { type: string },
-  AllState,
-  AllParams extends { [P in keyof AllState]: string },
-  AllActions extends { type: string }
+  ERoutes extends {
+    [name: string]: EnhancedRoute<any, { [key: string]: string }, any>
+  }
 >(
   routerParams: DeclareRoute<State, Params, Action>,
-  enhancements: EnhancedRoutes<AllState, AllParams, AllActions>
-) {
+  enhancements: ERoutes
+): ERoutes {
   return {
     ...enhancements,
     [routerParams.name]: enhanceRoute(routerParams),
