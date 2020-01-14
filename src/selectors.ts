@@ -1,33 +1,50 @@
-export function matchedRoute(state, name, strict = false) {
+import { IonRouterState } from './reducer'
+
+interface FullStateWithRouter {
+  [stateSlice: string]: any
+  routing: IonRouterState
+}
+
+export function matchedRoute(
+  state: FullStateWithRouter,
+  name: string | string[],
+  strict = false
+) {
   if (Array.isArray(name)) {
-    const matches = state.routing.matchedRoutes.filter(route => name.includes(route))
+    const matches = state.routing.matchedRoutes.filter(route =>
+      name.includes(route)
+    )
     if (strict) return matches.length === name.length
     return !!matches.length
   }
   return state.routing.matchedRoutes.includes(name)
 }
 
-export function noMatches(state) {
+export function noMatches(state: FullStateWithRouter) {
   return state.routing.matchedRoutes.length === 0
 }
 
-export function oldState(state, route) {
+export function oldState(state: FullStateWithRouter, route: string) {
   return state.routing.routes.routes[route].state
 }
 
-export function oldParams(state, route) {
+export function oldParams(state: FullStateWithRouter, route: string) {
   return state.routing.routes.routes[route].params
 }
 
-export function matchedRoutes(state) {
+export function matchedRoutes(state: FullStateWithRouter) {
   return state.routing.matchedRoutes
 }
 
-export function location(state) {
+export function location(state: FullStateWithRouter) {
   return state.routing.location
 }
 
-export function stateExists(state, template, fullState = undefined) {
+export function stateExists(
+  state: FullStateWithRouter,
+  template: { [key: string]: any },
+  fullState: FullStateWithRouter | undefined = undefined
+): boolean {
   const full = fullState || state
   const keys = Object.keys(template)
   return keys.reduce((valid, key) => {
@@ -36,7 +53,7 @@ export function stateExists(state, template, fullState = undefined) {
       return template[key](state[key], full)
     }
     switch (typeof template[key]) {
-      case 'object' :
+      case 'object':
         if (template[key] === null) {
           return state[key] === null
         }
@@ -47,7 +64,7 @@ export function stateExists(state, template, fullState = undefined) {
           return false
         }
         return stateExists(state[key], template[key], full)
-      default :
+      default:
         return typeof template[key] === typeof state[key]
     }
   }, true)
