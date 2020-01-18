@@ -1,6 +1,6 @@
 import { IonRouterState } from './reducer'
 
-interface FullStateWithRouter {
+export interface FullStateWithRouter {
   [stateSlice: string]: any
   routing: IonRouterState
 }

@@ -1,43 +1,55 @@
 import RouteParser from 'route-parser'
 import { IonRouterRoute } from './actions'
+import { FullStateWithRouter } from './selectors'
 
 export interface DeclareRoute<
   State,
   Params extends { [P in keyof State]: string },
-  Action extends { type: string }
+  Action extends { type: string; [key: string]: any }
 > {
   name: string
   path: string
   parent: string
-  stateFromParams: (t: Params) => State
-  paramsFromState: (t: State) => Params
-  updateState: MapInBetweenActions<State, Action>
-  exitParams?: ((exitState: State) => Partial<State>) | Partial<State>
+  stateFromParams?: (t: Params, s?: FullStateWithRouter) => State
+  paramsFromState?: (t: State) => Params
+  updateState?: MapInBetweenActions<State, Action>
+  exitParams?: ((exitParams: Params) => Partial<Params>) | Partial<Params>
 }
 
 export type MapInBetweenActions<InBetweenState, Action> = Partial<
   {
-    [P in keyof InBetweenState]: (
+    [P in keyof InBetweenState]?: (
       param: InBetweenState[P],
       state: InBetweenState
-    ) => false | Action
+    ) => Action | Action[]
   }
 >
 
-interface EnhancedRoute<
+export interface EnhancedRoute<
   State,
   Params extends { [P in keyof State]: string },
-  Action extends { type: string }
+  Action extends { type: string; [key: string]: any }
 > extends DeclareRoute<State, Params, Action>, IonRouterRoute<State, Params> {
+  stateFromParams: (t: Params, s?: FullStateWithRouter) => State
+  paramsFromState: (t: State) => Params
+  updateState: MapInBetweenActions<State, Action>
+  exitParams?: ((exitParams: Params) => Partial<Params>) | Partial<Params>
   '@parser': RouteParser<Params>
 }
+
+export type GetUpdateStateReturn<
+  E extends EnhancedRoute<any, any, any>,
+  key extends keyof E['updateState']
+> = E['updateState'][key] extends (param: any, state: any) => infer R
+  ? R
+  : false
 
 export const fake = () => ({})
 
 export function enhanceRoute<
   State,
   Params extends { [P in keyof State]: string },
-  Action extends { type: string }
+  Action extends { type: string; [key: string]: any }
 >(
   routeParams: DeclareRoute<State, Params, Action>
 ): EnhancedRoute<State, Params, Action> {
@@ -45,11 +57,19 @@ export function enhanceRoute<
   const check = parser.reverse({} as Params)
   const matched = check ? parser.match(check) : false
   const reversed = matched
-    ? ((matched as unknown) as Partial<State>)
+    ? ((matched as unknown) as Partial<Params>)
     : undefined
   return {
-    stateFromParams: fake,
-    paramsFromState: fake,
+    stateFromParams: (fake as unknown) as EnhancedRoute<
+      State,
+      Params,
+      Action
+    >['stateFromParams'],
+    paramsFromState: (fake as unknown) as EnhancedRoute<
+      State,
+      Params,
+      Action
+    >['paramsFromState'],
     updateState: {},
     state: {} as State,
     params: {} as Params,
@@ -59,13 +79,15 @@ export function enhanceRoute<
   }
 }
 
+export interface EnhancedRoutes {
+  [name: string]: EnhancedRoute<any, { [key: string]: string }, any>
+}
+
 export function save<
   State,
   Params extends { [P in keyof State]: string },
   Action extends { type: string },
-  ERoutes extends {
-    [name: string]: EnhancedRoute<any, { [key: string]: string }, any>
-  }
+  ERoutes extends EnhancedRoutes
 >(
   routerParams: DeclareRoute<State, Params, Action>,
   enhancements: ERoutes

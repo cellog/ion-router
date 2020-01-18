@@ -1,5 +1,6 @@
 import * as types from './types'
-import { Location } from 'history'
+import { Location, History } from 'history'
+import { DeclareRoute } from './enhancers'
 
 export interface IonRouterRoute<
   State = { [key: string]: any },
@@ -13,6 +14,18 @@ export interface IonRouterRoute<
 }
 
 export type ActionVerbs = 'push' | 'replace' | 'go' | 'goBack' | 'goForward'
+type HistoryKey<K> = K extends keyof History ? K : never
+export type ActionHistoryKeys = HistoryKey<ActionVerbs>
+
+export const isCallableVerb = (verb: string): verb is ActionHistoryKeys => {
+  return (
+    verb === 'push' ||
+    verb === 'replace' ||
+    verb === 'go' ||
+    verb === 'goBack' ||
+    verb === 'goForward'
+  )
+}
 
 export interface RouteParams {
   [key: string]: any
@@ -22,11 +35,15 @@ export interface RouteState {
   [key: string]: any
 }
 
+export type AllUrlActions<T extends ActionVerbs> = T extends ActionVerbs
+  ? UrlAction<T>
+  : never
+
 export type IonRouterActions =
-  | UrlAction
+  | AllUrlActions<ActionVerbs>
   | MatchRoutesAction
   | RouteAction
-  | EditRouteAction
+  | EditRouteAction<any, any, any>
   | RemoveRouteAction
   | ExitRoutesAction
   | SetParamsAndStateAction
@@ -37,24 +54,29 @@ export type IonRouterActions =
   | BatchAddRoutesAction
   | BatchRemoveRoutesAction
 
-export interface UrlAction<Verb extends ActionVerbs = ActionVerbs> {
+export interface UrlAction<Verb extends ActionVerbs> {
   type: '@@ion-router/ACTION'
   payload: {
     verb: Verb
     route?: string
+    distance?: number
     state?: any
   }
 }
 
-export function stateRouteShape<State, Params>(
-  params: IonRouterRoute<State, Params>
-) {
+export function stateRouteShape<
+  State,
+  Params extends { [P in keyof State]: string },
+  Action extends { type: string }
+>(
+  params: DeclareRoute<State, Params, Action>
+): EditRouteAction<State, Params, Action>['payload'] {
   return {
     name: params.name,
     path: params.path,
     parent: params.parent,
-    params: {},
-    state: {},
+    params: {} as Params,
+    state: {} as State,
   }
 }
 
@@ -72,12 +94,12 @@ function makeUrlAction<Verb extends ActionVerbs>(name: Verb) {
 export const push = makeUrlAction('push')
 export const replace = makeUrlAction('replace')
 
-export function go(details: string): UrlAction<'go'> {
+export function go(details: number): UrlAction<'go'> {
   return {
     type: types.ACTION,
     payload: {
       verb: 'go',
-      route: details,
+      distance: details,
     },
   }
 }
@@ -124,15 +146,28 @@ export function route(location: Location): RouteAction {
   }
 }
 
-export interface EditRouteAction {
+export interface EditRouteAction<
+  State,
+  Params extends { [P in keyof State]: string },
+  Action extends { type: string }
+> {
   type: '@@ion-router/EDIT_ROUTE'
-  payload: IonRouterRoute
+  payload: DeclareRoute<State, Params, Action> & {
+    params: Params
+    state: State
+  }
 }
 
-export function addRoute(params: IonRouterRoute): EditRouteAction {
+export function addRoute<
+  State,
+  Params extends { [P in keyof State]: string },
+  Action extends { type: string }
+>(
+  params: DeclareRoute<State, Params, Action>
+): EditRouteAction<State, Params, Action> {
   return {
     type: types.EDIT_ROUTE,
-    payload: stateRouteShape(params),
+    payload: stateRouteShape<State, Params, Action>(params),
   }
 }
 
