@@ -1,6 +1,7 @@
 import * as types from './types'
 import { Location, History } from 'history'
 import { DeclareRoute } from './enhancers'
+import { FullStateWithRouter } from './selectors'
 
 export interface IonRouterRoute<
   State = { [key: string]: any },
@@ -43,7 +44,7 @@ export type IonRouterActions =
   | AllUrlActions<ActionVerbs>
   | MatchRoutesAction
   | RouteAction
-  | EditRouteAction<any, any, any>
+  | EditRouteAction<FullStateWithRouter, any, any, any>
   | RemoveRouteAction
   | ExitRoutesAction
   | SetParamsAndStateAction
@@ -65,18 +66,24 @@ export interface UrlAction<Verb extends ActionVerbs> {
 }
 
 export function stateRouteShape<
-  State,
-  Params extends { [P in keyof State]: string },
-  Action extends { type: string }
+  ReduxState extends FullStateWithRouter,
+  Params extends { [key: string]: string },
+  ParamsState extends { [P in keyof Params]: any },
+  Action extends { type: string; [key: string]: any }
 >(
-  params: DeclareRoute<State, Params, Action>
-): EditRouteAction<State, Params, Action>['payload'] {
+  params: DeclareRoute<ReduxState, Params, ParamsState, Action>
+): EditRouteAction<
+  FullStateWithRouter,
+  Params,
+  ParamsState,
+  Action
+>['payload'] {
   return {
     name: params.name,
     path: params.path,
     parent: params.parent,
     params: {} as Params,
-    state: {} as State,
+    state: {} as ParamsState,
   }
 }
 
@@ -147,27 +154,29 @@ export function route(location: Location): RouteAction {
 }
 
 export interface EditRouteAction<
-  State,
-  Params extends { [P in keyof State]: string },
-  Action extends { type: string }
+  ReduxState extends FullStateWithRouter,
+  Params extends { [key: string]: string },
+  ParamsState extends { [P in keyof Params]: any },
+  Action extends { type: string; [key: string]: any }
 > {
   type: '@@ion-router/EDIT_ROUTE'
-  payload: DeclareRoute<State, Params, Action> & {
+  payload: DeclareRoute<ReduxState, Params, ParamsState, Action> & {
     params: Params
-    state: State
+    state: ParamsState
   }
 }
 
 export function addRoute<
-  State,
-  Params extends { [P in keyof State]: string },
-  Action extends { type: string }
+  ReduxState extends FullStateWithRouter,
+  Params extends { [key: string]: string },
+  ParamsState extends { [P in keyof Params]: any },
+  Action extends { type: string; [key: string]: any }
 >(
-  params: DeclareRoute<State, Params, Action>
-): EditRouteAction<State, Params, Action> {
+  params: DeclareRoute<ReduxState, Params, ParamsState, Action>
+): EditRouteAction<ReduxState, Params, ParamsState, Action> {
   return {
     type: types.EDIT_ROUTE,
-    payload: stateRouteShape<State, Params, Action>(params),
+    payload: stateRouteShape<ReduxState, Params, ParamsState, Action>(params),
   }
 }
 
@@ -190,14 +199,16 @@ export interface BatchRemoveRoutesAction extends BatchActionBase {
 }
 
 export function batch<A extends BatchActionBase['type']>(
-  batchRoutes: IonRouterRoute[],
+  batchRoutes: DeclareRoute<FullStateWithRouter, any, any, any>[],
   type: A
 ) {
   return {
     type,
     payload: {
       ids: batchRoutes.map(r => r.name),
-      routes: batchRoutes.reduce(
+      routes: batchRoutes.reduce<{
+        [name: string]: IonRouterRoute
+      }>(
         (defs, r) => ({
           ...defs,
           [r.name]: {
@@ -207,15 +218,15 @@ export function batch<A extends BatchActionBase['type']>(
             state: {},
           },
         }),
-        {} as {
-          [name: string]: IonRouterRoute
-        }
+        {}
       ),
     },
   }
 }
 
-export function batchRoutes(routes: IonRouterRoute[]): BatchAddRoutesAction {
+export function batchRoutes(
+  routes: DeclareRoute<FullStateWithRouter, any, any, any>[]
+): BatchAddRoutesAction {
   return batch(routes, types.BATCH_ROUTES) as BatchAddRoutesAction
 }
 
@@ -232,7 +243,7 @@ export function removeRoute(name: string): RemoveRouteAction {
 }
 
 export function batchRemoveRoutes(
-  routes: IonRouterRoute[]
+  routes: DeclareRoute<FullStateWithRouter, any, any, any>[]
 ): BatchRemoveRoutesAction {
   return batch(routes, types.BATCH_REMOVE_ROUTES) as BatchRemoveRoutesAction
 }

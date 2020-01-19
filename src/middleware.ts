@@ -54,7 +54,7 @@ export interface ActionHandlers {
     actions.AllUrlActions<actions.ActionVerbs>
   >
   '@@ion-router/EDIT_ROUTE': ActionHandler<
-    actions.EditRouteAction<any, any, any>
+    actions.EditRouteAction<FullStateWithRouter, any, any, any>
   >
   '@@ion-router/BATCH_ROUTES': ActionHandler<actions.BatchAddRoutesAction>
   '@@ion-router/REMOVE_ROUTE': ActionHandler<actions.RemoveRouteAction>

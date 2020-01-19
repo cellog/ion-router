@@ -88,11 +88,12 @@ export function urlFromState(
 }
 
 export function getStateUpdates<
-  InBetweenState extends { [key: string]: any },
-  Params extends { [P in keyof InBetweenState]: string },
-  Action extends { type: string },
-  S extends enhancers.EnhancedRoute<InBetweenState, Params, Action>
->(s: S, newState: InBetweenState) {
+  ReduxState extends selectors.FullStateWithRouter,
+  Params extends { [key: string]: string },
+  ParamsState extends { [P in keyof Params]: any },
+  Action extends { type: string; [key: string]: any },
+  S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>
+>(s: S, newState: ParamsState) {
   const oldState = s.state
   const changes = changed(oldState, newState)
   const update = s.updateState
@@ -102,13 +103,14 @@ export function getStateUpdates<
 }
 
 export function updateState<
-  InBetweenState extends { [key: string]: any },
-  Params extends { [P in keyof InBetweenState]: string },
-  Action extends { type: string },
-  S extends enhancers.EnhancedRoute<InBetweenState, Params, Action>
+  ReduxState extends selectors.FullStateWithRouter,
+  Params extends { [key: string]: string },
+  ParamsState extends { [P in keyof Params]: any },
+  Action extends { type: string; [key: string]: any },
+  S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>
 >(s: S, params: Params, state: selectors.FullStateWithRouter) {
   const newState = s.stateFromParams(params, state)
-  const changes = getStateUpdates<InBetweenState, Params, Action, S>(
+  const changes = getStateUpdates<ReduxState, Params, ParamsState, Action, S>(
     s,
     newState
   )
@@ -136,8 +138,11 @@ export function updateState<
 }
 
 export function template<
+  ReduxState extends selectors.FullStateWithRouter,
   Params extends { [key: string]: string },
-  S extends enhancers.EnhancedRoute<any, Params, any>
+  ParamsState extends { [P in keyof Params]: any },
+  Action extends { type: string; [key: string]: any },
+  S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>
 >(s: S, params: Params) {
   return s.exitParams instanceof Function
     ? { ...s.exitParams(params) }
@@ -145,15 +150,16 @@ export function template<
 }
 
 export const exitRoute = <
-  InBetweenState extends { [key: string]: any },
-  Params extends { [P in keyof InBetweenState]: string },
-  Action extends { type: string },
-  S extends enhancers.EnhancedRoute<InBetweenState, Params, Action>,
+  ReduxState extends selectors.FullStateWithRouter,
+  Params extends { [key: string]: string },
+  ParamsState extends { [P in keyof Params]: any },
+  Action extends { type: string; [key: string]: any },
+  S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>,
   E extends {
     [key: string]: S
   }
 >(
-  state: selectors.FullStateWithRouter,
+  state: ReduxState,
   enhanced: E,
   name: keyof E
 ) => {
@@ -165,12 +171,25 @@ export const exitRoute = <
     const parent = enhanced[a.parent]
     if (!selectors.matchedRoute(state, parent.name)) {
       // we have left a child route and its parent
-      parentParams = { ...parentParams, ...template(parent, parentParams) }
+      parentParams = {
+        ...parentParams,
+        ...template<ReduxState, Params, ParamsState, Action, S>(
+          parent,
+          parentParams
+        ),
+      }
     }
     a = parent
   }
-  parentParams = { ...parentParams, ...template(s, parentParams) }
-  return updateState<InBetweenState, Params, Action, S>(s, parentParams, state)
+  parentParams = {
+    ...parentParams,
+    ...template<ReduxState, Params, ParamsState, Action, S>(s, parentParams),
+  }
+  return updateState<ReduxState, Params, ParamsState, Action, S>(
+    s,
+    parentParams,
+    state
+  )
 }
 
 export function stateFromLocation(
@@ -264,13 +283,14 @@ function routeMatching<S extends { [key: string]: any }>(
 }
 
 export const makeRoute: ActionHandler<actions.EditRouteAction<
+  selectors.FullStateWithRouter,
   any,
   any,
   any
 >> = (
   enhancedRoutes: enhancers.EnhancedRoutes,
   state: selectors.FullStateWithRouter,
-  action: actions.EditRouteAction<any, any, any>
+  action: actions.EditRouteAction<selectors.FullStateWithRouter, any, any, any>
 ) => {
   const newEnhancedRoutes = enhancers.save(action.payload, enhancedRoutes)
   return {
