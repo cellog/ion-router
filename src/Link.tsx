@@ -99,12 +99,12 @@ export function Link<ExtraProps extends { [key: string]: any }>(
   props: Props & HTMLAnchor & ExtraProps
 ) {
   const { to, replace, onClick, href, children, route } = props
-  const routeInfo = useContext(Context)!
+  const routeInfo = useContext(Context)
   const [routeState, setRoute] = useState<false | RouteParser>(
-    createRouteParser(route!, routeInfo)
+    routeInfo ? createRouteParser(route!, routeInfo) : false
   )
   useEffect(() => {
-    if (route && routeInfo.routes[route]) {
+    if (route && routeInfo && routeInfo.routes[route]) {
       setRoute(new RouteParser(routeInfo.routes[route].path))
     }
   }, [route, routeInfo])
@@ -120,7 +120,7 @@ export function Link<ExtraProps extends { [key: string]: any }>(
       } else {
         url = to || ''
       }
-      routeInfo.dispatch(actions[action](url))
+      routeInfo && routeInfo.dispatch(actions[action](url))
       if (onClick) {
         onClick(e)
       }
