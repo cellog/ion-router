@@ -4,6 +4,7 @@ import React, {
   useState,
   useContext,
   useEffect,
+  useRef,
 } from 'react'
 import PropTypes from 'prop-types'
 import Context, { RouterContext } from './Context'
@@ -58,31 +59,30 @@ function Route<
   Action extends { type: string; [key: string]: any }
 >(props: Props<ReduxState, Params, ParamsState, Action>) {
   const info = useContext(Context)
+  const added = useRef(false)
   const { parent, parentUrl, children, ...params } = props
-  const [url, setUrl] = useState(parentUrl)
-  useEffect(() => {
-    if (parent && info && info.routes && info.routes[parent]) {
-      setUrl(info.routes[parent].path)
-    }
-  }, [])
+  let url = parentUrl
+  if (parent && info && info.routes && info.routes[parent]) {
+    url = info.routes[parent].path
+  }
   const slash = url && url[url.length - 1] === '/' ? '' : '/'
-
   const path = url ? `${url}${slash}${params.path}` : params.path
-  info &&
+  if (!added.current && info) {
     info.addRoute<ReduxState, Params, ParamsState, Action>({
       ...defaultProps,
       ...params,
-      parent: parent as string,
+      parent,
       path,
     } as DeclareRoute<ReduxState, Params, ParamsState, Action>)
-  setUrl(path)
+    added.current = true
+  }
 
   return (
     <div style={{ display: 'none' }}>
       {children &&
         Children.map(children, child =>
           React.cloneElement(child, {
-            parentUrl: url,
+            parentUrl: path,
           })
         )}
     </div>
