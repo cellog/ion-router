@@ -11,7 +11,7 @@ export interface RouterContext {
   addRoute: <
     ReduxState extends FullStateWithRouter,
     Params extends { [key: string]: string },
-    ParamsState extends { [P in keyof Params]: any },
+    ParamsState extends { [key: string]: any },
     Action extends { type: string; [key: string]: any }
   >(
     route: DeclareRoute<ReduxState, Params, ParamsState, Action>

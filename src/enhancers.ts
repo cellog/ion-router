@@ -5,7 +5,7 @@ import { FullStateWithRouter } from './selectors'
 export interface DeclareRoute<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 > {
   name: string
@@ -28,7 +28,7 @@ export type MapInBetweenActions<ParamsState, Action> = Partial<
 export interface EnhancedRoute<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 >
   extends DeclareRoute<ReduxState, Params, ParamsState, Action>,
@@ -52,7 +52,7 @@ export const fake = () => ({})
 export function enhanceRoute<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 >(
   routeParams: DeclareRoute<ReduxState, Params, ParamsState, Action>
@@ -97,7 +97,7 @@ export interface EnhancedRoutes {
 export function save<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any },
   ERoutes extends EnhancedRoutes
 >(

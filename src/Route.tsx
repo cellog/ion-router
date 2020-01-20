@@ -10,7 +10,7 @@ export function fakeRouteHelper() {
 export interface Props<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 > {
   name: string
@@ -47,7 +47,7 @@ const defaultProps = {
 function Route<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 >(props: Props<ReduxState, Params, ParamsState, Action>) {
   const info = useContext(Context)

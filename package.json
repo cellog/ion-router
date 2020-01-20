@@ -13,8 +13,11 @@
     "clean": "rimraf lib/",
     "local-test": "npx jest --watch --coverage ./test/*.test.*",
     "lint": "eslint --ext jsx --ext js src test",
-    "test": "npx jest --coverage ./test/*.test.*",
+    "test": "mpx tsd && npx jest --coverage ./test/*.test.*",
     "release": "npm run build && npm publish"
+  },
+  "tsd": {
+    "directory": "src/type-tests"
   },
   "jest": {
     "coverageDirectory": "./coverage"
@@ -96,6 +99,7 @@
     "react-redux": "^7.1.3",
     "redux": "^4.0.5",
     "rimraf": "^2.5.4",
+    "tsd": "^0.11.0",
     "typescript": "^3.7.5"
   }
 }

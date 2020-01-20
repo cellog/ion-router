@@ -69,5 +69,5 @@
     // "plugins": []
   },
   "include": ["./src"],
-  "exclude": ["./src/__mocks__"]
+  "exclude": ["./src/__mocks__", "./src/type-tests"]
 }

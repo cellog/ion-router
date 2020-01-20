@@ -68,7 +68,7 @@ export interface UrlAction<Verb extends ActionVerbs> {
 export function stateRouteShape<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 >(
   params: DeclareRoute<ReduxState, Params, ParamsState, Action>
@@ -156,7 +156,7 @@ export function route(location: Location): RouteAction {
 export interface EditRouteAction<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 > {
   type: '@@ion-router/EDIT_ROUTE'
@@ -169,7 +169,7 @@ export interface EditRouteAction<
 export function addRoute<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 >(
   params: DeclareRoute<ReduxState, Params, ParamsState, Action>

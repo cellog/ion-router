@@ -13,7 +13,7 @@ import { IonRouterState } from './reducer'
 function Routes<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
 >({ children }: { children: React.ReactChild }) {
   const myRoutes = useRef<

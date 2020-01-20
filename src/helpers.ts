@@ -93,7 +93,7 @@ export function urlFromState(
 export function getStateUpdates<
   ReduxState extends selectors.FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any },
   S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>
 >(s: S, newState: ParamsState) {
@@ -108,7 +108,7 @@ export function getStateUpdates<
 export function updateState<
   ReduxState extends selectors.FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any },
   S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>
 >(s: S, params: Params, state: selectors.FullStateWithRouter) {
@@ -143,7 +143,7 @@ export function updateState<
 export function template<
   ReduxState extends selectors.FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any },
   S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>
 >(s: S, params: Params) {
@@ -155,7 +155,7 @@ export function template<
 export const exitRoute = <
   ReduxState extends selectors.FullStateWithRouter,
   Params extends { [key: string]: string },
-  ParamsState extends { [P in keyof Params]: any },
+  ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any },
   S extends enhancers.EnhancedRoute<ReduxState, Params, ParamsState, Action>,
   E extends {
