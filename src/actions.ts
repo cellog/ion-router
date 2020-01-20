@@ -198,7 +198,7 @@ export interface BatchRemoveRoutesAction extends BatchActionBase {
   type: '@@ion-router/BATCH_REMOVE_ROUTES'
 }
 
-export function batch<A extends BatchActionBase['type']>(
+function batch<A extends BatchActionBase['type']>(
   batchRoutes: DeclareRoute<FullStateWithRouter, any, any, any>[],
   type: A
 ) {
