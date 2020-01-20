@@ -6,8 +6,8 @@ import Context from '../src/Context'
 import * as enhancers from '../src/enhancers'
 import { renderComponent, sagaStore } from './test_helper'
 import * as actions from "../src/actions"
-import * as rtl from 'react-testing-library'
-import 'react-testing-library/cleanup-after-each'
+import * as rtl from '@testing-library/react'
+import '@testing-library/react/cleanup-after-each'
 
 describe('Routes', () => {
   let component, store, log, CompClass // eslint-disable-line

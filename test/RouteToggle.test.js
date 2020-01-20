@@ -2,7 +2,7 @@ import React from 'react'
 
 import RouteToggle from '../src/RouteToggle'
 import { renderComponent } from './test_helper'
-import * as rtl from 'react-testing-library'
+import * as rtl from '@testing-library/react'
 
 describe('RouteToggle', () => {
   afterEach(() => rtl.cleanup())

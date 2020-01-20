@@ -1,7 +1,7 @@
 import React from 'react'
 import Toggle from '../src/Toggle'
 import { renderComponent, sagaStore } from './test_helper'
-import * as rtl from 'react-testing-library'
+import * as rtl from '@testing-library/react'
 
 describe('Toggle', () => {
   let rendered

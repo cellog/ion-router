@@ -3,8 +3,8 @@ import React, { Children }  from 'react'
 import ConnectLink, { Link } from '../src/Link'
 import { push, replace } from '../src/actions'
 import { renderComponent } from './test_helper'
-import * as rtl from 'react-testing-library'
-import 'react-testing-library/cleanup-after-each'
+import * as rtl from '@testing-library/react'
+import '@testing-library/react/cleanup-after-each'
 
 describe('Link', () => {
   const Show = (props) => (

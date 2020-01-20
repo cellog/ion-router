@@ -40,11 +40,11 @@ describe('actions', () => {
     })
   })
   test('go', () => {
-    expect(actions.go('/hi')).toEqual({
+    expect(actions.go(5)).toEqual({
       type: types.ACTION,
       payload: {
         verb: 'go',
-        route: '/hi'
+        distance: 5
       }
     })
   })
