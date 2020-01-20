@@ -3,6 +3,7 @@
   "version": "1.0.0-beta2",
   "description": "elegant powerful routing based on the simplicity of storing url as state",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "homepage": "https://cellog.github.io/ion-router",
   "directories": {
     "test": "tests"
