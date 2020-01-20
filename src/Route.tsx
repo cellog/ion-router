@@ -1,17 +1,9 @@
-import React, {
-  Children,
-  Component,
-  useState,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react'
-import PropTypes from 'prop-types'
+import React, { Children, useContext, useRef } from 'react'
 import Context, { RouterContext } from './Context'
 import { DeclareRoute } from './enhancers'
 import { FullStateWithRouter } from './selectors'
 
-export function fake() {
+export function fakeRouteHelper() {
   return {}
 }
 
@@ -47,8 +39,8 @@ export interface Props<
 }
 
 const defaultProps = {
-  paramsFromState: fake,
-  stateFromParams: fake,
+  paramsFromState: fakeRouteHelper,
+  stateFromParams: fakeRouteHelper,
   updateState: {},
 }
 

@@ -73,11 +73,11 @@ export const actionHandlers: ActionHandlers = {
 
   [types.ACTION]: pass,
   [types.EDIT_ROUTE]: helpers.makeRoute,
-  [types.BATCH_ROUTES]: helpers.batchRoutes,
-  [types.REMOVE_ROUTE]: helpers.removeRoute,
-  [types.BATCH_REMOVE_ROUTES]: helpers.batchRemoveRoutes,
+  [types.BATCH_ROUTES]: helpers.batchRoutesHelper,
+  [types.REMOVE_ROUTE]: helpers.removeRouteHelper,
+  [types.BATCH_REMOVE_ROUTES]: helpers.batchRemoveRoutesHelper,
 
-  [types.ROUTE]: helpers.matchRoutes,
+  [types.ROUTE]: helpers.matchRoutesHelper,
   '*': helpers.urlFromState,
 }
 

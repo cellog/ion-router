@@ -2,12 +2,10 @@ import { createBrowserHistory, History } from 'history'
 import invariant from 'invariant'
 import {
   compose,
-  StoreEnhancer,
   Store,
   Action,
   AnyAction,
   Reducer,
-  DeepPartial,
   StoreEnhancerStoreCreator,
   Dispatch,
 } from 'redux'
@@ -45,7 +43,7 @@ const enhancer = (
   A extends AnyAction = AnyAction | IonRouterActions
 >(
   reducer: Reducer<S, A>,
-  preloadedState?: DeepPartial<S>
+  preloadedState?: any // TODO: when redux exports PreLoadedState use that
 ): Store<S, A> & IonRouterOptions => {
   const store = {
     ...createStore<S, A>(reducer, preloadedState),

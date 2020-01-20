@@ -72,7 +72,7 @@ export function urlFromState(
       },
     },
   }
-  const { toDispatch: t } = matchRoutes(
+  const { toDispatch: t } = matchRoutesHelper(
     enhancedRoutes,
     tempState,
     actions.route({
@@ -222,7 +222,7 @@ export function stateFromLocation(
   }
 }
 
-export const matchRoutes: ActionHandler<actions.RouteAction> = (
+export const matchRoutesHelper: ActionHandler<actions.RouteAction> = (
   enhancedRoutes: enhancers.EnhancedRoutes,
   state: selectors.FullStateWithRouter,
   action: actions.RouteAction,
@@ -277,7 +277,7 @@ function routeMatching<S extends { [key: string]: any }>(
   state: S,
   action: actions.IonRouterActions
 ) {
-  return matchRoutes(
+  return matchRoutesHelper(
     newEnhancedRoutes,
     stateWithRoutes(state, action),
     actions.route(state.routing.location)
@@ -301,7 +301,7 @@ export const makeRoute: ActionHandler<actions.EditRouteAction<
   }
 }
 
-export const batchRoutes: ActionHandler<actions.BatchAddRoutesAction> = (
+export const batchRoutesHelper: ActionHandler<actions.BatchAddRoutesAction> = (
   enhancedRoutes: enhancers.EnhancedRoutes,
   state: selectors.FullStateWithRouter,
   action: actions.BatchAddRoutesAction
@@ -322,7 +322,7 @@ export const batchRoutes: ActionHandler<actions.BatchAddRoutesAction> = (
   }
 }
 
-export const removeRoute: ActionHandler<actions.RemoveRouteAction> = (
+export const removeRouteHelper: ActionHandler<actions.RemoveRouteAction> = (
   enhancedRoutes: enhancers.EnhancedRoutes,
   _state: selectors.FullStateWithRouter,
   action: actions.RemoveRouteAction
@@ -335,7 +335,7 @@ export const removeRoute: ActionHandler<actions.RemoveRouteAction> = (
   }
 }
 
-export const batchRemoveRoutes: ActionHandler<actions.BatchRemoveRoutesAction> = (
+export const batchRemoveRoutesHelper: ActionHandler<actions.BatchRemoveRoutesAction> = (
   enhancedRoutes: enhancers.EnhancedRoutes,
   _state: selectors.FullStateWithRouter,
   action
