@@ -1,12 +1,10 @@
 import React, {
-  Component,
   MouseEvent,
   useCallback,
   useContext,
   useState,
   useEffect,
 } from 'react'
-import PropTypes from 'prop-types'
 import RouteParser from 'route-parser'
 import invariant from 'invariant'
 
@@ -14,22 +12,7 @@ import * as actions from './actions'
 import Context, { RouterContext } from './Context'
 import { Location } from 'history'
 
-const urlShape = PropTypes.oneOfType([
-  PropTypes.string,
-  PropTypes.shape({
-    pathname: PropTypes.string,
-    search: PropTypes.string,
-    hash: PropTypes.string,
-    state: PropTypes.any,
-  }),
-  PropTypes.bool,
-])
-
-export type UrlShape = string | Location
-
-interface AllLinkProps {}
-
-interface Props extends AllLinkProps {
+interface Props {
   route?: string
   children: React.ReactNode
   onClick?: (e: MouseEvent) => void
@@ -98,7 +81,7 @@ const validProps: ValidHTMLAnchorProps[] = [
 export function Link<ExtraProps extends { [key: string]: any }>(
   props: Props & HTMLAnchor & ExtraProps
 ) {
-  const { to, replace, onClick, href, children, route } = props
+  const { to, replace, onClick, href, children, route, ...extra } = props
   const routeInfo = useContext(Context)
   const [routeState, setRoute] = useState<false | RouteParser>(
     routeInfo ? createRouteParser(route!, routeInfo) : false
@@ -114,7 +97,9 @@ export function Link<ExtraProps extends { [key: string]: any }>(
       let url: string | Location
       const action = replace ? 'replace' : 'push'
       if (route) {
-        url = routeState ? routeState.reverse({ to, replace, href }) || '' : ''
+        url = routeState
+          ? routeState.reverse({ to, replace, href, ...extra }) || ''
+          : ''
       } else if (replace) {
         url = replace
       } else {
@@ -125,7 +110,7 @@ export function Link<ExtraProps extends { [key: string]: any }>(
         onClick(e)
       }
     },
-    [replace, route]
+    [replace, route, routeState, to, routeInfo, href, extra]
   )
 
   const aProps = Object.keys(props).reduce<

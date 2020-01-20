@@ -1,54 +1,35 @@
 import React, { Children }  from 'react'
 
-import ConnectLink, { Link } from '../src/Link'
+import { Link } from '../src/Link'
 import { push, replace } from '../src/actions'
 import { renderComponent } from './test_helper'
 import * as rtl from '@testing-library/react'
-import '@testing-library/react/cleanup-after-each'
+import Context from '../src/Context'
 
 describe('Link', () => {
-  const Show = (props) => (
-    <Link {...props}>
-      hi
-    </Link>
+  const Show = context => (props) => (
+    <Context.Provider value={context}>
+      <Link {...props}>
+        hi
+      </Link>
+    </Context.Provider>
   )
-  test('outside proper context', () => {
-    const props = {
-      route: 'hi',
-      there: 'baby',
-      __routeInfo: {
-        dispatch: jest.fn(() => {}),
-        routes: {
-          hi: {
-            name: 'hi',
-            path: '/hi/:there'
-          }
-        }
-      },
-    }
-    const dispatch = props.__routeInfo.dispatch
-    const component = renderComponent(Show, props)
-
-    rtl.fireEvent.click(component.getByText('hi'))
-    expect(dispatch).toHaveBeenCalledWith(push('/hi/baby'))
-  })
   test('dispatches replace', () => {
     const dispatch = jest.fn()
-    const component = renderComponent(Show, { __routeInfo: { dispatch }, replace: '/hi' })
+    const component = renderComponent(Show({ dispatch }), { replace: '/hi' })
     rtl.fireEvent.click(component.getByText('hi'))
     expect(dispatch).toHaveBeenCalledWith(replace('/hi'))
   })
   test('dispatches push', () => {
     const dispatch = jest.fn()
-    const component = renderComponent(Show, { __routeInfo: { dispatch }, to: { pathname: '/hi', search: '?foo', hash: '#ar', state: { foo: 'bar' } } })
+    const component = renderComponent(Show({ dispatch }), { to: { pathname: '/hi', search: '?foo', hash: '#ar', state: { foo: 'bar' } } })
     rtl.fireEvent.click(component.getByText('hi'))
     expect(dispatch).toHaveBeenCalledWith(push({ pathname: '/hi', search: '?foo', hash: '#ar', state: { foo: 'bar' } }))
   })
   test('calls original onClick', () => {
     const dispatch = jest.fn()
     const onClick = jest.fn()
-    const component = renderComponent(Show, {
-      __routeInfo: { dispatch },
+    const component = renderComponent(Show({ dispatch }), {
       to: {
         pathname: '/hi',
         search: '?foo',
@@ -64,7 +45,7 @@ describe('Link', () => {
   })
   test('renders children', () => {
     const dispatch = jest.fn()
-    const Far = () => <Link to="/hi" dispatch={() => null}><div>foo</div></Link> // eslint-disable-line
+    const Far = () => <Context.Provider value={{ dispatch }}><Link to="/hi" dispatch={() => null}><div>foo</div></Link></Context.Provider>
     const component = renderComponent(Far, { dispatch, replace: '/hi' })
     expect(component.queryByText('foo')).not.toBe(null)
   })
@@ -80,88 +61,81 @@ describe('Link', () => {
       console.error = c // eslint-disable-line
     })
     test('errors (in dev) on href passed in', () => {
-      expect(() => renderComponent(ConnectLink, { __routeInfo: { dispatch: () => null }, href: '/hi' }, {}, true))
+      expect(() => renderComponent(Show({ dispatch: () => {} }), { href: '/hi' }, {}, true))
         .toThrow('href should not be passed to Link, use "to," "replace" or "route" (passed "/hi")')
     })
   })
   describe('generates the correct path when route option is used', () => {
     test('push', () => {
       const dispatch = jest.fn()
-      const component = renderComponent(Show, {
+      const component = renderComponent(Show({
+        dispatch,
+        routes: {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          }
+        }
+      }), {
         route: 'hi',
         there: 'baby',
-        __routeInfo: {
-          dispatch,
-          routes: {
-            hi: {
-              name: 'hi',
-              path: '/hi/:there'
-            }
-          }
-        },
       })
       rtl.fireEvent.click(component.getByText('hi'))
       expect(dispatch).toBeCalledWith(push('/hi/baby'))
     })
     test('replace', () => {
       const dispatch = jest.fn()
-      const component = renderComponent(Show, {
+      const component = renderComponent(Show({
+        dispatch,
+        routes: {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          }
+        }
+      }), {
         route: 'hi',
         there: 'baby',
         replace: true,
-        __routeInfo: {
-          dispatch,
-          routes: {
-            hi: {
-              name: 'hi',
-              path: '/hi/:there'
-            }
-          }
-        },
       })
       rtl.fireEvent.click(component.getByText('hi'))
       expect(dispatch).toBeCalledWith(replace('/hi/baby'))
     })
     test('replaces route when props change', () => {
       let dispatch = jest.fn()
+      const contextValue = {
+        dispatch,
+        routes: {
+          hi: {
+            name: 'hi',
+            path: '/hi/:there'
+          },
+          there: {
+            name: 'there',
+            path: '/there/:there'
+          }
+        }
+      }
+      const S = Show(contextValue)
       const component = rtl.render(
-        <Show
+        <S
           route='hi'
           there='baby'
           replace={true}
-          __routeInfo={{
-          dispatch,
-          routes: {
-            hi: {
-              name: 'hi',
-              path: '/hi/:there'
-            },
-            there: {
-              name: 'there',
-              path: '/there/:there'
-            }
-          }}} />)
+        />)
       rtl.fireEvent.click(component.getByText('hi'))
       expect(dispatch).toBeCalledWith(replace('/hi/baby'))
-      dispatch = jest.fn()
-      component.rerender(<Show
+      contextValue.dispatch = jest.fn()
+      const S2 = Show({
+        ...contextValue
+      })
+      component.rerender(<S2
         route='there'
         there='baby'
         replace={true}
-        __routeInfo={{
-          dispatch,
-          routes: {
-            hi: {
-              name: 'hi',
-              path: '/hi/:there'
-            },
-            there: {
-              name: 'there',
-              path: '/there/:there'
-            }
-          }}} />)
+      />)
       rtl.fireEvent.click(component.getByText('hi'))
-      expect(dispatch).toBeCalledWith(replace('/there/baby'))
+      expect(contextValue.dispatch).toBeCalledWith(replace('/there/baby'))
     })
   })
 
