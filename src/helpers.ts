@@ -3,7 +3,7 @@ import { createPath, LocationDescriptorObject } from 'history'
 import * as actions from './actions'
 import * as selectors from './selectors'
 import * as enhancers from './enhancers'
-import reducer from './reducer'
+import reducer, { IonRouterState } from './reducer'
 import { ActionHandler, HandlerResult } from './middleware'
 
 export const filter = (
@@ -55,7 +55,9 @@ export function urlFromState(
         ...state.routing.routes,
         routes: {
           ...state.routing.routes.routes,
-          ...Object.keys(updatedRoutes).reduce(
+          ...Object.keys(updatedRoutes).reduce<
+            IonRouterState['routes']['routes']
+          >(
             (routes, key) => ({
               ...routes,
               [key]: {
@@ -78,7 +80,8 @@ export function urlFromState(
       search: '',
       state: false,
       hash: '',
-    })
+    }),
+    false
   )
   if (url && url !== currentUrl) toDispatch.push(actions.push(url))
   return {
@@ -219,7 +222,6 @@ export function stateFromLocation(
   }
 }
 
-// TODO NEXT TIME YOU READ THIS: narrow A and ActionHandler to history-specific actions
 export const matchRoutes: ActionHandler<actions.RouteAction> = (
   enhancedRoutes: enhancers.EnhancedRoutes,
   state: selectors.FullStateWithRouter,

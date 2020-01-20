@@ -44,7 +44,8 @@ export interface HandlerResult {
 export type ActionHandler<A extends actions.IonRouterActions> = (
   routes: EnhancedRoutes,
   state: FullStateWithRouter,
-  action: A
+  action: A,
+  updateParams?: boolean
 ) => HandlerResult
 
 export interface ActionHandlers {
