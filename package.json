@@ -11,9 +11,9 @@
   "scripts": {
     "build": "npm run clean && tsc && babel src --out-dir lib",
     "clean": "rimraf lib/",
-    "local-test": "npx jest --watch --coverage ./test/*.test.*",
+    "local-test": "jest --watch --coverage ./test/*.test.*",
     "lint": "eslint --ext jsx --ext js src test",
-    "test": "mpx tsd && npx jest --coverage ./test/*.test.*",
+    "test": "tsd && jest --coverage ./test/*.test.*",
     "release": "npm run build && npm publish"
   },
   "tsd": {

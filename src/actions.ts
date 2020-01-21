@@ -141,12 +141,16 @@ export function matchRoutes(routes: string[]): MatchRoutesAction {
   }
 }
 
+export type StateNotRequiredLocation = {
+  [P in Exclude<keyof Location, 'state' | 'key'>]: Location[P]
+} & { state?: any }
+
 export interface RouteAction {
   type: '@@ion-router/ROUTE'
-  payload: Location
+  payload: StateNotRequiredLocation
 }
 
-export function route(location: Location): RouteAction {
+export function route(location: StateNotRequiredLocation): RouteAction {
   return {
     type: types.ROUTE,
     payload: location,
@@ -198,10 +202,10 @@ export interface BatchRemoveRoutesAction extends BatchActionBase {
   type: '@@ion-router/BATCH_REMOVE_ROUTES'
 }
 
-function batch<A extends BatchActionBase['type']>(
-  batchRoutes: DeclareRoute<FullStateWithRouter, any, any, any>[],
-  type: A
-) {
+function batch<
+  StoreState extends FullStateWithRouter,
+  A extends BatchActionBase['type']
+>(batchRoutes: DeclareRoute<StoreState, any, any, any>[], type: A) {
   return {
     type,
     payload: {
@@ -224,10 +228,14 @@ function batch<A extends BatchActionBase['type']>(
   }
 }
 
-export function batchRoutes(
-  routes: DeclareRoute<FullStateWithRouter, any, any, any>[]
-): BatchAddRoutesAction {
-  return batch(routes, types.BATCH_ROUTES) as BatchAddRoutesAction
+export function batchRoutes<
+  StoreState extends FullStateWithRouter,
+  A extends '@@ion-router/BATCH_ROUTES'
+>(routes: DeclareRoute<StoreState, any, any, any>[]): BatchAddRoutesAction {
+  return batch<StoreState, A>(
+    routes,
+    types.BATCH_ROUTES as A
+  ) as BatchAddRoutesAction
 }
 
 export interface RemoveRouteAction {
@@ -242,10 +250,14 @@ export function removeRoute(name: string): RemoveRouteAction {
   }
 }
 
-export function batchRemoveRoutes(
-  routes: DeclareRoute<FullStateWithRouter, any, any, any>[]
-): BatchRemoveRoutesAction {
-  return batch(routes, types.BATCH_REMOVE_ROUTES) as BatchRemoveRoutesAction
+export function batchRemoveRoutes<
+  StoreState extends FullStateWithRouter,
+  A extends '@@ion-router/BATCH_REMOVE_ROUTES'
+>(routes: DeclareRoute<StoreState, any, any, any>[]): BatchRemoveRoutesAction {
+  return batch<StoreState, A>(
+    routes,
+    types.BATCH_REMOVE_ROUTES as A
+  ) as BatchRemoveRoutesAction
 }
 
 export interface SetParamsAndStateAction {

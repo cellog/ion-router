@@ -211,7 +211,7 @@ expectError(
       }
     },
     updateState: {
-      thing: (thing): { type: 'fronk'; thing: string[] } => ({
+      thing: thing => ({
         type: 'fronk',
         thing,
       }),
@@ -254,8 +254,8 @@ expectError(
     },
     paramsFromState: (state: 5) => {
       return {
-        there: state.routing.location.pathname,
-        arr: state.routing.location.hash,
+        there: 'there',
+        arr: 'hi',
       }
     },
     updateState: {
@@ -307,7 +307,7 @@ expectError(
       }
     },
     updateState: {
-      wrong: (thing): { type: 'fronk'; thing: string[] } => ({
+      wrong: (thing: any): { type: 'fronk'; thing: string[] } => ({
         type: 'fronk',
         thing,
       }),
@@ -331,7 +331,7 @@ expectError(
       }
     },
     updateState: {
-      there: thing => 1,
+      there: (thing: any) => 1,
     },
   })
 )

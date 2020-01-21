@@ -8,6 +8,7 @@ import {
   Reducer,
   StoreEnhancerStoreCreator,
   Dispatch,
+  PreloadedState,
 } from 'redux'
 
 import middleware, { actionHandlers } from './middleware'
@@ -18,7 +19,7 @@ import { IonRouterActions } from './actions'
 export interface IonRouterOptions {
   routerOptions: {
     [key: string]: any
-    server: boolean
+    isServer: boolean
     enhancedRoutes: EnhancedRoutes
   }
 }
@@ -43,12 +44,12 @@ const enhancer = (
   A extends AnyAction = AnyAction | IonRouterActions
 >(
   reducer: Reducer<S, A>,
-  preloadedState?: any // TODO: when redux exports PreLoadedState use that
+  preloadedState?: PreloadedState<S>
 ): Store<S, A> & IonRouterOptions => {
   const store = {
     ...createStore<S, A>(reducer, preloadedState),
     routerOptions: {
-      server: false,
+      isServer: false,
       enhancedRoutes: {},
       ...options,
     },

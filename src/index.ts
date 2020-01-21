@@ -10,7 +10,7 @@ export { middleware as makeRouterMiddleware }
 export { actionHandlers } from './middleware'
 import reducer from './reducer'
 import { FullStateWithRouter } from './selectors'
-import { Store } from 'redux'
+import { Store, AnyAction } from 'redux'
 
 export { reducer }
 
@@ -30,36 +30,40 @@ export * from './storeEnhancer'
 export * from './Toggle'
 
 // for unit-testing purposes
-export function synchronousMakeRoutes(
-  routes: enhancers.DeclareRoute<FullStateWithRouter, any, any, any>[],
-  opts: IonRouterOptions['routerOptions']
-) {
-  const action = actions.batchRoutes(routes)
+export function synchronousMakeRoutes<
+  StoreState extends FullStateWithRouter,
+  Actions extends AnyAction | actions.IonRouterActions,
+  E extends enhancers.DeclareRoute<StoreState, any, any, Actions>[]
+>(routes: E, opts: IonRouterOptions['routerOptions']) {
+  const action = actions.batchRoutes<StoreState, '@@ion-router/BATCH_ROUTES'>(
+    routes
+  )
   opts.enhancedRoutes = Object.keys(action.payload.routes).reduce(
-    (
-      en,
-      route // eslint-disable-line
-    ) => enhancers.save(action.payload.routes[route], en),
+    (en, route) => enhancers.save(action.payload.routes[route], en),
     opts.enhancedRoutes
   )
   return action
 }
 
-export default function makeRouter(
+export default function makeRouter<
+  StoreState extends FullStateWithRouter,
+  A extends AnyAction | actions.IonRouterActions,
+  E extends enhancers.DeclareRoute<StoreState, any, any, A>[]
+>(
   connect: any,
-  store: Store & IonRouterOptions,
-  routeDefinitions: enhancers.DeclareRoute<
-    FullStateWithRouter,
-    any,
-    any,
-    any
-  >[],
+  store: Store<StoreState & IonRouterOptions, A> & IonRouterOptions,
+  routeDefinitions: E,
   isServer = false
 ) {
-  store.routerOptions.isServer = isServer // eslint-disable-line
+  store.routerOptions.isServer = isServer
   if (routeDefinitions) {
-    store.dispatch(synchronousMakeRoutes(routeDefinitions, store.routerOptions))
+    store.dispatch(
+      synchronousMakeRoutes<StoreState, A, E>(
+        routeDefinitions,
+        store.routerOptions
+      ) as A
+    )
     // re-send now that routes exist
-    store.dispatch(actions.route(store.getState().routing.location))
+    store.dispatch(actions.route(store.getState().routing.location) as A)
   }
 }

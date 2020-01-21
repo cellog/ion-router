@@ -1,5 +1,5 @@
 import React from 'react'
-import Route, { fake } from '../src/Route'
+import Route, { fakeRouteHelper as fake } from '../src/Route'
 import Routes from '../src/Routes'
 import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
