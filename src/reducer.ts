@@ -19,7 +19,7 @@ export interface IonRouterState {
       [id: string]: {
         name: string
         path: string
-        parent: string
+        parent: string | undefined
         params: RouteParams
         state: RouteState
       }

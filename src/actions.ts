@@ -9,7 +9,7 @@ export interface IonRouterRoute<
 > {
   name: string
   path: string
-  parent: string
+  parent: string | undefined
   params: Params
   state: State
 }

@@ -10,7 +10,7 @@ export interface DeclareRoute<
 > {
   name: string
   path: string
-  parent: string
+  parent?: string
   stateFromParams?: (t: Params, s?: FullStateWithRouter) => ParamsState
   paramsFromState?: (t: ReduxState) => Params
   updateState?: MapInBetweenActions<ParamsState, Action>
@@ -30,9 +30,7 @@ export interface EnhancedRoute<
   Params extends { [key: string]: string },
   ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
->
-  extends DeclareRoute<ReduxState, Params, ParamsState, Action>,
-    IonRouterRoute<ParamsState, Params> {
+> extends IonRouterRoute<ParamsState, Params> {
   stateFromParams: (t: Params, s?: FullStateWithRouter) => ParamsState
   paramsFromState: (t: ReduxState) => Params
   updateState: MapInBetweenActions<ParamsState, Action>
@@ -76,6 +74,7 @@ export function enhanceRoute<
       ParamsState,
       Action
     >['paramsFromState'],
+    parent: undefined,
     updateState: {},
     state: {} as ParamsState,
     params: {} as Params,
