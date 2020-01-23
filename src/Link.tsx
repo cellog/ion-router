@@ -79,7 +79,7 @@ const validProps: ValidHTMLAnchorProps[] = [
 ]
 
 export function Link<ExtraProps extends { [key: string]: any }>(
-  props: Props & HTMLAnchor & ExtraProps
+  props: Props & Partial<HTMLAnchor> & ExtraProps
 ) {
   const { to, replace, onClick, href, children, route, ...extra } = props
   const routeInfo = useContext(Context)

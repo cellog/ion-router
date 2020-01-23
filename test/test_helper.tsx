@@ -3,35 +3,57 @@ import * as rtl from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 
 import { Provider, connect } from 'react-redux'
-import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
+import {
+  createStore,
+  combineReducers,
+  applyMiddleware,
+  compose,
+  Middleware,
+} from 'redux'
 import createHistory from 'history/createMemoryHistory'
 
 import reducer from '../src/reducer'
 import storeEnhancer from '../src/storeEnhancer'
-
+import { FullStateWithRouter } from '../src'
 
 const fakeWeekReducer = (state = 1) => state
 
-function sagaStore(state, reducers = { routing: reducer, week: fakeWeekReducer }, middleware = [],
-  enhancer = storeEnhancer(createHistory({
-    initialEntries: ['/']
-  }))) {
+function sagaStore(
+  state: FullStateWithRouter,
+  reducers = { routing: reducer, week: fakeWeekReducer },
+  middleware: Middleware[] = [],
+  enhancer = storeEnhancer(
+    createHistory({
+      initialEntries: ['/'],
+    })
+  )
+) {
   const log = []
-  const logger = store => next => action => { // eslint-disable-line
+  const logger = store => next => action => {
+    // eslint-disable-line
     log.push(action)
     return next(action)
   }
 
-  const store = createStore(combineReducers(reducers),
-    state, compose(enhancer, applyMiddleware(...middleware, logger)))
+  const store = createStore(
+    combineReducers(reducers),
+    state,
+    compose(enhancer as any, applyMiddleware(...middleware, logger))
+  )
   return {
     log,
     store,
   }
 }
 
-function renderComponent(ComponentClass, props = {}, state = undefined, returnStore = false,
-  mySagaStore = sagaStore(state), intoDocument = false) {
+function renderComponent(
+  ComponentClass,
+  props = {},
+  state = undefined,
+  returnStore = false,
+  mySagaStore = sagaStore(state),
+  intoDocument: false | HTMLElement = false
+) {
   class Tester extends Component {
     constructor(props) {
       super(props)
@@ -53,13 +75,17 @@ function renderComponent(ComponentClass, props = {}, state = undefined, returnSt
   let ret
   rtl.act(() => {
     ret = rtl.render(
-      <Tester {...props} />, intoDocument ? { container: intoDocument } : undefined
+      <Tester {...props} />,
+      intoDocument ? { container: intoDocument } : undefined
     )
   })
   const { rerender } = ret
-  ret.rerender = (newProps) => {
+  ret.rerender = newProps => {
     rtl.act(() => {
-      rerender(<Tester {...newProps} />, intoDocument ? { container: intoDocument } : undefined)
+      rerender(
+        <Tester {...newProps} />,
+        intoDocument ? { container: intoDocument } : undefined
+      )
     })
   }
   if (returnStore) {
