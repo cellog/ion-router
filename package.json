@@ -81,6 +81,7 @@
     "babel-jest": "^24.9.0",
     "babel-polyfill": "^6.26.0",
     "codeclimate-test-reporter": "^0.4.1",
+    "core-js": "^2.6.11",
     "dom-testing-library": "^3.3.0",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",

@@ -143,7 +143,7 @@ export function matchRoutes(routes: string[]): MatchRoutesAction {
 
 export type StateNotRequiredLocation = {
   [P in Exclude<keyof Location, 'state' | 'key'>]: Location[P]
-} & { state?: any }
+} & { state?: any; key?: any }
 
 export interface RouteAction {
   type: '@@ion-router/ROUTE'

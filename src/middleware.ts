@@ -10,8 +10,12 @@ import { IonRouterOptions, assertEnhancedStore } from './storeEnhancer'
 import { EnhancedRoutes } from './enhancers'
 import { FullStateWithRouter } from './selectors'
 
-export type MiddlewareListener = <A extends Action<any>, T extends any>(
-  store: Store<FullStateWithRouter, A> & IonRouterOptions,
+export type MiddlewareListener = <
+  S extends FullStateWithRouter,
+  A extends Action<any>,
+  T extends any
+>(
+  store: Store<S, A> & IonRouterOptions,
   next: (action: A) => T,
   action: A
 ) => T
@@ -50,7 +54,7 @@ export type ActionHandler<A extends actions.IonRouterActions> = (
 
 export interface ActionHandlers {
   '#@#$@$#@$@#$@#$@#$@#$@#$@#$@#$@#$@#$@#$ignore': MiddlewareListener
-  '*': ActionHandler<actions.IonRouterActions>
+  '*': ActionHandler<any>
   '@@ion-router/ACTION': ActionHandler<
     actions.AllUrlActions<actions.ActionVerbs>
   >
@@ -194,7 +198,7 @@ const createMiddleware = (
     })
     store.dispatch(actions.route(history.location) as A)
     return (next: (a: any) => any) => (action: actions.IonRouterActions) => {
-      const ret = activeListener<A, any>(store, next, action as A)
+      const ret = activeListener<S, A, any>(store, next, action as A)
       if (action.type === types.ACTION) {
         if (
           !action.payload.route &&
