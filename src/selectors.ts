@@ -41,9 +41,9 @@ export function location(state: FullStateWithRouter) {
 }
 
 export function stateExists(
-  state: FullStateWithRouter,
+  state: { [key: string]: any },
   template: { [key: string]: any },
-  fullState: FullStateWithRouter | undefined = undefined
+  fullState: { [key: string]: any } | undefined = undefined
 ): boolean {
   const full = fullState || state
   const keys = Object.keys(template)
