@@ -4,6 +4,8 @@ import Routes from '../src/Routes'
 import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
 import { renderComponent, sagaStore } from './test_helper'
+import { Provider } from 'react-redux'
+import { FullStateWithRouter } from '../src'
 
 jest.mock('../src/Context')
 
@@ -30,8 +32,13 @@ describe('Route', () => {
       return ret
     },
   }
-  let component, store, log // eslint-disable-line
-  function make(props = {}, Comp = Routes, state = {}, s = undefined) {
+  let component, store: ReturnType<typeof sagaStore>, log // eslint-disable-line
+  function make(
+    props = {},
+    Comp: React.ElementType = Routes,
+    state = {},
+    s = undefined
+  ) {
     const info = renderComponent(Comp, props, state, true, s)
     component = info[0]
     store = info[1]
@@ -53,15 +60,17 @@ describe('Route', () => {
       },
     })
     const R = () => (
-      <Routes store={store.store}>
-        <Route
-          name="ensembles"
-          path="/ensembles/:id"
-          paramsFromState={paramsFromState}
-          stateFromParams={stateFromParams}
-          updateState={updateState}
-        />
-      </Routes>
+      <Provider store={store.store}>
+        <Routes>
+          <Route
+            name="ensembles"
+            path="/ensembles/:id"
+            paramsFromState={paramsFromState}
+            stateFromParams={stateFromParams}
+            updateState={updateState}
+          />
+        </Routes>
+      </Provider>
     )
     make({}, R, {}, store)
     expect(log).toEqual([
@@ -99,6 +108,9 @@ describe('Route', () => {
             foo: {
               name: 'foo',
               path: '/testing/',
+              parent: '',
+              params: {},
+              state: {},
             },
           },
         },
@@ -112,9 +124,11 @@ describe('Route', () => {
       {}
     )
     const R = () => (
-      <Routes store={mystore.store}>
-        <Route name="test" parent="foo" path="mine/" />
-      </Routes>
+      <Provider store={mystore.store}>
+        <Routes>
+          <Route name="test" parent="foo" path="mine/" />
+        </Routes>
+      </Provider>
     )
     make({}, R, undefined, mystore)
     expect(log).toEqual([
@@ -139,21 +153,23 @@ describe('Route', () => {
   })
   test('passes url down to children', () => {
     fake() // for coverage
-    store = sagaStore({})
+    store = sagaStore(({} as unknown) as FullStateWithRouter)
     const R = () => (
-      <Routes store={store.store}>
-        <Route
-          name="ensembles"
-          path="/ensembles/:id"
-          paramsFromState={paramsFromState}
-          stateFromParams={stateFromParams}
-          updateState={updateState}
-        >
-          <Route name="test" path="hi/">
-            <Route name="gronk" path="fi" />
+      <Provider store={store.store}>
+        <Routes>
+          <Route
+            name="ensembles"
+            path="/ensembles/:id"
+            paramsFromState={paramsFromState}
+            stateFromParams={stateFromParams}
+            updateState={updateState}
+          >
+            <Route name="test" path="hi/">
+              <Route name="gronk" path="fi" />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
+        </Routes>
+      </Provider>
     )
     make({}, R, {}, store)
     expect(log).toEqual([

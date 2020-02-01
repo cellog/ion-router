@@ -10,11 +10,12 @@ import {
   compose,
   Middleware,
   AnyAction,
+  Store,
 } from 'redux'
 import createHistory from 'history/createMemoryHistory'
 
 import reducer from '../src/reducer'
-import storeEnhancer from '../src/storeEnhancer'
+import storeEnhancer, { IonRouterOptions } from '../src/storeEnhancer'
 import { FullStateWithRouter, IonRouterActions } from '../src'
 
 const fakeWeekReducer = (state = 1) => state
@@ -23,7 +24,7 @@ function sagaStore<S extends FullStateWithRouter>(
   state: S,
   reducers = { routing: reducer, week: fakeWeekReducer },
   middleware: Middleware[] = [],
-  enhancer = storeEnhancer<S, IonRouterActions>(
+  enhancer = storeEnhancer(
     createHistory({
       initialEntries: ['/'],
     })
@@ -38,14 +39,11 @@ function sagaStore<S extends FullStateWithRouter>(
   const store = createStore(
     combineReducers(reducers),
     state,
-    compose(
-      enhancer,
-      applyMiddleware<S, IonRouterActions>(...middleware, logger)
-    )
+    compose(enhancer as any, applyMiddleware(...middleware, logger))
   )
   return {
     log,
-    store,
+    store: (store as unknown) as Store<S, IonRouterActions> & IonRouterOptions,
   }
 }
 
