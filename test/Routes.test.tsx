@@ -5,14 +5,21 @@ import Route, { fakeRouteHelper as fake } from '../src/Route'
 import Context from '../src/Context'
 import * as enhancers from '../src/enhancers'
 import { renderComponent, sagaStore } from './test_helper'
-import * as actions from "../src/actions"
+import * as actions from '../src/actions'
 import * as rtl from '@testing-library/react'
-import '@testing-library/react/cleanup-after-each'
+import '@testing-library/jest-dom'
+import { FullStateWithRouter } from '../src'
 
 describe('Routes', () => {
   let component, store, log, CompClass // eslint-disable-line
-  function make(props = {}, Comp = ConnectedRoutes, state = {}, mount = false, s = undefined) {
-    const things = sagaStore(state)
+  function make(
+    props = {},
+    Comp: React.ElementType = ConnectedRoutes,
+    state = {},
+    mount: false | HTMLElement = false,
+    s = undefined
+  ) {
+    const things = sagaStore((state as unknown) as FullStateWithRouter)
     store = (s && s.store) || things.store
     log = s ? log : things.log
     const My = props => (
@@ -34,62 +41,80 @@ describe('Routes', () => {
         location: {
           pathname: '',
           hash: '',
-          search: ''
+          search: '',
         },
         routes: {
           ids: ['hi'],
           routes: {
             hi: {
               name: 'hi',
-              path: '/there'
-            }
-          }
-        }
-      }
+              path: '/there',
+              parent: '',
+              state: {},
+              params: {},
+            },
+          },
+        },
+      },
     })
-    mystore.store.routerOptions.enhancedRoutes = enhancers.save({
-      name: 'hi',
-      path: '/there'
-    }, {})
+    mystore.store.routerOptions.enhancedRoutes = enhancers.save(
+      {
+        name: 'hi',
+        path: '/there',
+      },
+      {}
+    )
     const newstore = sagaStore({
       routing: {
         matchedRoutes: [],
         location: {
           pathname: '',
           hash: '',
-          search: ''
+          search: '',
         },
         routes: {
           ids: ['wow'],
           routes: {
             wow: {
               name: 'wow',
-              path: '/wow'
-            }
-          }
-        }
-      }
+              path: '/wow',
+              parent: '',
+              state: {},
+              params: {},
+            },
+          },
+        },
+      },
     })
-    newstore.store.routerOptions.enhancedRoutes = enhancers.save({
-      name: 'wow',
-      path: '/wow'
-    }, {})
+    newstore.store.routerOptions.enhancedRoutes = enhancers.save(
+      {
+        name: 'wow',
+        path: '/wow',
+      },
+      {}
+    )
     const Checker = props => (
       <div>
-        <button onClick={() => props.dispatch({type: 'hi'})}>click</button>
+        <button onClick={() => props.dispatch({ type: 'hi' })}>click</button>
         <ul>
-          {Object.keys(props).map(prop => <li key={prop} data-testid="prop">{prop}</li>)}
+          {Object.keys(props).map(prop => (
+            <li key={prop} data-testid="prop">
+              {prop}
+            </li>
+          ))}
         </ul>
       </div>
     )
     const Thing = () => (
-      <Context.Consumer>
-        {info => <Checker {...info} />}
-      </Context.Consumer>
+      <Context.Consumer>{info => <Checker {...info} />}</Context.Consumer>
     )
-    const R = ({ s }) => <ConnectedRoutes store={s}>
-      <Thing />
-    </ConnectedRoutes>
+    const R = ({ s }) => (
+      <Provider store={s}>
+        <ConnectedRoutes>
+          <Thing />
+        </ConnectedRoutes>
+      </Provider>
+    )
     make({ s: mystore.store }, R, {}, false, mystore)
     expect(component.getAllByTestId('prop')).toHaveLength(4)
     expect(component.queryByText('dispatch')).not.toBe(null)
@@ -97,9 +122,7 @@ describe('Routes', () => {
     expect(component.queryByText('addRoute')).not.toBe(null)
     expect(component.queryByText('store')).not.toBe(null)
     rtl.fireEvent.click(component.getByText('click'))
-    expect(mystore.log[1]).toEqual(
-      {type: 'hi'}
-    )
+    expect(mystore.log[1]).toEqual({ type: 'hi' })
   })
   test('passes in routes from state', () => {
     const mystore = sagaStore({
@@ -108,40 +131,54 @@ describe('Routes', () => {
         location: {
           pathname: '',
           hash: '',
-          search: ''
+          search: '',
         },
         routes: {
           ids: ['hi'],
           routes: {
             hi: {
               name: 'hi',
-              path: '/there'
-            }
-          }
-        }
-      }
+              path: '/there',
+              parent: '',
+              state: {},
+              params: {},
+            },
+          },
+        },
+      },
     })
-    mystore.store.routerOptions.enhancedRoutes = enhancers.save({
-      name: 'hi',
-      path: '/there'
-    }, {})
+    mystore.store.routerOptions.enhancedRoutes = enhancers.save(
+      {
+        name: 'hi',
+        path: '/there',
+      },
+      {}
+    )
     const Checker = props => (
       <div>
         <ul>
-          {Object.keys(props).map(prop => <li key={prop} data-testid={prop}>{JSON.stringify(props[prop])}</li>)}
+          {Object.keys(props).map(prop => (
+            <li key={prop} data-testid={prop}>
+              {JSON.stringify(props[prop])}
+            </li>
+          ))}
         </ul>
       </div>
     )
     const Thing = () => (
-      <Context.Consumer>
-        {info => <Checker {...info} />}
-      </Context.Consumer>
+      <Context.Consumer>{info => <Checker {...info} />}</Context.Consumer>
     )
-    const R = () => <ConnectedRoutes store={mystore.store}>
-      <Thing />
-    </ConnectedRoutes>
+    const R = () => (
+      <Provider store={mystore.store}>
+        <ConnectedRoutes>
+          <Thing />
+        </ConnectedRoutes>
+      </Provider>
+    )
     make({}, R, undefined, false, mystore)
-    expect(component.getByTestId('routes')).toHaveTextContent(JSON.stringify(mystore.store.getState().routing.routes.routes))
+    expect(component.getByTestId('routes')).toHaveTextContent(
+      JSON.stringify(mystore.store.getState().routing.routes.routes)
+    )
   })
   test('multiple Route children', () => {
     const Thing = () => (
@@ -158,25 +195,25 @@ describe('Routes', () => {
     const unsubscribe = jest.fn()
     const s = {
       routerOptions: {
-        isServer: false
+        isServer: false,
       },
       dispatch: jest.fn(),
       getState: jest.fn(() => ({
         routing: {
           routes: {
-            routes: {
-
-            }
-          }
-        }
+            routes: {},
+          },
+        },
       })),
-      subscribe: () => unsubscribe
+      subscribe: () => unsubscribe,
     }
     const Thing = ({ s }) => (
-      <ConnectedRoutes store={s}>
-        <div className="hi">hi</div>
-        <div className="there">there</div>
-      </ConnectedRoutes>
+      <Provider store={s}>
+        <ConnectedRoutes>
+          <div className="hi">hi</div>
+          <div className="there">there</div>
+        </ConnectedRoutes>
+      </Provider>
     )
     make({ s }, Thing)
     component.unmount()
@@ -190,41 +227,45 @@ describe('Routes', () => {
           location: {
             pathname: '',
             hash: '',
-            search: ''
+            search: '',
           },
           routes: {
             ids: [],
-            routes: {
-            }
-          }
-        }
+            routes: {},
+          },
+        },
       })
       mystore.store.routerOptions.isServer = true
       const Thing = ({ s }) => (
-        <ConnectedRoutes store={s}>
-          <Route
-            name="test"
-            path="hi/"
-          />
-        </ConnectedRoutes>
+        <Provider store={s}>
+          <ConnectedRoutes>
+            <Route name="test" path="hi/" />
+          </ConnectedRoutes>
+        </Provider>
       )
       mystore.store.dispatch = jest.fn(mystore.store.dispatch)
       make({ s: mystore.store }, Thing, {}, false, mystore)
-      expect(mystore.store.dispatch.mock.calls).toEqual([[
-        actions.addRoute({
-          name: 'test',
-          path: 'hi/',
-          paramsFromState: fake,
-          stateFromParams: fake,
-          updateState: {}
-        })],
-        [actions.batchRoutes([{
-          name: 'test',
-          path: 'hi/',
-          paramsFromState: fake,
-          stateFromParams: fake,
-          updateState: {}
-        }])]
+      expect((mystore.store.dispatch as any).mock.calls).toEqual([
+        [
+          actions.addRoute({
+            name: 'test',
+            path: 'hi/',
+            paramsFromState: fake,
+            stateFromParams: fake,
+            updateState: {},
+          }),
+        ],
+        [
+          actions.batchRoutes([
+            {
+              name: 'test',
+              path: 'hi/',
+              paramsFromState: fake,
+              stateFromParams: fake,
+              updateState: {},
+            },
+          ]),
+        ],
       ])
     })
   })

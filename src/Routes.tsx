@@ -15,7 +15,7 @@ export function Routes<
   Params extends { [key: string]: string },
   ParamsState extends { [key: string]: any },
   Action extends { type: string; [key: string]: any }
->({ children }: { children: React.ReactChild }) {
+>({ children }: { children: React.ReactNode }) {
   const myRoutes = useRef<
     DeclareRoute<ReduxState, Params, ParamsState, Action>[]
   >([])
