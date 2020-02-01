@@ -9,12 +9,14 @@ import {
   StoreEnhancerStoreCreator,
   Dispatch,
   PreloadedState,
+  StoreEnhancer,
 } from 'redux'
 
 import middleware, { actionHandlers } from './middleware'
 import { EnhancedRoutes } from './enhancers'
 import { IonRouterState } from './reducer'
 import { IonRouterActions } from './actions'
+import { FullStateWithRouter } from './selectors'
 
 export interface IonRouterOptions {
   routerOptions: {
@@ -26,7 +28,7 @@ export interface IonRouterOptions {
 
 export function assertEnhancedStore<S, A extends Action<any>>(
   store: any
-): asserts store is Store<S, A> & IonRouterOptions {
+): asserts store is Store<S, A | IonRouterActions> & IonRouterOptions {
   invariant(
     store.routerOptions,
     'ion-router error: store has not been initialized.  Did you ' +
@@ -39,26 +41,34 @@ const enhancer = (
   handlers = actionHandlers,
   debug = false,
   options = {}
-) => (createStore: StoreEnhancerStoreCreator) => <
-  S extends { routing: IonRouterState },
-  A extends AnyAction = AnyAction | IonRouterActions
->(
+) => (createStore: StoreEnhancerStoreCreator) => <S, A extends Action<any>>(
   reducer: Reducer<S, A>,
-  preloadedState?: PreloadedState<S>
-): Store<S, A> & IonRouterOptions => {
+  preloadedState: PreloadedState<S> | undefined
+) => {
   const store = {
-    ...createStore<S, A>(reducer, preloadedState),
+    ...createStore(reducer, preloadedState),
     routerOptions: {
       isServer: false,
       enhancedRoutes: {},
       ...options,
     },
   }
+
   const newDispatch = compose(middleware(history, handlers, debug)(store))(
-    store.dispatch
-  ) as Dispatch<A>
-  store.dispatch = newDispatch
-  return store
+    store.dispatch as any
+  )
+  ;((store as unknown) as Store<
+    S & IonRouterState,
+    (typeof store extends Store<any, infer Act> ? Act : never) &
+      IonRouterActions
+  > &
+    IonRouterOptions).dispatch = newDispatch
+  return (store as unknown) as Store<
+    S & IonRouterState,
+    (typeof store extends Store<any, infer Act> ? Act : never) &
+      IonRouterActions
+  > &
+    IonRouterOptions
 }
 
 export default enhancer

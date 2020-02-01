@@ -5,7 +5,6 @@ import {
   RouteParams,
   RouteState,
 } from './actions'
-import { AnyAction } from 'redux'
 
 export interface IonRouterState {
   location: {
@@ -43,7 +42,7 @@ const defaultState: IonRouterState = {
 
 export default (
   state: IonRouterState = defaultState,
-  action?: IonRouterActions | AnyAction
+  action?: IonRouterActions
 ) => {
   if (!action || !action.type) return state
   let route

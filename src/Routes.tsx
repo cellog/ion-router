@@ -10,7 +10,7 @@ import { DeclareRoute } from './enhancers'
 import { Store } from 'redux'
 import { IonRouterState } from './reducer'
 
-function Routes<
+export function Routes<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
   ParamsState extends { [key: string]: any },

@@ -257,6 +257,10 @@ describe('reducer', () => {
   })
   test('unknown type', () => {
     const state = reducer()
-    expect(reducer(state, { type: '@#%Y@#$*(##$' })).toBe(state)
+    expect(
+      reducer(state, ({
+        type: '@#%Y@#$*(##$',
+      } as unknown) as actions.IonRouterActions)
+    ).toBe(state)
   })
 })

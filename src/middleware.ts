@@ -183,22 +183,27 @@ const createMiddleware = (
       activeListener = listen
     }
   }
-  const newStore = <
-    S extends FullStateWithRouter,
-    A extends Action<any> | actions.IonRouterActions
-  >(
+  const newStore = <S, A extends Action<any>>(
     store: Store<S, A> & IonRouterOptions
   ) => {
-    assertEnhancedStore<S, A>(store)
+    assertEnhancedStore<S & FullStateWithRouter, A | actions.IonRouterActions>(
+      store
+    )
     history.listen(location => {
       const a = createPath(location)
       if (a === lastLocation) return
       lastLocation = a
-      store.dispatch(actions.route(location) as A)
+      store.dispatch(actions.route(location))
     })
-    store.dispatch(actions.route(history.location) as A)
-    return (next: (a: any) => any) => (action: actions.IonRouterActions) => {
-      const ret = activeListener<S, A, any>(store, next, action as A)
+    store.dispatch(actions.route(history.location))
+    return (next: (a: A | actions.IonRouterActions) => any) => (
+      action: actions.IonRouterActions
+    ) => {
+      const ret = activeListener<
+        S & FullStateWithRouter,
+        A & actions.IonRouterActions,
+        any
+      >(store as any, next, action as any)
       if (action.type === types.ACTION) {
         if (
           !action.payload.route &&
