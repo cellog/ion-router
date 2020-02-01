@@ -15,9 +15,9 @@ export type LoadedSelector = <P extends { [key: string]: any }>(
 ) => boolean
 
 export interface ToggleDefaults {
-  component: React.FC<any>
-  else: React.FC<any>
-  loadingComponent: React.FC<any>
+  component?: React.FC<any>
+  else?: React.FC<any>
+  loadingComponent?: React.FC<any>
 }
 
 export interface MightDefineVars {
@@ -49,8 +49,8 @@ const defaults: ToggleDefaults = {
   else: () => null,
   loadingComponent: () => null,
 }
-defaults.else.displayName = 'null'
-defaults.loadingComponent.displayName = 'null'
+defaults.else!.displayName = 'null'
+defaults.loadingComponent!.displayName = 'null'
 
 export default function OuterToggle<ExtraProps extends MightDefineVars>(
   selector: ReduxSelector,
