@@ -44,7 +44,7 @@ const defaultProps = {
   updateState: {},
 }
 
-function Route<
+export function Route<
   ReduxState extends FullStateWithRouter,
   Params extends { [key: string]: string },
   ParamsState extends { [key: string]: any },

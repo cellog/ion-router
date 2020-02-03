@@ -6,7 +6,7 @@ import Toggle, {
 } from './Toggle'
 import * as selectors from './selectors'
 
-export default function RouteToggle<ExtraProps extends MightDefineVars>(
+export function RouteToggle<ExtraProps extends MightDefineVars>(
   route: string,
   othertests: ReduxSelector | null = null,
   loading: LoadedSelector | undefined = undefined,
@@ -20,3 +20,5 @@ export default function RouteToggle<ExtraProps extends MightDefineVars>(
     componentMap
   )
 }
+
+export default RouteToggle

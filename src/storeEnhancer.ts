@@ -4,19 +4,15 @@ import {
   compose,
   Store,
   Action,
-  AnyAction,
   Reducer,
   StoreEnhancerStoreCreator,
-  Dispatch,
   PreloadedState,
-  StoreEnhancer,
 } from 'redux'
 
 import middleware, { actionHandlers } from './middleware'
 import { EnhancedRoutes } from './enhancers'
 import { IonRouterState } from './reducer'
 import { IonRouterActions } from './actions'
-import { FullStateWithRouter } from './selectors'
 
 export interface IonRouterOptions {
   routerOptions: {

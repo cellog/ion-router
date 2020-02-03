@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import Routes from 'ion-router/Routes'
-import Route from 'ion-router/Route'
-import Link from 'ion-router/Link'
+import { Routes, Route, Link } from 'ion-router'
 import { scaleRotate as Menu } from 'react-burger-menu'
 import marked from 'marked'
 import raw from 'raw.macro'
@@ -13,10 +11,9 @@ import ExamplesToggle from './toggles/ExamplesToggle'
 import * as actions from './redux/actions'
 import examples from './examples'
 
-const test = marked(raw('../md/README.md'))
-
-Routes.displayName = 'FancyRoutes'
-Link.displayName = 'FancyLink'
+const test = (marked(raw('../md/README.md'))(Routes as React.FC).displayName =
+  'FancyRoutes')
+;(Link as React.FC).displayName = 'FancyLink'
 
 function App() {
   const [open, setMenuOpen] = useState(false)
@@ -26,22 +23,31 @@ function App() {
         pageWrapId="page-wrap"
         outerContainerId="outer-container"
         isOpen={open}
-        onClick={() => setMenuOpen(true)}
         onStateChange={({ isOpen }) => setMenuOpen(isOpen)}
       >
-        <Link to="/" className="menu-item" onClick={() => setMenuOpen(false)}>Home</Link>
-        <Link route="examples" className="menu-item" onClick={() => setMenuOpen(false)}>Examples</Link>
+        <Link to="/" className="menu-item" onClick={() => setMenuOpen(false)}>
+          Home
+        </Link>
+        <Link
+          route="examples"
+          className="menu-item"
+          onClick={() => setMenuOpen(false)}
+        >
+          Examples
+        </Link>
         <ul>
-          {Object.keys(examples).map(example => <li key={example}>
-            <Link
-              route="examples"
-              example={example}
-              className="menu-item"
-              onClick={() => setMenuOpen(false)}
-            >
-              {examples[example].name}
-            </Link>
-          </li>)}
+          {Object.keys(examples).map(example => (
+            <li key={example}>
+              <Link
+                route="examples"
+                example={example}
+                className="menu-item"
+                onClick={() => setMenuOpen(false)}
+              >
+                {examples[example].name}
+              </Link>
+            </li>
+          ))}
         </ul>
       </Menu>
       <div id="outer-container">
@@ -52,9 +58,7 @@ function App() {
           <div className="App-intro">
             <ExamplesToggle
               component={Examples}
-              else={() => (
-                <MarkdownViewer text={test} />
-              )}
+              else={() => <MarkdownViewer text={test} />}
             />
           </div>
         </div>
@@ -67,7 +71,7 @@ function App() {
             stateFromParams={params => params}
             paramsFromState={state => state}
             updateState={{
-              example: name => actions.chooseExample(name)
+              example: name => actions.chooseExample(name),
             }}
           />
         </Route>
@@ -76,4 +80,4 @@ function App() {
   )
 }
 
-export default App;
+export default App

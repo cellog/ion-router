@@ -19,6 +19,6 @@ export interface RouterContext {
   store: Store<FullStateWithRouter, AnyAction> & IonRouterOptions
 }
 
-const Context = react.createContext<RouterContext | null>(null)
+export const Context = react.createContext<RouterContext | null>(null)
 
 export default Context

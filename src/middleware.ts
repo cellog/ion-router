@@ -129,7 +129,7 @@ export function processHandler(
   return info
 }
 
-const createMiddleware = (
+export const createMiddleware = (
   history = createBrowserHistory(),
   handlers = actionHandlers,
   debug = false

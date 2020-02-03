@@ -9,29 +9,38 @@ const LoadingSource = raw('./Loading.jsx')
 const SubRoutesSource = raw('./SubRoutes.jsx')
 const StateChangesSource = raw('./StateChanges.jsx')
 
-export default {
+const examples: {
+  [key: string]: {
+    source: string
+    component: any
+    reducer: any
+    name: string
+  }
+} = {
   basic: {
     source: BasicSource,
     component: Basic,
     reducer,
-    name: 'Basic Example'
+    name: 'Basic Example',
   },
   loading: {
     source: LoadingSource,
     component: Loading,
     reducer: loadingReducer,
-    name: 'Loading Component'
+    name: 'Loading Component',
   },
   subroutes: {
     source: SubRoutesSource,
     component: SubRoutes,
     reducer: subroutesReducer,
-    name: 'Dynamic Sub-routes'
+    name: 'Dynamic Sub-routes',
   },
   statechanges: {
     source: StateChangesSource,
     component: StateChanges,
     reducer: statechangesReducer,
-    name: 'Redux State Changes URL'
-  }
+    name: 'Redux State Changes URL',
+  },
 }
+
+export default examples
