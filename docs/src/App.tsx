@@ -11,8 +11,8 @@ import ExamplesToggle from './toggles/ExamplesToggle'
 import * as actions from './redux/actions'
 import examples from './examples'
 
-const test = (marked(raw('../md/README.md'))(Routes as React.FC).displayName =
-  'FancyRoutes')
+const test = marked(raw('../md/README.md'))
+;(Routes as React.FC).displayName = 'FancyRoutes'
 ;(Link as React.FC).displayName = 'FancyLink'
 
 function App() {
