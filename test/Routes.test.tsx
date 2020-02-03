@@ -193,18 +193,26 @@ describe('Routes', () => {
   })
   test('unmount', () => {
     const unsubscribe = jest.fn()
+    const fakeState = {
+      routing: {
+        matchedRoutes: [],
+        location: {
+          pathname: '',
+          hash: '',
+          search: '',
+        },
+        routes: {
+          ids: [],
+          routes: {},
+        },
+      },
+    }
     const s = {
       routerOptions: {
         isServer: false,
       },
       dispatch: jest.fn(),
-      getState: jest.fn(() => ({
-        routing: {
-          routes: {
-            routes: {},
-          },
-        },
-      })),
+      getState: jest.fn(() => fakeState),
       subscribe: () => unsubscribe,
     }
     const Thing = ({ s }) => (

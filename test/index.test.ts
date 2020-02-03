@@ -1,4 +1,4 @@
-import * as index from '../src'
+import makeRouter, * as index from '../src'
 import * as actions from '../src/actions'
 import * as enhancers from '../src/enhancers'
 import { Store } from 'redux'
@@ -82,7 +82,7 @@ describe('ion-router', () => {
       const log = []
       const store = ({
         getState: () => ({
-          routing: { location: 'hi' },
+          routing: { location: { pathname: 'hi', search: '', hash: '' } },
         }),
         dispatch: action => log.push(action),
         routerOptions: {
@@ -99,7 +99,7 @@ describe('ion-router', () => {
           path: '/there',
         },
       ]
-      index.default(() => () => null, store, routes)
+      makeRouter(() => () => null, store, routes, true)
       expect(log).toEqual([
         actions.batchRoutes(routes),
         actions.route({ pathname: 'hi', search: '', hash: '' }),
@@ -121,7 +121,7 @@ describe('ion-router', () => {
             }),
           },
         },
-        isServer: false,
+        isServer: true,
       })
     })
   })

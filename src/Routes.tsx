@@ -76,13 +76,9 @@ export function Routes<
         )
       }
     }
-  }, [myRoutes])
+  }, [myRoutes.current])
 
-  return (
-    <Context.Provider value={value as RouterContext}>
-      {children}
-    </Context.Provider>
-  )
+  return <Context.Provider value={value}>{children}</Context.Provider>
 }
 
 Routes.propTypes = {
