@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/ion-router/precache-manifest.1cd94788738222646d755996642b43ce.js"
+  "/ion-router/precache-manifest.cb9ab72b12292e892a39cfb2e82450d5.js"
 );
 
 workbox.clientsClaim();
