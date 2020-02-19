@@ -37,7 +37,6 @@ function Example({ example }) {
   store.current = init()
   const [showBrowser, setShowBrowser] = useState(true)
 
-  console.log(store.current.getState())
   return <Window element={
     <div className="example">
       <div className="browser-panel">

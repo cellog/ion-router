@@ -6,14 +6,17 @@ import Toggle, {
 } from './Toggle'
 import * as selectors from './selectors'
 
-export function RouteToggle<ExtraProps extends MightDefineVars>(
+export function RouteToggle<
+  ExtraProps extends MightDefineVars,
+  StoreState extends selectors.FullStateWithRouter
+>(
   route: string,
-  othertests: ReduxSelector | null = null,
-  loading: LoadedSelector | undefined = undefined,
+  othertests: ReduxSelector<StoreState> | null = null,
+  loading: LoadedSelector<StoreState> | undefined = undefined,
   componentMap: ComponentLoadingMap<ExtraProps> = {}
 ) {
   return Toggle(
-    (state: selectors.FullStateWithRouter) =>
+    (state: StoreState) =>
       selectors.matchedRoute(state, route) &&
       (othertests ? othertests(state) : true),
     loading,

@@ -101,8 +101,10 @@ export {
   matchedRoutes,
   location,
   stateExists,
+  FullStateWithRouter,
 } from './selectors'
-export * from './Toggle'
+import Toggle from './Toggle'
+export { Toggle }
 
 // for unit-testing purposes
 export function synchronousMakeRoutes<

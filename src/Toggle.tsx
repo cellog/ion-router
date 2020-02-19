@@ -4,13 +4,17 @@ import { useSelector } from 'react-redux'
 import DisplaysChildren from './DisplaysChildren'
 import { FullStateWithRouter } from './selectors'
 
-export type ReduxSelector = <P extends { [key: string]: any }>(
-  state: FullStateWithRouter,
+export type ReduxSelector<StoreState extends FullStateWithRouter> = <
+  P extends { [key: string]: any }
+>(
+  state: StoreState,
   props?: P
 ) => any
 
-export type LoadedSelector = <P extends { [key: string]: any }>(
-  state: FullStateWithRouter,
+export type LoadedSelector<StoreState extends FullStateWithRouter> = <
+  P extends { [key: string]: any }
+>(
+  state: StoreState,
   props?: P
 ) => boolean
 
@@ -35,7 +39,7 @@ export interface ComponentLoadingMap<ExtraProps extends MightDefineVars> {
 
 export type ToggleProps<ExtraProps extends MightDefineVars> = ToggleDefaults &
   ExtraProps & {
-    children: React.ReactChild
+    children?: React.ReactChild
   }
 
 function isKeyofExtraProps<ExtraProps extends MightDefineVars>(
@@ -52,9 +56,12 @@ const defaults: ToggleDefaults = {
 defaults.else!.displayName = 'null'
 defaults.loadingComponent!.displayName = 'null'
 
-export default function OuterToggle<ExtraProps extends MightDefineVars>(
-  selector: ReduxSelector,
-  loaded: LoadedSelector = () => true,
+export default function OuterToggle<
+  ExtraProps extends MightDefineVars,
+  StoreState extends FullStateWithRouter
+>(
+  selector: ReduxSelector<StoreState>,
+  loaded: LoadedSelector<StoreState> = () => true,
   componentLoadingMap: ComponentLoadingMap<ExtraProps> = {}
 ) {
   return memo(function Toggle({
@@ -79,10 +86,8 @@ export default function OuterToggle<ExtraProps extends MightDefineVars>(
       }
     })
 
-    const isLoaded = useSelector<FullStateWithRouter>(state =>
-      loaded(state, useProps)
-    )
-    const toggleIsOn = useSelector<FullStateWithRouter>(state => {
+    const isLoaded = useSelector<StoreState>(state => loaded(state, useProps))
+    const toggleIsOn = useSelector<StoreState>(state => {
       if (!isLoaded) return false
       return selector(state, useProps)
     })
